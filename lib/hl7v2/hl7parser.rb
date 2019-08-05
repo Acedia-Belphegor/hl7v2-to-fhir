@@ -81,7 +81,7 @@ class HL7Parser
             segments.each do |segment|
                 # メッセージ終端の場合は処理を抜ける
                 if /\x1c/.match(segment) then
-                    break
+                    
                 end
                 # フィールド分割
                 fields = segment.split(@field_delim)

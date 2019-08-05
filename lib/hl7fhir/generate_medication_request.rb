@@ -83,8 +83,11 @@ class GenerateMedicationRequest < GenerateAbstract
                             medication_request.medicationCodeableConcept = codeable_concept
                         when 'Give Amount - Minimum' then
                             # RXE-3.与薬量－最小
+                            if field['value'].empty?
+                                next
+                            end
                             quantity = FHIR::Quantity.new()
-                            quantity.value = field['value'] if !field['value'].empty?
+                            quantity.value = field['value']
                             dose_and_rate = FHIR::Dosage::DoseAndRate.new()
                             codeable_concept = FHIR::CodeableConcept.new()
                             coding = FHIR::Coding.new()
@@ -97,6 +100,9 @@ class GenerateMedicationRequest < GenerateAbstract
                             dosage.doseAndRate.push(dose_and_rate)
                         when 'Give Units' then
                             # RXE-5.与薬単位
+                            if dosage.doseAndRate.nil? then
+                                next
+                            end
                             dose_and_rate = dosage.doseAndRate.first
                             quantity = dose_and_rate.doseQuantity
                             codeable_concept = get_codeable_concept(field['array_data'].first)

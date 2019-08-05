@@ -60,7 +60,7 @@ class GenerateCoverage < GenerateAbstract
                 when 'Insured’s Group Emp ID' then
                     # IN1-10.被保険者グループ雇用者ID(記号)
                     if coverage.type.coding.code == '8' then
-                        break # 公費の場合は無視する
+                        next # 公費の場合は無視する
                     end
                     identifier = FHIR::Identifier.new()
                     identifier.system = "OID:1.2.392.100495.20.3.62"
@@ -69,7 +69,7 @@ class GenerateCoverage < GenerateAbstract
                 when 'Insured’s Group Emp Name' then
                     # IN1-11.被保険者グループ雇用者名(番号)
                     if coverage.type.coding.code == '8' then
-                        break # 公費の場合は無視する
+                        next # 公費の場合は無視する
                     end
                     identifier = FHIR::Identifier.new()
                     identifier.system = "OID:1.2.392.100495.20.3.63"
@@ -98,7 +98,7 @@ class GenerateCoverage < GenerateAbstract
                 when 'Insured’s Relationship To Patient' then
                     # IN1-17.被保険者と患者の関係(本人/家族)
                     if coverage.type.coding.code == '8' then
-                        break # 公費の場合は無視する
+                        next # 公費の場合は無視する
                     end
                     field['array_data'].first.select{|c| 
                         Array[
