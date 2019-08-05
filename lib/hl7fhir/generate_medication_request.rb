@@ -36,19 +36,19 @@ class GenerateMedicationRequest < GenerateAbstract
                         end
                         case field['name']
                         when 'Placer Order Number' then
-                            # オーダー番号
+                            # ORC-2.依頼者オーダ番号
                             identifier = FHIR::Identifier.new()
                             identifier.system = 'OID:1.2.392.100495.20.3.11'
                             identifier.value = field['value']
                             medication_request.identifier.push(identifier)
                         when 'Placer Group Number' then
-                            # RP番号
+                            # ORC-4.依頼者グループ番号
                             identifier = FHIR::Identifier.new()
                             identifier.system = 'OID:1.2.392.100495.20.3.81'
                             identifier.value = field['value']
                             medication_request.identifier.push(identifier)
                         when 'Date/Time of Transaction' then
-                            # 交付年月日
+                            # ORC-9.トランザクション日時(交付年月日)
                             medication_request.authoredOn = Date.parse(field['value'])
                         end
                     end
@@ -60,9 +60,11 @@ class GenerateMedicationRequest < GenerateAbstract
                             "Give Units",
                             "Give Dosage Form",
                             "Provider's Administration Instructions",
+                            "Dispense Amount",
                             "Dispense Units",
                             "Give Indication",
                             "Total Daily Dose",
+                            "Give Indication",
                         ].include?(c['name'])
                     }.each do |field|
                         if ignore_fields?(field) then
@@ -70,7 +72,7 @@ class GenerateMedicationRequest < GenerateAbstract
                         end
                         case field['name']
                         when 'Give Code' then
-                            # 与薬コード
+                            # RXE-2.与薬コード
                             codeable_concept = get_codeable_concept(field['array_data'].first)
                             codeable_concept.coding.system =
                                 case codeable_concept.coding.system
@@ -80,64 +82,61 @@ class GenerateMedicationRequest < GenerateAbstract
                                 end
                             medication_request.medicationCodeableConcept = codeable_concept
                         when 'Give Amount - Minimum' then
-                            # 与薬量－最小
+                            # RXE-3.与薬量－最小
                             quantity = FHIR::Quantity.new()
-                            quantity.value = field['value']
-                            dosage.doseAndRate = quantity
+                            quantity.value = field['value'] if !field['value'].empty?
+                            dose_and_rate = FHIR::Dosage::DoseAndRate.new()
+                            codeable_concept = FHIR::CodeableConcept.new()
+                            coding = FHIR::Coding.new()
+                            coding.code = 'T'
+                            coding.display = '１回量'
+                            coding.system = 'LC'
+                            codeable_concept.coding = coding
+                            dose_and_rate.type = codeable_concept
+                            dose_and_rate.doseQuantity = quantity
+                            dosage.doseAndRate.push(dose_and_rate)
                         when 'Give Units' then
-                            # 与薬単位
-                            quantity = dosage.doseAndRate                            
+                            # RXE-5.与薬単位
+                            dose_and_rate = dosage.doseAndRate.first
+                            quantity = dose_and_rate.doseQuantity
                             codeable_concept = get_codeable_concept(field['array_data'].first)
                             quantity.code = codeable_concept.coding.code
                             quantity.unit = codeable_concept.coding.display
                         when 'Give Dosage Form' then
-                            # 与薬剤型
+                            # RXE-6.与薬剤型
                             codeable_concept = get_codeable_concept(field['array_data'].first)
-                            coding = FHIR::Coding.new()
-                            coding.system = 'OID:1.2.392.100495.20.2.21'
-                            case codeable_concept.coding.code
-                            when 'TAB','CAP','PWD','SYR' then
-                                coding.code = '1'
-                                coding.display = '内服'
-                            when 'SUP','LQD','OIT','CRM','TPE' then
-                                coding.code = '3'
-                                coding.display = '外用'
-                            when 'INJ' then
-                                coding.code = '5'
-                                coding.display = '注射'
-                            else
-                                coding.code = '9'
-                                coding.display = 'その他'
-                                codeable_concept.text = codeable_concept.coding.displey
-                            end
-                            codeable_concept.coding = coding
-                            medication_request.category = codeable_concept
-                        when 'Total Daily Dose' then
-                            # 1日あたりの総投与量
-                            if medication_request.dispenseRequest.nil? then
-                                dispense_request = FHIR::MedicationRequest::DispenseRequest.new()
-                                quantity = FHIR::Quantity.new()
-                            else
-                                dispense_request = medication_request.dispenseRequest
-                                quantity = dispense_request.quantity
-                            end
+                            medication_request.category.push(codeable_concept)
+                        when 'Dispense Amount' then
+                            # RXE-10.調剤量
+                            dispense_request = FHIR::MedicationRequest::DispenseRequest.new()
+                            quantity = FHIR::Quantity.new()
                             quantity.value = field['value']
                             dispense_request.quantity = quantity
                             medication_request.dispenseRequest = dispense_request
                         when 'Dispense Units' then
-                            # 調剤単位
-                            if medication_request.dispenseRequest.nil? then
-                                dispense_request = FHIR::MedicationRequest::DispenseRequest.new()
-                                quantity = FHIR::Quantity.new()
-                            else
-                                dispense_request = medication_request.dispenseRequest
-                                quantity = dispense_request.quantity
-                            end
+                            # RXE-11.調剤単位
+                            dispense_request = medication_request.dispenseRequest
+                            quantity = dispense_request.quantity
                             codeable_concept = get_codeable_concept(field['array_data'].first)
                             quantity.code = codeable_concept.coding.code
                             quantity.unit = codeable_concept.coding.display
-                            dispense_request.quantity = quantity
-                            medication_request.dispenseRequest = dispense_request
+                        when 'Total Daily Dose' then
+                            # RXE-19.1日あたりの総投与量
+                            quantity = FHIR::Quantity.new()
+                            dose_and_rate = FHIR::Dosage::DoseAndRate.new()
+                            codeable_concept = FHIR::CodeableConcept.new()
+                            coding = FHIR::Coding.new()
+                            coding.code = 'D'
+                            coding.display = '１日量'
+                            coding.system = 'LC'
+                            codeable_concept.coding = coding
+                            dose_and_rate.type = codeable_concept
+                            dose_and_rate.doseQuantity = get_quantity(field['array_data'].first)
+                            dosage.doseAndRate.push(dose_and_rate)
+                        when 'Give Indication' then
+                            # RXE-27.与薬指示
+                            codeable_concept = get_codeable_concept(field['array_data'].first)
+                            medication_request.category.push(codeable_concept)
                         end
                     end
                 when 'TQ1' then                    
@@ -153,13 +152,14 @@ class GenerateMedicationRequest < GenerateAbstract
                         end
                         case field['name']
                         when 'Repeat Pattern' then
-                            # 用法
+                            # TQ1-3.繰返しパターン(用法)
                             field['array_data'].first.select{|c| 
                                 c['name'] == 'Repeat Pattern Code'
                             }.each do |element|
                                 timing.code = get_codeable_concept(element['array_data'])
                             end
                         when 'Service Duration' then
+                            # TQ1-6.サービス期間
                             timing_repeat = FHIR::Timing::Repeat.new()
 
                             # 投与日数／投与回数
@@ -174,11 +174,17 @@ class GenerateMedicationRequest < GenerateAbstract
                                     # 投薬日数／回数
                                     timing_repeat.period = element['value']
                                 when 'Units' then
+                                    if element['array_data'].nil? then
+                                        period_unit = element['value']
+                                    else
+                                        codeable_concept = get_codeable_concept(element['array_data'])
+                                        period_unit = codeable_concept.coding.code
+                                    end
                                     # 投薬日数／回数単位
                                     timing_repeat.periodUnit = 
-                                        case element['value']
-                                        when '日分' then 'd' # 投薬日数
-                                        when '回分' then '1' # 投薬回数等
+                                        case period_unit
+                                        when '日','日分','D' then 'd' # 投薬日数
+                                        when '回','回分' then '1' # 投薬回数等
                                         end
                                 end
                             end
@@ -186,6 +192,25 @@ class GenerateMedicationRequest < GenerateAbstract
                         end
                     end
                     dosage.timing = timing
+                when 'RXR' then
+                    segment.select{|c| 
+                        Array[
+                            "Route",
+                            "Administration Site",
+                        ].include?(c['name'])
+                    }.each do |field|
+                        if ignore_fields?(field) then
+                            next
+                        end
+                        case field['name']
+                        when 'Route' then
+                            # RXR-1.経路
+                            dosage.route = get_codeable_concept(field['array_data'].first)
+                        when 'Administration Site' then
+                            # RXR-2.部位
+                            dosage.site = get_codeable_concept(field['array_data'].first)
+                        end
+                    end
                 end
             end
             medication_request.dosageInstruction = dosage

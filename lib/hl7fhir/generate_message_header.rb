@@ -20,12 +20,12 @@ class GenerateMessageHeader < GenerateAbstract
         }.each do |field|
             case field['name']
             when 'Sending Application' then
-                # 送信アプリケーション
+                # MSH-3.送信アプリケーション
                 source = FHIR::MessageHeader::Source.new()
                 source.name = field['value']
                 message_header.source = source
             when 'Sending Facility' then
-                # 送信施設
+                # MSH-4.送信施設
                 sending_facility = field['value']
                 if sending_facility.length == 10 then
                     @state_code = sending_facility[0,2] # 都道府県番号
@@ -33,12 +33,12 @@ class GenerateMessageHeader < GenerateAbstract
                     @facility_code = sending_facility[3,7] # 医療機関コード
                 end
             when 'Receiving Application' then
-                # 受信アプリケーション
+                # MSH-5.受信アプリケーション
                 destination = FHIR::MessageHeader::Destination.new()
                 destination.name = field['value']
                 message_header.destination = destination
             when 'Message Type' then
-                # メッセージ型
+                # MSH-9.メッセージ型
                 coding = FHIR::Coding.new()
                 coding.code = field['value']
                 coding.system = 'http://www.hl7.org'

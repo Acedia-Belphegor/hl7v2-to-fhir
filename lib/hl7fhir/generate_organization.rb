@@ -40,15 +40,15 @@ class GenerateOrganization < GenerateAbstract
             end
             case field['name']
             when 'Ordering Facility Name' then
-                # 医療機関名称
+                # ORC-21.オーダ施設名
                 organization.name = field['value']
             when 'Ordering Facility Address' then
-                # 医療機関所在地
+                # ORC-22.オーダ施設住所
                 field['array_data'].each do |record|
                     organization.address.push(get_address(record))
                 end                
             when 'Ordering Facility Phone Number' then
-                # 医療機関電話番号
+                # ORC-23.オーダ施設電話番号
                 telephone_number = get_telephone_number(field['array_data'].first)
                 if !telephone_number.empty? then
                     contact_point = FHIR::ContactPoint.new()

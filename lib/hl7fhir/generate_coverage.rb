@@ -17,6 +17,8 @@ class GenerateCoverage < GenerateAbstract
                     "Insurance Company ID",
                     "Insured’s Group Emp ID",
                     "Insured’s Group Emp Name",
+                    "Plan Effective Date",
+                    "Plan Expiration Date",
                     "Insured’s Relationship To Patient",
                 ].include?(c['name'])
             }.each do |field|
@@ -25,7 +27,7 @@ class GenerateCoverage < GenerateAbstract
                 end
                 case field['name']
                 when 'Insurance Plan ID' then
-                    # 法制コード
+                    # IN1-2.保険プランID(法制コード)
                     field['array_data'].first.select{|c| 
                         Array[
                             "Identifier",
@@ -46,7 +48,7 @@ class GenerateCoverage < GenerateAbstract
                         end
                     end
                 when 'Insurance Company ID' then
-                    # 保険者番号 / 公費負担者番号
+                    # IN1-3.保険会社ID(保険者番号 / 公費負担者番号)
                     identifier = FHIR::Identifier.new()
                     if coverage.type.coding.code == '8' then
                         identifier.system = "OID:1.2.392.100495.20.3.71" # 公費負担者番号
@@ -56,7 +58,7 @@ class GenerateCoverage < GenerateAbstract
                     identifier.value = field['value']
                     coverage.identifier.push(identifier)
                 when 'Insured’s Group Emp ID' then
-                    # 記号
+                    # IN1-10.被保険者グループ雇用者ID(記号)
                     if coverage.type.coding.code == '8' then
                         break # 公費の場合は無視する
                     end
@@ -65,7 +67,7 @@ class GenerateCoverage < GenerateAbstract
                     identifier.value = field['value']
                     coverage.identifier.push(identifier)
                 when 'Insured’s Group Emp Name' then
-                    # 番号
+                    # IN1-11.被保険者グループ雇用者名(番号)
                     if coverage.type.coding.code == '8' then
                         break # 公費の場合は無視する
                     end
@@ -73,8 +75,28 @@ class GenerateCoverage < GenerateAbstract
                     identifier.system = "OID:1.2.392.100495.20.3.63"
                     identifier.value = field['value']
                     coverage.identifier.push(identifier)
+                when 'Plan Effective Date' then
+                    # IN1-13.プラン有効日付(有効開始日)
+                    if !field['value'].empty? then
+                        if coverage.period.nil? then
+                            period = FHIR::Period.new()
+                        else
+                            period = coverage.period
+                        end
+                        period.start = Date.parse(field['value'])    
+                    end
+                when 'Plan Expiration Date' then
+                    # IN1-14.プラン失効日付(有効終了日)
+                    if !field['value'].empty? then
+                        if coverage.period.nil? then
+                            period = FHIR::Period.new()
+                        else
+                            period = coverage.period
+                        end
+                        period.end = Date.parse(field['value'])
+                    end
                 when 'Insured’s Relationship To Patient' then
-                    # 本人/家族
+                    # IN1-17.被保険者と患者の関係(本人/家族)
                     if coverage.type.coding.code == '8' then
                         break # 公費の場合は無視する
                     end

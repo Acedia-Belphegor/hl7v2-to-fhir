@@ -20,7 +20,7 @@ class GeneratePractitioner < GenerateAbstract
             end
             case field['name']
             when 'Ordering Provider' then
-                # 依頼者
+                # ORC-12.依頼者
                 field['array_data'].first.select{|c|
                     Array[
                         "ID Number",

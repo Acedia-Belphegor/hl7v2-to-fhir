@@ -32,5 +32,6 @@ class FhirPrescriptionGenerator
     end
 end
 
+# test
 generator = FhirPrescriptionGenerator.new(get_message_example, generate: true)
 puts generator.get_resource.to_json

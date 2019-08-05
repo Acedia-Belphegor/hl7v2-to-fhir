@@ -21,7 +21,7 @@ class GeneratePractitionerRole < GenerateAbstract
             end
             case field['name']
             when 'Ordering Provider' then
-                # 依頼者
+                # ORC-12.依頼者
                 field['array_data'].first.select{|c|
                     Array[
                         "ID Number",
@@ -37,7 +37,7 @@ class GeneratePractitionerRole < GenerateAbstract
                     end
                 end
             when 'Entering Organization' then
-                # 入力組織
+                # ORC-17.入力組織
                 practitioner_role.specialty.push(get_codeable_concept(field['array_data'].first))
             end
         end

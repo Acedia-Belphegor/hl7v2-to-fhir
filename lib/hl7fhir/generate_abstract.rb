@@ -91,6 +91,25 @@ class GenerateAbstract
         return address
     end
 
+    # HL7v2:CQ → FHIR:Quantity 変換
+    def get_quantity(record)
+        quantity = FHIR::Quantity.new()
+        record.each do |element|
+            case element['name']
+            when 'Quantity' then
+                quantity.value = element['value']
+            when 'Units' then
+                if !element['array_data'].nil? then
+                    codeable_concept = get_codeable_concept(element['array_data'])
+                    quantity.code = codeable_concept.coding.code
+                    quantity.unit = codeable_concept.coding.display
+                end
+            end
+        end
+        return quantity
+    end
+
+    # HL7v2:XTN → 電話番号を取得する
     def get_telephone_number(record)
         telephone_number = ''
         record.select{|c|
@@ -133,6 +152,29 @@ class GenerateAbstract
         when 'OE' then ['6','自費'] # 自費
         when 'PE' then ['8','公費'] # 公費
         end
+    end
+
+    def get_medication_category(record)
+        codeable_concept = get_codeable_concept(record)
+        coding = FHIR::Coding.new()
+        coding.system = 'OID:1.2.392.100495.20.2.21'
+        case codeable_concept.coding.code
+        when 'TAB','CAP','PWD','SYR' then # TAB:錠剤 / CAP:カプセル剤 / PWD:散剤,ドライシロップ剤 / SYR:シロップ剤
+            coding.code = '1'
+            coding.display = '内服'
+        when 'SUP','LQD','OIT','CRM','TPE' then # SUP:坐剤 / LQD:液剤 / OIT:軟膏,ゲル / CRM:クリーム / TPE:テープ,貼付剤
+            coding.code = '3'
+            coding.display = '外用'
+        when 'INJ' then # INJ:注射剤
+            coding.code = '5'
+            coding.display = '注射'
+        else
+            coding.code = '9'
+            coding.display = 'その他'
+            codeable_concept.text = codeable_concept.coding.displey
+        end
+        codeable_concept.coding = coding
+        return codeable_concept
     end
 
     def get_facility_id()
