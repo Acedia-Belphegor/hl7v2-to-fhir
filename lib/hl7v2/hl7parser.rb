@@ -52,6 +52,7 @@ class HL7Parser
         return @parsed_message.select{|c| c[0]['value'] == segment_id}
     end
 
+    # 指定されたセグメント、フィールドを返す
     def get_parsed_fields(segment_id, field_name)
         segments = get_parsed_segments(segment_id)
         if !segments.nil? then
@@ -59,6 +60,7 @@ class HL7Parser
         end
     end
 
+    # 指定されたセグメント、フィールドの値を返す
     def get_parsed_value(segment_id, field_name)
         segments = get_parsed_segments(segment_id)
         if !segments.nil? then
@@ -67,6 +69,23 @@ class HL7Parser
                 return field['value']
             end
         end
+    end
+
+    def get_sending_facility()
+        if !@sending_facility.nil? then
+            return @sending_facility
+        end
+        value = get_parsed_value('MSH','Sending Facility')
+        if value.length == 10 then
+            @sending_facility = {
+                all: value,
+                state: value[0,2], # 都道府県番号
+                point: value[2,1], # 点数表番号
+                facility: value[3,7], # 医療機関コード
+            }
+            return @sending_facility
+        end
+        return {}
     end
 
     # HL7メッセージ(Raw Data)をJSON形式にパースする
@@ -81,7 +100,7 @@ class HL7Parser
             segments.each do |segment|
                 # メッセージ終端の場合は処理を抜ける
                 if /\x1c/.match(segment) then
-                    
+                    break
                 end
                 # フィールド分割
                 fields = segment.split(@field_delim)
@@ -164,30 +183,9 @@ end
 
 def get_message_example()
     msg = ""
-    # msg = msg + "MSH|^~\&|HL7v2|1319999999|HL7FHIR|1319999999|20160821161523||RDE^O11^RDE_O11|201608211615230143|P|2.5||||||~ISOIR87||ISO 2022-1994" + "\r"
-    # msg = msg + "PID|||1000000001^^^^PI||患者^太郎^^^^^L^I~カンジャ^タロウ^^^^^L^P||19601224|M" + "\r"
-    # msg = msg + "IN1|1|06^組合管掌健康保険^JHSD0001|06050116|||||||９２０４５|１０|19990514|||||SEL^本人^HL70063" + "\r"
-    # msg = msg + "IN1|2|15^障害者総合支援法 更正医療^JHSD0001|15138092|障害者総合支援 更正医療（東京都）" + "\r"
-    # msg = msg + "ORC|NW|12345678||12345678_01|||||20160825|||123456^医師^春子^^^^^^^L^^^^^I~^イシ^ハルコ^^^^^^^L^^^^^P|||||01^内科^99Z01||||メドレークリニック|^^港区^東京都^^JPN^^東京都港区六本木３−２−１|||||||O^外来患者オーダ^HL70482" + "\r"
-    # msg = msg + "RXE||103835401^ムコダイン錠２５０ｍｇ^HOT|1||TAB^錠^MR9P||01^１回目から服用^JHSP0005|||9|TAB^錠^MR9P||||||||3^TAB&錠&MR9P||OHP^外来処方^MR9P~OHI^院内処方^MR9P||||||21^内服^JHSP0003" + "\r"
-    # msg = msg + "TQ1|||1013044400000000&内服・経口・１日３回朝昼夕食後&JAMISDP01|||3^D&日&ISO+|20160825" + "\r"
-    # msg = msg + "RXR|PO^口^HL70162" + "\r"
-    # msg = msg + "ORC|NW|12345678||12345678_01|||||20160825|||123456^医師^春子^^^^^^^L^^^^^I~^イシ^ハルコ^^^^^^^L^^^^^P|||||01^内科^99Z01||||メドレークリニック|^^港区^東京都^^JPN^^東京都港区六本木３−２−１|||||||O^外来患者オーダ^HL70482" + "\r"
-    # msg = msg + "RXE||110626901^パンスポリンＴ錠１００ １００ｍｇ^HOT|2||TAB^錠^MR9P|| 01^１回目から服用^JHSP0005|||18|TAB^錠^MR9P||||||||6^TAB&錠&MR9P||OHP^外来処方^MR9P~OHI^院内処方^MR9P||||||21^内服^JHSP0003" + "\r"
-    # msg = msg + "TQ1|||1013044400000000&内服・経口・１日３回朝昼夕食後&JAMISDP01|||3^D&日&ISO+|20160825" + "\r"
-    # msg = msg + "RXR|PO^口^HL70162" + "\r"
-    # msg = msg + "ORC|NW|12345678||12345678_02|||||20160825|||123456^医師^春子^^^^^^^L^^^^^I~^イシ^ハルコ^^^^^^^L^^^^^P|||||01^内科^99Z01||||メドレークリニック|^^港区^東京都^^JPN^^東京都港区六本木３−２−１|||||||O^外来患者オーダ^HL70482" + "\r"
-    # msg = msg + "RXE||100607002^アレビアチン散１０％^HOT|50||MG^ミリグラム^MR9P|PWD^散剤^MR9P|01^１回目から服用^JHSP0005|||1.4|G^グラム^MR9P||||||||100^MG&ミリグラム&MR9P||OHP^外来処方^MR9P~OHI^院内処方^MR9P||||100|MG^ミリグラム^MR9P|21^内服^JHSP0003" + "\r"
-    # msg = msg + "TQ1|||1012040400000000&内服・経口・１日２回朝夕食後&JAMISDP01|||14^D&日&ISO+|20160825" + "\r"
-    # msg = msg + "RXR|PO^口^HL70162" + "\r"
-    # msg = msg + "ORC|NW|12345678||12345678_02|||||20160825|||123456^医師^春子^^^^^^^L^^^^^I~^イシ^ハルコ^^^^^^^L^^^^^P|||||01^内科^99Z01||||メドレークリニック|^^港区^東京都^^JPN^^東京都港区六本木３−２−１|||||||O^外来患者オーダ^HL70482" + "\r"
-    # msg = msg + "RXE||100565315^フェノバルビタール散１０％「ホエイ」^HOT|50||MG^ミリグラム^MR9P|PWD^散剤^MR9P|01^１回目から服用^JHSP0005|||1.4|G^グラム^MR9P||||||||100^MG&ミリグラム&MR9P||OHP^外来処方^MR9P~OHI^院内処方^MR9P||||100|MG^ミリグラム^MR9P|21^内服^JHSP0003" + "\r"
-    # msg = msg + "TQ1|||1012040400000000&内服・経口・１日２回朝夕食後&JAMISDP01|||14^D&日&ISO+|20160825" + "\r"
-    # msg = msg + "RXR|PO^口^HL70162" + "\r"
-
     # 内服
     msg = msg + "MSH|^~\&|HL7v2|1319999999|HL7FHIR|1319999999|20160821161523||RDE^O11^RDE_O11|201608211615230143|P|2.5||||||~ISOIR87||ISO 2022-1994" + "\r"
-    msg = msg + "PID|||1000000001^^^^PI||患者^太郎^^^^^L^I~カンジャ^タロウ^^^^^L^P||19601224|M" + "\r"
+    msg = msg + "PID|||1000000001^^^^PI||患者^太郎^^^^^L^I~カンジャ^タロウ^^^^^L^P||19791101|M|||^^渋谷区^東京都^1510071^JPN^H^東京都渋谷区本町三丁目１２ー１||^PRN^PH^^^^^^^^^03-1234-5678" + "\r"
     msg = msg + "IN1|1|06^組合管掌健康保険^JHSD0001|06050116|||||||９２０４５|１０|19990514|||||SEL^本人^HL70063" + "\r"
     msg = msg + "IN1|2|15^障害者総合支援法 更正医療^JHSD0001|15138092|障害者総合支援 更正医療（東京都）" + "\r"
     msg = msg + "ORC|NW|12345678||12345678_01|||||20160825|||123456^医師^春子^^^^^^^L^^^^^I~^イシ^ハルコ^^^^^^^L^^^^^P|||||01^内科^99Z01||||メドレークリニック|^^港区^東京都^^JPN^^東京都港区六本木３−２−１|||||||O^外来患者オーダ^HL70482" + "\r"
@@ -208,7 +206,6 @@ def get_message_example()
     msg = msg + "RXE||106238001^ジフラール軟膏０．０５％^HOT|""||""|OIT^軟膏^MR9P||||2|HON^本^MR9P||||||||||OHP^外来処方^MR9P~OHO^院外処方^MR9P||||||23^外用^JHSP0003" + "\r"
     msg = msg + "TQ1|||2B74000000000000&外用・塗布・１日４回&JAMISDP01||||20160825" + "\r"
     msg = msg + "RXR|AP^外用^HL70162|77L^左手^JAMISDP01" + "\r"
-
     return msg
 end
 

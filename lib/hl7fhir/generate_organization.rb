@@ -8,19 +8,19 @@ class GenerateOrganization < GenerateAbstract
         # 都道府県番号
         identifier = FHIR::Identifier.new()
         identifier.system = "OID:1.2.392.100495.20.3.21"
-        identifier.value = @state_code
+        identifier.value = @parser.get_sending_facility[:state]
         organization.identifier.push(identifier)
 
         # 点数表番号
         identifier = FHIR::Identifier.new()
         identifier.system = "OID:1.2.392.100495.20.3.22"
-        identifier.value = @fee_score_code
+        identifier.value = @parser.get_sending_facility[:point]
         organization.identifier.push(identifier)
 
         # 医療機関コード
         identifier = FHIR::Identifier.new()
         identifier.system = "OID:1.2.392.100495.20.3.23"
-        identifier.value = @facility_code
+        identifier.value = @parser.get_sending_facility[:facility]
         organization.identifier.push(identifier)
 
         orc_segment = @parser.get_parsed_segments('ORC')

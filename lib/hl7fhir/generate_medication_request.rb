@@ -91,7 +91,7 @@ class GenerateMedicationRequest < GenerateAbstract
                             dose_and_rate = FHIR::Dosage::DoseAndRate.new()
                             codeable_concept = FHIR::CodeableConcept.new()
                             coding = FHIR::Coding.new()
-                            coding.code = 'T'
+                            coding.code = 'SingleDose'
                             coding.display = '１回量'
                             coding.system = 'LC'
                             codeable_concept.coding = coding
@@ -132,7 +132,7 @@ class GenerateMedicationRequest < GenerateAbstract
                             dose_and_rate = FHIR::Dosage::DoseAndRate.new()
                             codeable_concept = FHIR::CodeableConcept.new()
                             coding = FHIR::Coding.new()
-                            coding.code = 'D'
+                            coding.code = 'DailyDose'
                             coding.display = '１日量'
                             coding.system = 'LC'
                             codeable_concept.coding = coding

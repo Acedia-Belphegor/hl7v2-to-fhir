@@ -30,7 +30,7 @@ class GeneratePractitioner < GenerateAbstract
                     when 'ID Number' then
                         # 医師ID
                         identifier = FHIR::Identifier.new()
-                        identifier.system = "OID:1.2.392.100495.20.3.41#{get_facility_id}"
+                        identifier.system = "OID:1.2.392.100495.20.3.41.1#{@parser.get_sending_facility[:all]}"
                         identifier.value = element['value']
                         practitioner.identifier = identifier
                     end

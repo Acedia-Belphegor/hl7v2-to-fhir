@@ -28,7 +28,7 @@ class GeneratePatient < GenerateAbstract
             when 'Patient Identifier List' then
                 # PID-3.患者IDリスト
                 identifier = FHIR::Identifier.new()
-                identifier.system = "OID:1.2.392.100495.20.3.51.1#{get_facility_id}"                
+                identifier.system = "OID:1.2.392.100495.20.3.51.1#{@parser.get_sending_facility[:all]}"
                 identifier.value = field['array_data'].first.find{|c| c['name'] == 'ID Number'}['value']
                 patient.identifier = identifier
             when 'Patient Name' then

@@ -27,11 +27,6 @@ class GenerateMessageHeader < GenerateAbstract
             when 'Sending Facility' then
                 # MSH-4.送信施設
                 sending_facility = field['value']
-                if sending_facility.length == 10 then
-                    @state_code = sending_facility[0,2] # 都道府県番号
-                    @fee_score_code = sending_facility[2,1] # 点数表番号
-                    @facility_code = sending_facility[3,7] # 医療機関コード
-                end
             when 'Receiving Application' then
                 # MSH-5.受信アプリケーション
                 destination = FHIR::MessageHeader::Destination.new()

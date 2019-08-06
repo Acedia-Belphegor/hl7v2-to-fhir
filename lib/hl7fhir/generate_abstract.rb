@@ -177,10 +177,6 @@ class GenerateAbstract
         return codeable_concept
     end
 
-    def get_facility_id()
-        return "#{@state_code}#{@fee_score_code}#{@facility_code}"
-    end
-
     def ignore_fields?(field)
         if Array['ST','TX','FT','NM','IS','ID','DT','TM','DTM','SI','GTS'].include?(field['type']) then
             return false
