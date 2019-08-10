@@ -55,23 +55,13 @@ class GeneratePatient < GenerateAbstract
                 end
             when 'Phone Number - Home' then
                 # PID-13.電話番号-自宅
-                telephone_number = get_telephone_number(field['array_data'].first)
-                if !telephone_number.empty? then
-                    contact_point = FHIR::ContactPoint.new()
-                    contact_point.system = 'phone'
-                    contact_point.value = telephone_number
-                    contact_point.use = 'home'
-                    patient.telecom.push(contact_point)
+                field['array_data'].each do |record|
+                    patient.telecom.push(get_contact_point(record))
                 end
             when 'Phone Number - Business' then
                 # PID-14.電話番号-勤務先
-                telephone_number = get_telephone_number(field['array_data'].first)
-                if !telephone_number.empty? then
-                    contact_point = FHIR::ContactPoint.new()
-                    contact_point.system = 'phone'
-                    contact_point.value = telephone_number
-                    contact_point.use = 'work'
-                    patient.telecom.push(contact_point)
+                field['array_data'].each do |record|
+                    patient.telecom.push(get_contact_point(record))
                 end
             end
         end

@@ -21,13 +21,13 @@ class GenerateAbstract
         }.each do |element|
             case element['name']
             when 'Identifier' then
-                # 識別子
+                # CWE-1.識別子
                 coding.code = element['value']
             when 'Text' then
-                # テキスト
+                # CWE-2.テキスト
                 coding.display = element['value']
             when 'Name of Coding System' then
-                # コードシステム名
+                # CWE-3.コードシステム名
                 coding.system = element['value']
             end
         end
@@ -47,12 +47,13 @@ class GenerateAbstract
         }.each do |element|
             case element['name']
             when 'Family Name' then
-                # 姓
+                # XPN-1,XCN-2.姓
                 human_name.family = element['value']
             when 'Given Name' then
-                # 名
+                # XPN-2,XCN-3.名
                 human_name.given = element['value']
             when 'Name Representation Code' then
+                # XPN-8,XCN-15.名前表記コード
                 extension = FHIR::Extension.new()
                 extension.url = "http://hl7.org/fhir/StructureDefinition/iso21090-EN-representation"
                 extension.valueCode = 
@@ -72,19 +73,19 @@ class GenerateAbstract
         record.each do |element|
             case element['name']
             when 'Street Address', 'Other Geographic Designation' then
-                # 住所
+                # XAD-1.通りの住所 / XAD-8.その他の地理表示
                 address.line.push(element['value'])
             when 'City' then
-                # 市区町村
+                # XAD-3.市区町村
                 address.city = element['value']
             when 'State or Province' then
-                # 都道府県
+                # XAD-4.都道府県
                 address.state = element['value']
             when 'Country' then
-                # 国
+                # XAD-6.国
                 address.country = element['value']
             when 'Zip or Postal Code' then
-                # 郵便番号
+                # XAD-5.郵便番号
                 address.postalCode = element['value']
             end
         end
@@ -97,8 +98,10 @@ class GenerateAbstract
         record.each do |element|
             case element['name']
             when 'Quantity' then
+                # CQ-1.数量
                 quantity.value = element['value']
             when 'Units' then
+                # CQ-2.単位付複合数量
                 if !element['array_data'].nil? then
                     codeable_concept = get_codeable_concept(element['array_data'])
                     quantity.code = codeable_concept.coding.code
@@ -109,23 +112,53 @@ class GenerateAbstract
         return quantity
     end
 
-    # HL7v2:XTN → 電話番号を取得する
-    def get_telephone_number(record)
-        telephone_number = ''
+    # HL7v2:XTN → FHIR:ContactPoint 変換
+    def get_contact_point(record)
+        contact_point = FHIR::ContactPoint.new()
         record.select{|c|
             Array[
                 "Telephone Number",
+                "Telecommunication Use Code",
+                "Telecommunication Equipment Type",
+                "Email Address",
                 "Unformatted Telephone number ",
             ].include?(c['name'])
         }.each do |element|
             case element['name']
-            when 'Telephone Number' then
-                telephone_number = element['value']
-            when 'Unformatted Telephone number ' then
-                telephone_number = element['value'] if telephone_number.empty?
+            when 'Telephone Number','Unformatted Telephone number ' then
+                # XTN-1.電話番号 / XTN-12.非定型の電話番号
+                if contact_point.value.nil? && !element['value'].empty? then
+                    contact_point.value = element['value']
+                end                
+            when 'Telecommunication Use Code' then
+                # XTN-2.テレコミュニケーション用途コード
+                case element['value']
+                when 'PRN' then # 主要な自宅番号
+                    contact_point.use = 'home'
+                when 'WPN' then # 勤務先番号
+                    contact_point.use = 'work'
+                when 'NET' then # ネットワーク(電子メール)アドレス
+                    contact_point.system = 'email'
+                end
+            when 'Telecommunication Equipment Type' then
+                # XTN-3.テレコミュニケーション装置型
+                case element['value']
+                when 'PH' then # 電話
+                    contact_point.system = 'phone'
+                when 'FX' then # ファックス
+                    contact_point.system = 'fax'
+                when 'CP' then # 携帯電話
+                    contact_point.system = 'phone'
+                    contact_point.use = 'mobile'
+                end
+            when 'Email Address' then
+                # XTN-4.電子メールアドレス
+                if contact_point.system == 'email' then
+                    contact_point.value = element['value']
+                end
             end
         end
-        return telephone_number
+        return contact_point
     end
 
     def get_insurance_code(value)

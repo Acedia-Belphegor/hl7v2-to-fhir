@@ -49,12 +49,8 @@ class GenerateOrganization < GenerateAbstract
                 end                
             when 'Ordering Facility Phone Number' then
                 # ORC-23.オーダ施設電話番号
-                telephone_number = get_telephone_number(field['array_data'].first)
-                if !telephone_number.empty? then
-                    contact_point = FHIR::ContactPoint.new()
-                    contact_point.system = 'phone'
-                    contact_point.value = telephone_number
-                    organization.telecom.push(contact_point)
+                field['array_data'].each do |record|
+                    patient.telecom.push(get_contact_point(record))
                 end
             end
         end

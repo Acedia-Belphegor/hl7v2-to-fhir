@@ -20,6 +20,7 @@ class GenerateMedicationRequest < GenerateAbstract
 
         segments_group.each do |segments|
             medication_request = FHIR::MedicationRequest.new()
+            medication_request.status = 'active'
             dosage = FHIR::Dosage.new()
             segments.each do |segment|
                 case segment[0]['value']
