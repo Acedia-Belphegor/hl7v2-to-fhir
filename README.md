@@ -5,10 +5,10 @@
   | Contents | Description |
   | :--- | :--- |
   | 概要 | HL7v2処方オーダーメッセージ(RDE)をFHIRリソースに変換するAPI |
-  | URI | `POST` /api/hl7/fhir_prescription_generators |
+  | URI | `POST` /api/hl7/fhir_prescription_generators.json (.xml) |
   | Encoding | UTF-8 |
   | Request | HL7v2メッセージ |
-  | Response | FHIRリソース(JSON) |
+  | Response | FHIRリソース(JSON/XML) |
 
 ## notes
   - request-bodyのHL7v2メッセージに`<EOM>(0x1C,0x0D)`は設定しない
@@ -41,7 +41,7 @@ TQ1|||2B74000000000000&外用・塗布・１日４回&JAMISDP01||||20160825
 RXR|AP^外用^HL70162|77L^左手^JAMISDP01
 ```
 
-Response Body
+Response Body (json)
 ```
 {
   "type": "message",

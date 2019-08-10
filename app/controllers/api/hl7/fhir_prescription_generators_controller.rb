@@ -15,6 +15,9 @@ class Api::Hl7::FhirPrescriptionGeneratorsController < ApplicationController
         # POST：リクエストBODYに設定されたHL7v2メッセージをFHIR(json)形式に変換して返す
         raw_message = request.body.read
         generator = FhirPrescriptionGenerator.new(raw_message.force_encoding("utf-8"), generate: true)
-        render json: generator.get_resource.to_json
+        respond_to do |format|
+            format.json { render :json => generator.get_resource.to_json }
+            format.xml  { render :xml => generator.get_resource.to_xml }
+          end        
     end
 end
