@@ -30,6 +30,7 @@ class GenerateMedicationRequest < GenerateAbstract
                             "Placer Order Number",
                             "Placer Group Number",
                             "Date/Time of Transaction",
+                            "Ordering Provider",
                         ].include?(c['name'])
                     }.each do |field|
                         if ignore_fields?(field) then
@@ -51,6 +52,16 @@ class GenerateMedicationRequest < GenerateAbstract
                         when 'Date/Time of Transaction' then
                             # ORC-9.トランザクション日時(交付年月日)
                             medication_request.authoredOn = Date.parse(field['value'])
+                        when 'Ordering Provider' then
+                            # ORC-12.依頼者
+                            identifier = get_identifier_from_xcn(field['array_data'].first)
+                            practitioner = get_resources_from_identifier('PractitionerRole', identifier)
+                            if !practitioner.empty? then
+                                reference = FHIR::Reference.new()
+                                reference.type = practitioner.first.resource.resourceType
+                                reference.identifier = practitioner.first.resource.identifier
+                                medication_request.requester = reference
+                            end
                         end
                     end
                 when 'RXE' then
@@ -221,6 +232,21 @@ class GenerateMedicationRequest < GenerateAbstract
                 end
             end
             medication_request.dosageInstruction = dosage
+            # 患者
+            patient = get_resources_from_type('Patient')
+            if !patient.empty? then
+                reference = FHIR::Reference.new()
+                reference.type = patient.first.resource.resourceType
+                reference.identifier = patient.first.resource.identifier
+                medication_request.subject = reference
+            end
+            # 保険
+            get_resources_from_type('Coverage').each do |coverage|
+                reference = FHIR::Reference.new()
+                reference.type = coverage.resource.resourceType
+                reference.identifier = coverage.resource.identifier
+                medication_request.insurance.push(reference)
+            end
             entry = FHIR::Bundle::Entry.new()
             entry.resource = medication_request
             result.push(entry)

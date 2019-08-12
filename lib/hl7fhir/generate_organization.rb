@@ -50,7 +50,7 @@ class GenerateOrganization < GenerateAbstract
             when 'Ordering Facility Phone Number' then
                 # ORC-23.オーダ施設電話番号
                 field['array_data'].each do |record|
-                    patient.telecom.push(get_contact_point(record))
+                    organization.telecom.push(get_contact_point(record))
                 end
             end
         end

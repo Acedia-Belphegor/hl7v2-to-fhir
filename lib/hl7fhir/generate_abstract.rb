@@ -4,8 +4,21 @@ require 'fhir_client'
 require_relative '../hl7v2/hl7parser'
 
 class GenerateAbstract
-    def initialize(parser)
-        @parser = parser
+    def initialize(params)        
+        @parser = params[:parser]
+        @bundle = params[:bundle]
+    end
+
+    def perform()
+        raise NotImplementedError.new("You must implement #{self.class}##{__method__}")
+    end
+
+    def get_resources_from_type(resource_type)
+        return @bundle.entry.select{|c| c.resource.resourceType == resource_type}
+    end
+
+    def get_resources_from_identifier(resource_type, identifier)
+        return get_resources_from_type(resource_type).select{|c| c.resource.identifier == identifier}
     end
 
     # HL7v2:CWE → FHIR:CodeableConcept
@@ -161,6 +174,22 @@ class GenerateAbstract
         return contact_point
     end
 
+    def get_identifier_from_xcn(record)
+        identifier = FHIR::Identifier.new()
+        record.select{|c|
+            Array[
+                "ID Number",
+            ]
+        }.each do |element|
+            case element['name']
+            when 'ID Number' then                
+                identifier.system = "OID:1.2.392.100495.20.3.41.1#{@parser.get_sending_facility[:all]}"
+                identifier.value = element['value']                
+            end
+        end
+        return identifier
+    end
+
     def get_insurance_code(value)
         if @jahis_tables.nil? then
             filename = Pathname.new(File.dirname(File.expand_path(__FILE__))).join('json').join('JAHIS_TABLES.json')
@@ -211,7 +240,7 @@ class GenerateAbstract
     end
 
     def ignore_fields?(field)
-        if Array['ST','TX','FT','NM','IS','ID','DT','TM','DTM','SI','GTS'].include?(field['type']) then
+        if Array['*','ST','TX','FT','NM','IS','ID','DT','TM','DTM','SI','GTS'].include?(field['type']) then
             return false
         else
             if field['array_data'].nil? || field['array_data'].empty? then
