@@ -4,12 +4,7 @@ require_relative 'generate_abstract'
 class GenerateCoverage < GenerateAbstract
     def perform()
         result = Array[]
-        in1_segment = @parser.get_parsed_segments('IN1')
-        if in1_segment.nil? then
-            return
-        end
-        
-        in1_segment.each do |segment|
+        @parser.get_parsed_segments('IN1').each do |segment|
             coverage = FHIR::Coverage.new()
             segment.select{|c| 
                 Array[

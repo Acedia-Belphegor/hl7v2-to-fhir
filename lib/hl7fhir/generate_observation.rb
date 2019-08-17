@@ -3,27 +3,29 @@ require_relative 'generate_abstract'
 
 class GenerateObservation < GenerateAbstract
     def perform()
-        # SPM,ORC,OBR,OBX を1つのグループにする
-        segments_group = Array[]
-        segments = Array[]
-        result = Array[]
-        @parser.get_parsed_message().select{|c| 
-            Array['SPM','ORC','OBR','OBX'].include?(c[0]['value'])
-        }.each do |segment|
-            if segment[0]['value'] == 'SPM' then
-                segments_group.push(segments) if !segments.empty?
-                segments = Array[]
-            end
-            segments.push(segment)
-        end
-        segments_group.push(segments) if !segments.empty?
-        
-        segments_group.each do |segments|
-            observation = FHIR::Observation.new()
-            segments.each do |segment|
-                specimen_ids = []
+        result = Array[]        
+        get_segments_group().each do |segments|
+            segments.each do |segment|                
                 case segment[0]['value']
+                when 'ORC' then
+                    segment.select{|c| 
+                        Array[
+                            "Placer Order Number",
+                        ].include?(c['name'])
+                    }.each do |field|
+                        if ignore_fields?(field) then
+                            next
+                        end
+                        case field['name']
+                        when 'Placer Order Number' then
+                            # ORC-2.依頼者オーダ番号
+                            @identifier = FHIR::Identifier.new()
+                            @identifier.system = 'ORC-2'
+                            @identifier.value = field['value']
+                        end
+                    end
                 when 'SPM' then
+                    @specimen_ids = []
                     segment.select{|c| 
                         Array[
                             "Set ID – SPM",
@@ -39,22 +41,17 @@ class GenerateObservation < GenerateAbstract
                             identifier = FHIR::Identifier.new()
                             identifier.system = 'SPM-1'
                             identifier.value = field['value']
-                            specimen_ids.push(identifier)
+                            @specimen_ids.push(identifier)
                         when 'Specimen ID ' then
                             # SPM-2.検体ID
                             identifier = FHIR::Identifier.new()
                             identifier.system = 'SPM-2'
                             identifier.value = field['value']
-                            specimen_ids.push(identifier)
-                        end                        
-                    end
-                    get_resources_from_identifier('Specimen', specimen_ids).each do |specimen|
-                        reference = FHIR::Reference.new()
-                        reference.type = specimen.resource.resourceType
-                        reference.identifier = specimen.resource.identifier
-                        observation.specimen = reference
+                            @specimen_ids.push(identifier)
+                        end
                     end
                 when 'OBX' then
+                    observation = FHIR::Observation.new()
                     segment.select{|c| 
                         Array[
                             "Value Type",
@@ -80,13 +77,13 @@ class GenerateObservation < GenerateAbstract
                         when "Observation Value" then
                             # OBX-5.検査値
                             case @value_type
-                            when 'NM' then
+                            when 'NM' then # Numeric                                
                                 quantity = FHIR::Quantity.new()
                                 quantity.value = field['value']
                                 observation.valueQuantity = quantity
-                            when 'ST' then
+                            when 'ST' then # String Data                                
                                 observation.valueString = field['value']
-                            when 'CWE' then
+                            when 'CWE' then # Coded With Exceptions                                
                                 observation.valueCodeableConcept = get_codeable_concept(field['array_data'].first)
                             end
                         when "Units" then
@@ -101,7 +98,7 @@ class GenerateObservation < GenerateAbstract
                             reference_range = FHIR::Observation::ReferenceRange.new()
                             reference_range.text = field['value']
                             # 値がハイフンで区切られている場合は範囲値とみなして分割する
-                            if reference_range.text.match(/^.-.+$/) then
+                            if reference_range.text.match(/^.+-.+$/) then
                                 reference_range.text.split('-').each do |value|
                                     quantity = FHIR::Quantity.new()
                                     quantity.value = value
@@ -116,9 +113,9 @@ class GenerateObservation < GenerateAbstract
                             observation.referenceRange = reference_range
                         when "Abnormal Flags" then
                             # OBX-8.異常フラグ
-                            field['array_data'].each do |record|
-                                observation.interpretation.push(get_codeable_concept(record))
-                            end                    
+                            if !field['value'].empty? then
+                                observation.interpretation.push(get_interpretation(field['value']))
+                            end
                         when "Observation Result Status" then
                             # OBX-11.検査結果状態
                             observation.status = 
@@ -133,20 +130,76 @@ class GenerateObservation < GenerateAbstract
                             observation.effectiveDateTime = DateTime.parse(field['value'])
                         end
                     end
+                    observation.identifier.push(@identifier)
+                    # 検体
+                    get_resources_from_identifier('Specimen', @specimen_ids).each do |specimen|
+                        reference = FHIR::Reference.new()
+                        reference.type = specimen.resource.resourceType
+                        reference.identifier = specimen.resource.identifier
+                        observation.specimen = reference
+                    end
+                    # 患者
+                    get_resources_from_type('Patient').each do |patient|
+                        reference = FHIR::Reference.new()
+                        reference.type = patient.resource.resourceType
+                        reference.identifier = patient.resource.identifier
+                        observation.subject = reference
+                    end
+                    entry = FHIR::Bundle::Entry.new()
+                    entry.resource = observation
+                    result.push(entry)
                 end
             end
-            # 患者
-            patient = get_resources_from_type('Patient')
-            if !patient.empty? then
-                reference = FHIR::Reference.new()
-                reference.type = patient.first.resource.resourceType
-                reference.identifier = patient.first.resource.identifier
-                observation.subject = reference
-            end
-            entry = FHIR::Bundle::Entry.new()
-            entry.resource = observation
-            result.push(entry)        
         end
         return result
+    end
+
+    def get_segments_group()
+        segments_group = Array[]
+        segments = Array[]
+
+        # SPM,ORC,OBR,OBX を1つのグループにする
+        @parser.get_parsed_message().select{|c| 
+            Array['SPM','ORC','OBR','OBX'].include?(c[0]['value'])
+        }.each do |segment|
+            if segment[0]['value'] == 'SPM' then
+                segments_group.push(segments) if !segments.empty?
+                segments = Array[]
+            end
+            segments.push(segment)
+        end
+        segments_group.push(segments) if !segments.empty?
+    end
+
+    def get_interpretation(value)
+        codeable_concept = FHIR::CodeableConcept.new()
+        coding = FHIR::Coding.new()
+        coding.code = 
+            case value
+            when 'MS','VS' then 'S' # MS:Moderately sensitive 少し敏感 / VS:Very sensitive 過敏
+            else value
+            end
+        coding.display = 
+            case coding.code
+            when 'L' then 'Low' # Below low normal 基準値下限以下
+            when 'H' then 'High' # Above high normal 基準値上限以上
+            when 'LL' then 'Critical Low' # Below lower panic limits パニック下限以下
+            when 'HH' then 'Critical High' # Above upper panic limits パニック上限以上
+            when '<' then 'Off scale low' # Below absolute low-off instrument scale 測定限界下限未満
+            when '>' then 'Off scale high' # Above absolute high-off instrument scale 測定限界上限越
+            when 'N' then 'Normal' # Normal (applies to non-numeric results) 正常(非数値結果に適用)
+            when 'A' then 'Abnormal' # Abnormal (applies to non-numeric results) 異常(非数値結果に適用)
+            when 'AA' then 'Critical abnormal' # Very abnormal (applies to non-numeric units, analagous to panic limits for numeric units) 非常に異常
+            when 'U' then 'Significant change up' # Significant change up 大幅な上昇変化
+            when 'D' then 'Significant change down' # Significant change down 大幅な下降変化
+            when 'B' then 'Better' # Better--use when direction not relevant 改善
+            when 'W' then 'Worse' # Worse--use when direction not relevant 悪化
+            when 'S' then 'Susceptible' # Sensitive 敏感
+            when 'R' then 'Resistant' # Resistant 耐性
+            when 'I' then 'Intermediate' # Intermediate 中間
+            end
+        coding.system = 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation'
+        codeable_concept.coding = coding
+        return codeable_concept
     end
 end

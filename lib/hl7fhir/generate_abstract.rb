@@ -249,4 +249,12 @@ class GenerateAbstract
         end
         return false
     end
+
+    def parse_str_datetime(str_datetime)
+        begin
+            return DateTime.parse(str_datetime)
+        rescue => e
+            return nil
+        end
+    end
 end

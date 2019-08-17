@@ -4,16 +4,25 @@
 
   | Contents | Description |
   | :--- | :--- |
-  | 概要 | HL7v2処方オーダーメッセージ(RDE)をFHIRリソースに変換するAPI |
+  | 概要 | HL7v2処方オーダーメッセージをFHIRリソースに変換するAPI |
   | URI | `POST` /api/hl7/fhir_prescription_generators.json (.xml) |
   | Encoding | UTF-8 |
-  | Request | HL7v2メッセージ |
+  | Request | HL7v2メッセージ(RDE^O11) |
+  | Response | FHIRリソース(JSON/XML) |
+
+## fhir_inspection_result_generators
+
+  | Contents | Description |
+  | :--- | :--- |
+  | 概要 | HL7v2検査結果メッセージをFHIRリソースに変換するAPI |
+  | URI | `POST` /api/hl7/fhir_inspection_result_generators.json (.xml) |
+  | Encoding | UTF-8 |
+  | Request | HL7v2メッセージ(OUL^R22) |
   | Response | FHIRリソース(JSON/XML) |
 
 ## notes
   - request-bodyのHL7v2メッセージに`<EOM>(0x1C,0x0D)`は設定しない
   - MSH-3.Sending Facilityには `都道府県番号` + `点数表番号` + `医療機関コード` を設定する (ex: 1319999999)
-  - 不均等投与、隔日投与、曜日指定などは考慮しない
 
 ## example
 

@@ -8,8 +8,8 @@ class FhirInspectionResultGenerator < FhirAbstractGenerator
         @bundle.entry.concat(GeneratePractitioner.new(get_params).perform) # Practitioner
         @bundle.entry.concat(GeneratePractitionerRole.new(get_params).perform) # PractitionerRole
         @bundle.entry.concat(GenerateOrganization.new(get_params).perform) # Organization
-        @bundle.entry.concat(GenerateSpecimen.new(get_params).perform) # Patient
-        @bundle.entry.concat(GenerateObservation.new(get_params).perform) # Patient
+        @bundle.entry.concat(GenerateSpecimen.new(get_params).perform) # Specimen
+        @bundle.entry.concat(GenerateObservation.new(get_params).perform) # Observation
     end
 
     private

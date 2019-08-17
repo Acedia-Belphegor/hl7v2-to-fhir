@@ -7,6 +7,7 @@ Rails.application.routes.draw do
         resources :v2_message_parses, only: %i[index create]
         resources :fhir_prescription_generators, only: %i[index create]
         resources :fhir_inspection_result_generators, only: %i[index create]
+        resources :fhir_patient_generators, only: %i[index create]
       end
     end
 end
