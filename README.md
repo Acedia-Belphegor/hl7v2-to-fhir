@@ -20,6 +20,16 @@
   | Request | HL7v2メッセージ(OUL^R22) |
   | Response | FHIRリソース(JSON/XML) |
 
+## fhir_patient_generators
+
+  | Contents | Description |
+  | :--- | :--- |
+  | 概要 | HL7v2患者情報更新メッセージをFHIRリソースに変換するAPI |
+  | URI | `POST` /api/hl7/fhir_patient_generators.json (.xml) |
+  | Encoding | UTF-8 |
+  | Request | HL7v2メッセージ(ADT^A08) |
+  | Response | FHIRリソース(JSON/XML) |
+
 ## notes
   - request-bodyのHL7v2メッセージに`<EOM>(0x1C,0x0D)`は設定しない
   - MSH-3.Sending Facilityには `都道府県番号` + `点数表番号` + `医療機関コード` を設定する (ex: 1319999999)
