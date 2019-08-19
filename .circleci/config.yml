@@ -9,7 +9,7 @@ jobs:
       # specify the version you desire here
       - image: circleci/ruby:2.5.5-node-browsers
         environment:
-          BUNDLER_VERSION: 2.0.1
+          BUNDLER_VERSION: 1.17.3
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -21,15 +21,14 @@ jobs:
     steps:
       - checkout
 
-      - run:
-          name: setup bundler
-          command: |
-            sudo gem update --system
-            # sudo gem uninstall bundler -v "1.17.3"
+      # - run:
+      #     name: setup bundler
+      #     command: |
+      #       sudo gem update --system
+            # sudo gem uninstall bundler
             # sudo rm /usr/local/bin/bundle
             # sudo rm /usr/local/bin/bundler
-            # sudo gem install bundler -v "2.0.1"
-            sudo gem install bundler
+            # sudo gem install bundler
 
       # Download and cache dependencies
       - restore_cache:
