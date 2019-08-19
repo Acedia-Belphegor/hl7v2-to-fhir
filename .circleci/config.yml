@@ -25,10 +25,11 @@ jobs:
           name: setup bundler
           command: |
             sudo gem update --system
-            sudo gem uninstall bundler
-            sudo rm /usr/local/bin/bundle
-            sudo rm /usr/local/bin/bundler
-            sudo gem install bundler -v "2.0.1"
+            # sudo gem uninstall bundler -v "1.17.3"
+            # sudo rm /usr/local/bin/bundle
+            # sudo rm /usr/local/bin/bundler
+            # sudo gem install bundler -v "2.0.1"
+            sudo gem install bundler
 
       # Download and cache dependencies
       - restore_cache:
