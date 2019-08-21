@@ -76,6 +76,7 @@ class GenerateMedicationRequest < GenerateAbstract
                             "Dispense Units",
                             "Give Indication",
                             "Total Daily Dose",
+                            "Pharmacy/Treatment Supplier's Special Dispensing Instructions",
                             "Give Indication",
                         ].include?(c['name'])
                     }.each do |field|
@@ -124,6 +125,11 @@ class GenerateMedicationRequest < GenerateAbstract
                             # RXE-6.与薬剤型
                             codeable_concept = get_codeable_concept(field['array_data'].first)
                             medication_request.category.push(codeable_concept)
+                        when "Provider's Administration Instructions" then
+                            # RXE-7.依頼者の投薬指示
+                            field['array_data'].each do |record|
+                                dosage.additionalInstruction.push(get_codeable_concept(record))
+                            end
                         when 'Dispense Amount' then
                             # RXE-10.調剤量
                             dispense_request = FHIR::MedicationRequest::DispenseRequest.new()
@@ -151,6 +157,9 @@ class GenerateMedicationRequest < GenerateAbstract
                             dose_and_rate.type = codeable_concept
                             dose_and_rate.doseQuantity = get_quantity(field['array_data'].first)
                             dosage.doseAndRate.push(dose_and_rate)
+                        when "Pharmacy/Treatment Supplier's Special Dispensing Instructions" then
+                            # RXE-21.薬剤部門/治療部門による特別な調剤指示
+                            
                         when 'Give Indication' then
                             # RXE-27.与薬指示
                             codeable_concept = get_codeable_concept(field['array_data'].first)
@@ -159,10 +168,13 @@ class GenerateMedicationRequest < GenerateAbstract
                     end
                 when 'TQ1' then                    
                     timing = FHIR::Timing.new()
+                    dosage.text = ''
                     segment.select{|c| 
                         Array[
                             "Repeat Pattern",
                             "Service Duration",
+                            "Start date/time",
+                            "Text instruction",
                         ].include?(c['name'])
                     }.each do |field|
                         if ignore_fields?(field) then
@@ -171,10 +183,19 @@ class GenerateMedicationRequest < GenerateAbstract
                         case field['name']
                         when 'Repeat Pattern' then
                             # TQ1-3.繰返しパターン(用法)
-                            field['array_data'].first.select{|c| 
-                                c['name'] == 'Repeat Pattern Code'
-                            }.each do |element|
-                                timing.code = get_codeable_concept(element['array_data'])
+                            field['array_data'].each do |record|
+                                record.select{|c| 
+                                    c['name'] == 'Repeat Pattern Code'
+                                }.each do |element|
+                                    codeable_concept = get_codeable_concept(element['array_data'])
+                                    if timing.code.nil? then
+                                        timing.code = codeable_concept
+                                    else
+                                        dosage.additionalInstruction.push(codeable_concept)
+                                    end
+                                    dosage.text += "　" if !dosage.text.empty?
+                                    dosage.text += codeable_concept.coding.display
+                                end
                             end
                         when 'Service Duration' then
                             # TQ1-6.サービス期間
@@ -207,6 +228,12 @@ class GenerateMedicationRequest < GenerateAbstract
                                 end
                             end
                             timing.repeat = timing_repeat
+                        when 'Start date/time' then
+                            # TQ1-7.開始日時
+                            timing.event = parse_str_datetime(field['value'])
+                        when 'Text instruction' then
+                            # TQ1-11.テキスト指令
+                            dosage.patientInstruction = field['value']
                         end
                     end
                     dosage.timing = timing

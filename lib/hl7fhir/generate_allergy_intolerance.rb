@@ -4,6 +4,7 @@ require_relative 'generate_abstract'
 class GenerateAllergyIntolerance < GenerateAbstract
     def perform()
         result = Array[]
+        
         # AL1セグメント
         @parser.get_parsed_segments('AL1').each do |segment|
             allergy_intolerance = FHIR::AllergyIntolerance.new()
@@ -52,6 +53,7 @@ class GenerateAllergyIntolerance < GenerateAbstract
             entry.resource = allergy_intolerance
             result.push(entry)
         end
+
         # IAMセグメント
         @parser.get_parsed_segments('IAM').each do |segment|
             allergy_intolerance = FHIR::AllergyIntolerance.new()
@@ -114,9 +116,7 @@ class GenerateAllergyIntolerance < GenerateAbstract
                         end
                 when 'Onset Date' then
                     # IAM-11.アレルギー発症日
-                    if field['value'].length == 8 then
-                        allergy_intolerance.onsetDateTime = parse_str_datetime(field['value'])
-                    end
+                    allergy_intolerance.onsetDateTime = parse_str_datetime(field['value'])
                 when 'Onset Date Text' then
                     # IAM-12.アレルギー発症時期
                     allergy_intolerance.onsetString = field['value']
