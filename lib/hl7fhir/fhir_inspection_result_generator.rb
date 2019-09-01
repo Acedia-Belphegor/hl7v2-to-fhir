@@ -20,5 +20,5 @@ class FhirInspectionResultGenerator < FhirAbstractGenerator
 end
 
 # test
-generator = FhirInspectionResultGenerator.new(get_message_example('OUL'), generate: true)
-puts generator.get_resources.to_json
+# generator = FhirInspectionResultGenerator.new(get_message_example('OUL'), generate: true)
+# puts generator.get_resources.to_json

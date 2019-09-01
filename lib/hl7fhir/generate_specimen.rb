@@ -3,23 +3,10 @@ require_relative 'generate_abstract'
 
 class GenerateSpecimen < GenerateAbstract
     def perform()
-        # SPM,OBR を1つのグループにする
-        segments_group = Array[]
-        segments = Array[]
-        result = Array[]
-        @parser.get_parsed_message().select{|c| 
-            Array['SPM','OBR'].include?(c[0]['value'])
-        }.each do |segment|
-            if segment[0]['value'] == 'SPM' then
-                segments_group.push(segments) if !segments.empty?
-                segments = Array[]
-            end
-            segments.push(segment)
-        end
-        segments_group.push(segments) if !segments.empty?
-        
-        segments_group.each do |segments|
+        result = Array[]        
+        get_segments_group().each do |segments|
             specimen = FHIR::Specimen.new()
+            specimen.id = result.length
             segments.each do |segment|
                 case segment[0]['value']
                 when 'SPM' then
@@ -88,10 +75,31 @@ class GenerateSpecimen < GenerateAbstract
                     end
                 end
             end
+            # 患者の参照
+            get_resources_from_type('Patient').each do |entry|
+                specimen.subject = create_reference(entry)
+            end
             entry = FHIR::Bundle::Entry.new()
             entry.resource = specimen
             result.push(entry)        
         end
         return result
+    end
+
+    def get_segments_group()
+        segments_group = Array[]
+        segments = Array[]
+
+        # SPM,OBRを1つのグループにまとめて配列を生成する
+        @parser.get_parsed_message().select{|c| 
+            Array['SPM','OBR'].include?(c[0]['value'])
+        }.each do |segment|
+            if segment[0]['value'] == 'SPM' then
+                segments_group.push(segments) if !segments.empty?
+                segments = Array[]
+            end
+            segments.push(segment)
+        end
+        segments_group.push(segments) if !segments.empty?
     end
 end

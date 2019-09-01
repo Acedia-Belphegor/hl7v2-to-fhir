@@ -1,5 +1,6 @@
 # encoding: UTF-8
 require_relative 'fhir_abstract_generator'
+require_relative 'generate_abstract'
 
 class FhirPrescriptionGenerator < FhirAbstractGenerator
     def perform()
@@ -10,6 +11,7 @@ class FhirPrescriptionGenerator < FhirAbstractGenerator
         @bundle.entry.concat(GeneratePractitionerRole.new(get_params).perform) # PractitionerRole
         @bundle.entry.concat(GenerateOrganization.new(get_params).perform) # Organization
         @bundle.entry.concat(GenerateMedicationRequest.new(get_params).perform) # MedicationRequest
+        @bundle.entry.concat(GenerateServiceRequest.new(get_params).perform) # ServiceRequest
     end
 
     private
@@ -19,6 +21,40 @@ class FhirPrescriptionGenerator < FhirAbstractGenerator
     end
 end
 
+class GenerateServiceRequest < GenerateAbstract
+    def perform()
+        service_request = FHIR::ServiceRequest.new()
+
+        rxe_segment = @parser.get_parsed_segments('RXE')
+        if rxe_segment.nil? then
+            return
+        end
+        rxe_segment.first.select{|c|
+            Array[
+                "Pharmacy/Treatment Supplier's Special Dispensing Instructions",
+            ].include?(c['name'])            
+        }.each do |field|
+            if ignore_fields?(field) then
+                next
+            end
+            case field['name']
+            when "Pharmacy/Treatment Supplier's Special Dispensing Instructions" then
+                # RXE-21.薬剤部門/治療部門による特別な調剤指示
+                field['array_data'].each do |record|
+                    service_request.category.push(get_codeable_concept(record))
+                end
+            end
+        end
+        # 投薬要求の参照
+        get_resources_from_type('MedicationRequest').each do |entry|
+            service_request.basedOn.push(create_reference(entry))
+        end
+        entry = FHIR::Bundle::Entry.new()
+        entry.resource = service_request
+        return Array[entry]
+    end
+end
+
 # test
-generator = FhirPrescriptionGenerator.new(get_message_example('RDE'), generate: true)
-puts generator.get_resources.to_json
+# generator = FhirPrescriptionGenerator.new(get_message_example('RDE'), generate: true)
+# puts generator.get_resources.to_json

@@ -4,6 +4,7 @@ require_relative 'generate_abstract'
 class GeneratePractitioner < GenerateAbstract
     def perform()
         practitioner = FHIR::Practitioner.new()
+        practitioner.id = 0
 
         orc_segment = @parser.get_parsed_segments('ORC')
         if orc_segment.nil? then
@@ -12,6 +13,7 @@ class GeneratePractitioner < GenerateAbstract
         
         orc_segment.first.select{|c| 
             Array[
+                "Entered By",
                 "Ordering Provider"
             ].include?(c['name'])
         }.each do |field|
@@ -19,6 +21,9 @@ class GeneratePractitioner < GenerateAbstract
                 next
             end
             case field['name']
+            when 'Entered By' then
+                # ORC-10.入力者
+                # 代行入力者として使用したいが、HL7v2では職種の判別ができない（医師 or 他職種）
             when 'Ordering Provider' then
                 # ORC-12.依頼者
                 field['array_data'].first.select{|c|

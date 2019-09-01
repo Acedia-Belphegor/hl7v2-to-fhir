@@ -4,6 +4,7 @@ require_relative 'generate_abstract'
 class GeneratePatient < GenerateAbstract
     def perform()
         patient = FHIR::Patient.new()
+        patient.id = 0
 
         pid_segment = @parser.get_parsed_segments('PID')
         if pid_segment.nil? then

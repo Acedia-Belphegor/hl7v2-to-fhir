@@ -4,6 +4,7 @@ require_relative 'generate_abstract'
 class GenerateMessageHeader < GenerateAbstract
     def perform()
         message_header = FHIR::MessageHeader.new()
+        message_header.id = 0
 
         msh_segment = @parser.get_parsed_segments('MSH')
         if msh_segment.nil? then

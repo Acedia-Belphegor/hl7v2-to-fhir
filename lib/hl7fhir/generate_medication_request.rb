@@ -3,23 +3,10 @@ require_relative 'generate_abstract'
 
 class GenerateMedicationRequest < GenerateAbstract
     def perform()
-        # ORC,RXE,TQ1,RXR を1つのグループにする
-        segments_group = Array[]
-        segments = Array[]
         result = Array[]
-        @parser.get_parsed_message().select{|c| 
-            Array['ORC','RXE','TQ1','RXR'].include?(c[0]['value'])
-        }.each do |segment|
-            if segment[0]['value'] == 'ORC' then
-                segments_group.push(segments) if !segments.empty?
-                segments = Array[]
-            end
-            segments.push(segment)
-        end
-        segments_group.push(segments) if !segments.empty?
-
-        segments_group.each do |segments|
+        get_segments_group().each do |segments|
             medication_request = FHIR::MedicationRequest.new()
+            medication_request.id = result.length
             medication_request.status = 'active'
             dosage = FHIR::Dosage.new()
             segments.each do |segment|
@@ -55,12 +42,9 @@ class GenerateMedicationRequest < GenerateAbstract
                         when 'Ordering Provider' then
                             # ORC-12.依頼者
                             identifier = get_identifier_from_xcn(field['array_data'].first)
-                            practitioner = get_resources_from_identifier('PractitionerRole', identifier)
-                            if !practitioner.empty? then
-                                reference = FHIR::Reference.new()
-                                reference.type = practitioner.first.resource.resourceType
-                                reference.identifier = practitioner.first.resource.identifier
-                                medication_request.requester = reference
+                            # 参照
+                            get_resources_from_identifier('PractitionerRole', identifier).each do |entry|
+                                medication_request.requester = create_reference(entry)
                             end
                         end
                     end
@@ -69,6 +53,7 @@ class GenerateMedicationRequest < GenerateAbstract
                         Array[
                             "Give Code",
                             "Give Amount - Minimum",
+                            "Give Amount - Maximum",
                             "Give Units",
                             "Give Dosage Form",
                             "Provider's Administration Instructions",
@@ -89,26 +74,20 @@ class GenerateMedicationRequest < GenerateAbstract
                             codeable_concept = get_codeable_concept(field['array_data'].first)
                             codeable_concept.coding.system =
                                 case codeable_concept.coding.system
-                                when 'HOT' then 'OID:1.2.392.100495.20.2.74'
-                                when 'YJ' then 'OID:1.2.392.100495.20.2.73'
+                                when 'HOT' then 'OID:1.2.392.100495.20.2.74' # HOTコード
+                                when 'YJ' then 'OID:1.2.392.100495.20.2.73' # YJコード
                                 else codeable_concept.coding.system
                                 end
                             medication_request.medicationCodeableConcept = codeable_concept
-                        when 'Give Amount - Minimum' then
-                            # RXE-3.与薬量－最小
+                        when 'Give Amount - Minimum','Give Amount - Maximum' then
+                            # RXE-3.与薬量－最小 / RXE-4.与薬量－最大
                             if field['value'].empty?
                                 next
                             end
                             quantity = FHIR::Quantity.new()
                             quantity.value = field['value']
                             dose_and_rate = FHIR::Dosage::DoseAndRate.new()
-                            codeable_concept = FHIR::CodeableConcept.new()
-                            coding = FHIR::Coding.new()
-                            coding.code = 'SingleDose'
-                            coding.display = '１回量'
-                            coding.system = 'LC'
-                            codeable_concept.coding = coding
-                            dose_and_rate.type = codeable_concept
+                            dose_and_rate.type = create_codeable_concept(field['name'], field['ja_name'])
                             dose_and_rate.doseQuantity = quantity
                             dosage.doseAndRate.push(dose_and_rate)
                         when 'Give Units' then
@@ -116,11 +95,12 @@ class GenerateMedicationRequest < GenerateAbstract
                             if dosage.doseAndRate.nil? then
                                 next
                             end
-                            dose_and_rate = dosage.doseAndRate.first
-                            quantity = dose_and_rate.doseQuantity
-                            codeable_concept = get_codeable_concept(field['array_data'].first)
-                            quantity.code = codeable_concept.coding.code
-                            quantity.unit = codeable_concept.coding.display
+                            dosage.doseAndRate.each do |record|
+                                quantity = record.doseQuantity
+                                codeable_concept = get_codeable_concept(field['array_data'].first)
+                                quantity.code = codeable_concept.coding.code
+                                quantity.unit = codeable_concept.coding.display    
+                            end
                         when 'Give Dosage Form' then
                             # RXE-6.与薬剤型
                             codeable_concept = get_codeable_concept(field['array_data'].first)
@@ -148,13 +128,7 @@ class GenerateMedicationRequest < GenerateAbstract
                             # RXE-19.1日あたりの総投与量
                             quantity = FHIR::Quantity.new()
                             dose_and_rate = FHIR::Dosage::DoseAndRate.new()
-                            codeable_concept = FHIR::CodeableConcept.new()
-                            coding = FHIR::Coding.new()
-                            coding.code = 'DailyDose'
-                            coding.display = '１日量'
-                            coding.system = 'LC'
-                            codeable_concept.coding = coding
-                            dose_and_rate.type = codeable_concept
+                            dose_and_rate.type = create_codeable_concept(field['name'], field['ja_name'])
                             dose_and_rate.doseQuantity = get_quantity(field['array_data'].first)
                             dosage.doseAndRate.push(dose_and_rate)
                         when "Pharmacy/Treatment Supplier's Special Dispensing Instructions" then
@@ -193,6 +167,7 @@ class GenerateMedicationRequest < GenerateAbstract
                                     else
                                         dosage.additionalInstruction.push(codeable_concept)
                                     end
+                                    # 可読部の編集
                                     dosage.text += "　" if !dosage.text.empty?
                                     dosage.text += codeable_concept.coding.display
                                 end
@@ -259,25 +234,42 @@ class GenerateMedicationRequest < GenerateAbstract
                 end
             end
             medication_request.dosageInstruction = dosage
-            # 患者
-            patient = get_resources_from_type('Patient')
-            if !patient.empty? then
-                reference = FHIR::Reference.new()
-                reference.type = patient.first.resource.resourceType
-                reference.identifier = patient.first.resource.identifier
-                medication_request.subject = reference
+            # 患者の参照
+            get_resources_from_type('Patient').each do |entry|
+                medication_request.subject = create_reference(entry)
             end
-            # 保険
-            get_resources_from_type('Coverage').each do |coverage|
-                reference = FHIR::Reference.new()
-                reference.type = coverage.resource.resourceType
-                reference.identifier = coverage.resource.identifier
-                medication_request.insurance.push(reference)
+            # 保険の参照
+            get_resources_from_type('Coverage').each do |entry|
+                medication_request.insurance.push(create_reference(entry))
             end
+            # # 処方医の参照
+            # get_resources_from_type('PractitionerRole').select{|c|
+            #     c.resource.code.coding.code == 'doctor'
+            # }.each do |entry|
+            #     medication_request.requester = entry.resource.practitioner
+            # end
             entry = FHIR::Bundle::Entry.new()
             entry.resource = medication_request
             result.push(entry)
         end
         return result
+    end
+
+    def get_segments_group()
+        segments_group = Array[]
+        segments = Array[]
+
+        # ORC,RXE,TQ1,RXRを1つのグループにまとめて配列を生成する
+        @parser.get_parsed_message().select{|c| 
+            Array['ORC','RXE','TQ1','RXR'].include?(c[0]['value'])
+        }.each do |segment|
+            # ORCの出現を契機に配列を作成する
+            if segment[0]['value'] == 'ORC' then
+                segments_group.push(segments) if !segments.empty?
+                segments = Array[]
+            end
+            segments.push(segment)
+        end
+        segments_group.push(segments) if !segments.empty?
     end
 end

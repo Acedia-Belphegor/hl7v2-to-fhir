@@ -8,6 +8,7 @@ class GenerateAllergyIntolerance < GenerateAbstract
         # AL1セグメント
         @parser.get_parsed_segments('AL1').each do |segment|
             allergy_intolerance = FHIR::AllergyIntolerance.new()
+            allergy_intolerance.id = result.length
             reaction = FHIR::AllergyIntolerance::Reaction.new()
             segment.select{|c| 
                 Array[

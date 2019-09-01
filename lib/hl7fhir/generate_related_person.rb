@@ -6,6 +6,7 @@ class GenerateRelatedPerson < GenerateAbstract
         result = Array[]
         @parser.get_parsed_segments('NK1').each do |segment|
             related_person = FHIR::RelatedPerson.new()
+            related_person.id = result.length
             segment.select{|c| 
                 Array[
                     "Name",
@@ -47,12 +48,8 @@ class GenerateRelatedPerson < GenerateAbstract
                 end
             end
             # 患者
-            patient = get_resources_from_type('Patient')
-            if !patient.empty? then
-                reference = FHIR::Reference.new()
-                reference.type = patient.first.resource.resourceType
-                reference.identifier = patient.first.resource.identifier
-                related_person.patient = reference
+            get_resources_from_type('Patient').each do |entry|
+                related_person.patient = create_reference(entry)
             end
             entry = FHIR::Bundle::Entry.new()
             entry.resource = related_person

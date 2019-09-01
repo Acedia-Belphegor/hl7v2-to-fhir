@@ -4,6 +4,7 @@ require_relative 'generate_abstract'
 class GeneratePractitionerRole < GenerateAbstract
     def perform()
         practitioner_role = FHIR::PractitionerRole.new()
+        practitioner_role.id = 0
 
         orc_segment = @parser.get_parsed_segments('ORC')
         if orc_segment.nil? then
@@ -34,28 +35,22 @@ class GeneratePractitionerRole < GenerateAbstract
                         identifier.system = "OID:1.2.392.100495.20.3.41.1#{@parser.get_sending_facility[:all]}"
                         identifier.value = element['value']
                         practitioner_role.identifier = identifier
-
-                        codeable_concept = FHIR::CodeableConcept.new()
-                        coding = FHIR::Coding.new()
-                        coding.code = 'doctor'
-                        coding.system = 'http://terminology.hl7.org/CodeSystem/practitioner-role'
-                        coding.display = 'Doctor'
-                        codeable_concept.coding = coding
-                        practitioner_role.code = codeable_concept                        
-
-                        practitioner = get_resources_from_identifier('Practitioner', identifier)
-                        if !practitioner.empty? then
-                            reference = FHIR::Reference.new()
-                            reference.type = practitioner.first.resource.resourceType
-                            reference.identifier = practitioner.first.resource.identifier
-                            practitioner_role.practitioner = reference
+                        # 役割
+                        practitioner_role.code = create_codeable_concept('doctor','Doctor','http://terminology.hl7.org/CodeSystem/practitioner-role')
+                        # 処方医の参照
+                        get_resources_from_identifier('Practitioner', identifier).each do |entry|
+                            practitioner_role.practitioner = create_reference(entry)
                         end
                     end
                 end
             when 'Entering Organization' then
-                # ORC-17.入力組織
+                # ORC-17.入力組織（診療科）
                 practitioner_role.specialty.push(get_codeable_concept(field['array_data'].first))
             end
+        end
+        # 医療機関の参照
+        get_resources_from_type('Organization').each do |entry|
+            practitioner_role.organization = create_reference(entry)
         end
         entry = FHIR::Bundle::Entry.new()
         entry.resource = practitioner_role

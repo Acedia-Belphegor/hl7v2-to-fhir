@@ -3,11 +3,6 @@ require 'json'
 require './lib/hl7fhir/fhir_prescription_generator'
 
 class Api::Hl7::FhirPrescriptionGeneratorsController < ApplicationController
-    # GET：HL7サンプルメッセージを返す
-    def index        
-        parse(get_message_example('RDE'))
-    end
-  
     # POST：リクエストBODYに設定されたHL7v2メッセージをFHIR(json/xml)形式に変換して返す
     def create        
         parse(request.body.read)

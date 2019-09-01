@@ -52,6 +52,7 @@ class GenerateObservation < GenerateAbstract
                     end
                 when 'OBX' then
                     observation = FHIR::Observation.new()
+                    observation.id = result.length
                     segment.select{|c| 
                         Array[
                             "Value Type",
@@ -131,19 +132,13 @@ class GenerateObservation < GenerateAbstract
                         end
                     end
                     observation.identifier.push(@identifier)
-                    # 検体
-                    get_resources_from_identifier('Specimen', @specimen_ids).each do |specimen|
-                        reference = FHIR::Reference.new()
-                        reference.type = specimen.resource.resourceType
-                        reference.identifier = specimen.resource.identifier
-                        observation.specimen = reference
+                    # 検体の参照
+                    get_resources_from_identifier('Specimen', @specimen_ids).each do |entry|
+                        observation.specimen = create_reference(entry)
                     end
-                    # 患者
-                    get_resources_from_type('Patient').each do |patient|
-                        reference = FHIR::Reference.new()
-                        reference.type = patient.resource.resourceType
-                        reference.identifier = patient.resource.identifier
-                        observation.subject = reference
+                    # 患者の参照
+                    get_resources_from_type('Patient').each do |entry|
+                        observation.subject = create_reference(entry)
                     end
                     entry = FHIR::Bundle::Entry.new()
                     entry.resource = observation
@@ -158,7 +153,7 @@ class GenerateObservation < GenerateAbstract
         segments_group = Array[]
         segments = Array[]
 
-        # SPM,ORC,OBR,OBX を1つのグループにする
+        # SPM,ORC,OBR,OBXを1つのグループにまとめて配列を生成する
         @parser.get_parsed_message().select{|c| 
             Array['SPM','ORC','OBR','OBX'].include?(c[0]['value'])
         }.each do |segment|

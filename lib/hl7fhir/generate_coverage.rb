@@ -6,6 +6,7 @@ class GenerateCoverage < GenerateAbstract
         result = Array[]
         @parser.get_parsed_segments('IN1').each do |segment|
             coverage = FHIR::Coverage.new()
+            coverage.id = result.length
             segment.select{|c| 
                 Array[
                     "Insurance Plan ID",
@@ -32,13 +33,7 @@ class GenerateCoverage < GenerateAbstract
                         when 'Identifier' then
                             insurance = get_insurance_code(element['value'])
                             if !insurance.nil? then
-                                codeable_concept = FHIR::CodeableConcept.new()
-                                coding = FHIR::Coding.new()            
-                                coding.code = insurance[0]
-                                coding.display = insurance[1]
-                                coding.system = '1.2.392.100495.20.2.61'
-                                codeable_concept.coding = coding
-                                coverage.type = codeable_concept
+                                coverage.type = create_codeable_concept(insurance[0],insurance[1],'1.2.392.100495.20.2.61')
                             end
                         end
                     end
@@ -78,7 +73,7 @@ class GenerateCoverage < GenerateAbstract
                         else
                             period = coverage.period
                         end
-                        period.start = Date.parse(field['value'])    
+                        period.start = parse_str_datetime(field['value'])    
                     end
                 when 'Plan Expiration Date' then
                     # IN1-14.プラン失効日付(有効終了日)
@@ -88,7 +83,7 @@ class GenerateCoverage < GenerateAbstract
                         else
                             period = coverage.period
                         end
-                        period.end = Date.parse(field['value'])
+                        period.end = parse_str_datetime(field['value'])
                     end
                 when 'Insured’s Relationship To Patient' then
                     # IN1-17.被保険者と患者の関係(本人/家族)

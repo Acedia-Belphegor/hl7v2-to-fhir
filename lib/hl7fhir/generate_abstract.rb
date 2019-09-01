@@ -174,6 +174,7 @@ class GenerateAbstract
         return contact_point
     end
 
+    # HL7v2:XCN → FHIR:Identifier
     def get_identifier_from_xcn(record)
         identifier = FHIR::Identifier.new()
         record.select{|c|
@@ -190,6 +191,7 @@ class GenerateAbstract
         return identifier
     end
 
+    # JHSD表:0001(保険種別) → 電子処方箋CDA:1.2.392.100495.20.2.61(保険種別コード) 変換
     def get_insurance_code(value)
         if @jahis_tables.nil? then
             filename = Pathname.new(File.dirname(File.expand_path(__FILE__))).join('json').join('JAHIS_TABLES.json')
@@ -216,6 +218,7 @@ class GenerateAbstract
         end
     end
 
+    # MERIT-9(MR9P):剤形略号 → 電子処方箋CDA:1.2.392.100495.20.2.21(剤形区分コード) 変換
     def get_medication_category(record)
         codeable_concept = get_codeable_concept(record)
         coding = FHIR::Coding.new()
@@ -239,15 +242,32 @@ class GenerateAbstract
         return codeable_concept
     end
 
+    def create_codeable_concept(code, display, system = 'LC')
+        codeable_concept = FHIR::CodeableConcept.new()
+        coding = FHIR::Coding.new()
+        coding.code = code
+        coding.display = display
+        coding.system = system
+        codeable_concept.coding = coding
+        return codeable_concept
+    end
+
+    def create_reference(entry)
+        reference = FHIR::Reference.new()
+        reference.type = entry.resource.resourceType
+        reference.id = entry.resource.id
+        return reference
+    end
+    
     def ignore_fields?(field)
         if Array['*','ST','TX','FT','NM','IS','ID','DT','TM','DTM','SI','GTS'].include?(field['type']) then
-            return false
+            return false # 単一データ型のフィールドのため無視しない
         else
             if field['array_data'].nil? || field['array_data'].empty? then
-                return true 
+                return true # 複数データ型のフィールドで配列(パースデータ)が存在しない場合は無視する
             end
         end
-        return false
+        return false # 無視しない
     end
 
     def parse_str_datetime(str_datetime)
