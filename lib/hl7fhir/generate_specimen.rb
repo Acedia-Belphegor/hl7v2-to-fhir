@@ -36,7 +36,7 @@ class GenerateSpecimen < GenerateAbstract
                             specimen.identifier.push(identifier)
                         when 'Specimen Type' then
                             # SPM-4.検体タイプ
-                            specimen.type = get_codeable_concept(field['array_data'].first)
+                            specimen.type = generate_codeable_concept(field['array_data'].first)
                         when 'Specimen Collection Date/Time' then
                             # SPM-17.検体採取日時
                             date_time = parse_str_datetime(field['value'])
@@ -61,7 +61,7 @@ class GenerateSpecimen < GenerateAbstract
                         when 'Universal Service Identifier' then
                             # OBR-4.検査項目ID
                             processing = FHIR::Specimen::Processing.new()
-                            processing.procedure = get_codeable_concept(field['array_data'].first)
+                            processing.procedure = generate_codeable_concept(field['array_data'].first)
                             specimen.processing = processing
                         when 'Observation Date/Time #' then
                             # OBR-7.検査/採取日時

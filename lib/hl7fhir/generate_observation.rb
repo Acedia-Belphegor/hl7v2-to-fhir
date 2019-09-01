@@ -74,7 +74,7 @@ class GenerateObservation < GenerateAbstract
                             @value_type = field['value']
                         when "Observation Identifier" then
                             # OBX-3.検査項目ID
-                            observation.code = get_codeable_concept(field['array_data'].first)
+                            observation.code = generate_codeable_concept(field['array_data'].first)
                         when "Observation Value" then
                             # OBX-5.検査値
                             case @value_type
@@ -85,12 +85,12 @@ class GenerateObservation < GenerateAbstract
                             when 'ST' then # String Data                                
                                 observation.valueString = field['value']
                             when 'CWE' then # Coded With Exceptions                                
-                                observation.valueCodeableConcept = get_codeable_concept(field['array_data'].first)
+                                observation.valueCodeableConcept = generate_codeable_concept(field['array_data'].first)
                             end
                         when "Units" then
                             # OBX-6.単位
                             if !observation.valueQuantity.nil? then
-                                units = get_codeable_concept(field['array_data'].first)
+                                units = generate_codeable_concept(field['array_data'].first)
                                 quantity = observation.valueQuantity
                                 quantity.unit = units.coding.display 
                             end

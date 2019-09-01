@@ -41,7 +41,7 @@ class GenerateMedicationRequest < GenerateAbstract
                             medication_request.authoredOn = Date.parse(field['value'])
                         when 'Ordering Provider' then
                             # ORC-12.依頼者
-                            identifier = get_identifier_from_xcn(field['array_data'].first)
+                            identifier = generate_identifier_from_xcn(field['array_data'].first)
                             # 参照
                             get_resources_from_identifier('PractitionerRole', identifier).each do |entry|
                                 medication_request.requester = create_reference(entry)
@@ -71,7 +71,7 @@ class GenerateMedicationRequest < GenerateAbstract
                         case field['name']
                         when 'Give Code' then
                             # RXE-2.与薬コード
-                            codeable_concept = get_codeable_concept(field['array_data'].first)
+                            codeable_concept = generate_codeable_concept(field['array_data'].first)
                             codeable_concept.coding.system =
                                 case codeable_concept.coding.system
                                 when 'HOT' then 'OID:1.2.392.100495.20.2.74' # HOTコード
@@ -97,18 +97,18 @@ class GenerateMedicationRequest < GenerateAbstract
                             end
                             dosage.doseAndRate.each do |record|
                                 quantity = record.doseQuantity
-                                codeable_concept = get_codeable_concept(field['array_data'].first)
+                                codeable_concept = generate_codeable_concept(field['array_data'].first)
                                 quantity.code = codeable_concept.coding.code
                                 quantity.unit = codeable_concept.coding.display    
                             end
                         when 'Give Dosage Form' then
                             # RXE-6.与薬剤型
-                            codeable_concept = get_codeable_concept(field['array_data'].first)
+                            codeable_concept = generate_codeable_concept(field['array_data'].first)
                             medication_request.category.push(codeable_concept)
                         when "Provider's Administration Instructions" then
                             # RXE-7.依頼者の投薬指示
                             field['array_data'].each do |record|
-                                dosage.additionalInstruction.push(get_codeable_concept(record))
+                                dosage.additionalInstruction.push(generate_codeable_concept(record))
                             end
                         when 'Dispense Amount' then
                             # RXE-10.調剤量
@@ -121,7 +121,7 @@ class GenerateMedicationRequest < GenerateAbstract
                             # RXE-11.調剤単位
                             dispense_request = medication_request.dispenseRequest
                             quantity = dispense_request.quantity
-                            codeable_concept = get_codeable_concept(field['array_data'].first)
+                            codeable_concept = generate_codeable_concept(field['array_data'].first)
                             quantity.code = codeable_concept.coding.code
                             quantity.unit = codeable_concept.coding.display
                         when 'Total Daily Dose' then
@@ -129,14 +129,14 @@ class GenerateMedicationRequest < GenerateAbstract
                             quantity = FHIR::Quantity.new()
                             dose_and_rate = FHIR::Dosage::DoseAndRate.new()
                             dose_and_rate.type = create_codeable_concept(field['name'], field['ja_name'])
-                            dose_and_rate.doseQuantity = get_quantity(field['array_data'].first)
+                            dose_and_rate.doseQuantity = generate_quantity(field['array_data'].first)
                             dosage.doseAndRate.push(dose_and_rate)
                         when "Pharmacy/Treatment Supplier's Special Dispensing Instructions" then
                             # RXE-21.薬剤部門/治療部門による特別な調剤指示
                             
                         when 'Give Indication' then
                             # RXE-27.与薬指示
-                            codeable_concept = get_codeable_concept(field['array_data'].first)
+                            codeable_concept = generate_codeable_concept(field['array_data'].first)
                             medication_request.category.push(codeable_concept)
                         end
                     end
@@ -161,7 +161,7 @@ class GenerateMedicationRequest < GenerateAbstract
                                 record.select{|c| 
                                     c['name'] == 'Repeat Pattern Code'
                                 }.each do |element|
-                                    codeable_concept = get_codeable_concept(element['array_data'])
+                                    codeable_concept = generate_codeable_concept(element['array_data'])
                                     if timing.code.nil? then
                                         timing.code = codeable_concept
                                     else
@@ -191,7 +191,7 @@ class GenerateMedicationRequest < GenerateAbstract
                                     if element['array_data'].nil? then
                                         period_unit = element['value']
                                     else
-                                        codeable_concept = get_codeable_concept(element['array_data'])
+                                        codeable_concept = generate_codeable_concept(element['array_data'])
                                         period_unit = codeable_concept.coding.code
                                     end
                                     # 投薬日数／回数単位
@@ -225,10 +225,10 @@ class GenerateMedicationRequest < GenerateAbstract
                         case field['name']
                         when 'Route' then
                             # RXR-1.経路
-                            dosage.route = get_codeable_concept(field['array_data'].first)
+                            dosage.route = generate_codeable_concept(field['array_data'].first)
                         when 'Administration Site' then
                             # RXR-2.部位
-                            dosage.site = get_codeable_concept(field['array_data'].first)
+                            dosage.site = generate_codeable_concept(field['array_data'].first)
                         end
                     end
                 end

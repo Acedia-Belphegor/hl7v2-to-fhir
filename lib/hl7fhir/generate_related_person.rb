@@ -23,27 +23,27 @@ class GenerateRelatedPerson < GenerateAbstract
                 when 'Name' then
                     # NK1-2.氏名
                     field['array_data'].each do |record|
-                        human_name = get_human_name(record)
+                        human_name = generate_human_name(record)
                         human_name.use = 'official'
                         related_person.name.push(human_name)
                     end
                 when 'Relationship' then
                     # NK1-3.続柄
-                    related_person.relationship = get_codeable_concept(field['array_data'].first)
+                    related_person.relationship = generate_codeable_concept(field['array_data'].first)
                 when 'Address' then
                     # NK1-4.住所
                     field['array_data'].each do |record|
-                        related_person.address.push(get_address(record))
+                        related_person.address.push(generate_address(record))
                     end
                 when 'Phone Number' then
                     # NK1-5.電話番号
                     field['array_data'].each do |record|
-                        related_person.telecom.push(get_contact_point(record))
+                        related_person.telecom.push(generate_contact_point(record))
                     end
                 when 'Business Phone Number' then
                     # NK1-6.勤務先電話番号
                     field['array_data'].each do |record|
-                        related_person.telecom.push(get_contact_point(record))
+                        related_person.telecom.push(generate_contact_point(record))
                     end
                 end
             end

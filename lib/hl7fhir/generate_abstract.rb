@@ -21,8 +21,8 @@ class GenerateAbstract
         return get_resources_from_type(resource_type).select{|c| c.resource.identifier == identifier}
     end
 
-    # HL7v2:CWE → FHIR:CodeableConcept
-    def get_codeable_concept(record)
+    # HL7v2:CWE -> FHIR:CodeableConcept
+    def generate_codeable_concept(record)
         codeable_concept = FHIR::CodeableConcept.new()
         coding = FHIR::Coding.new()
         record.select{|c| 
@@ -48,8 +48,8 @@ class GenerateAbstract
         return codeable_concept
     end
 
-    # HL7v2:XPN,XCN → FHIR:HumanName
-    def get_human_name(record)
+    # HL7v2:XPN,XCN -> FHIR:HumanName
+    def generate_human_name(record)
         human_name = FHIR::HumanName.new()
         record.select{|c|
             Array[
@@ -80,8 +80,8 @@ class GenerateAbstract
         return human_name
     end
 
-    # HL7v2:XAD → FHIR:Address 変換
-    def get_address(record)
+    # HL7v2:XAD -> FHIR:Address 変換
+    def generate_address(record)
         address = FHIR::Address.new()
         record.each do |element|
             case element['name']
@@ -105,8 +105,8 @@ class GenerateAbstract
         return address
     end
 
-    # HL7v2:CQ → FHIR:Quantity 変換
-    def get_quantity(record)
+    # HL7v2:CQ -> FHIR:Quantity 変換
+    def generate_quantity(record)
         quantity = FHIR::Quantity.new()
         record.each do |element|
             case element['name']
@@ -116,7 +116,7 @@ class GenerateAbstract
             when 'Units' then
                 # CQ-2.単位付複合数量
                 if !element['array_data'].nil? then
-                    codeable_concept = get_codeable_concept(element['array_data'])
+                    codeable_concept = generate_codeable_concept(element['array_data'])
                     quantity.code = codeable_concept.coding.code
                     quantity.unit = codeable_concept.coding.display
                 end
@@ -125,8 +125,8 @@ class GenerateAbstract
         return quantity
     end
 
-    # HL7v2:XTN → FHIR:ContactPoint 変換
-    def get_contact_point(record)
+    # HL7v2:XTN -> FHIR:ContactPoint 変換
+    def generate_contact_point(record)
         contact_point = FHIR::ContactPoint.new()
         record.select{|c|
             Array[
@@ -174,8 +174,8 @@ class GenerateAbstract
         return contact_point
     end
 
-    # HL7v2:XCN → FHIR:Identifier
-    def get_identifier_from_xcn(record)
+    # HL7v2:XCN -> FHIR:Identifier
+    def generate_identifier_from_xcn(record)
         identifier = FHIR::Identifier.new()
         record.select{|c|
             Array[
@@ -191,8 +191,8 @@ class GenerateAbstract
         return identifier
     end
 
-    # JHSD表:0001(保険種別) → 電子処方箋CDA:1.2.392.100495.20.2.61(保険種別コード) 変換
-    def get_insurance_code(value)
+    # JHSD表:0001(保険種別) -> 電子処方箋CDA:1.2.392.100495.20.2.61(保険種別コード) 変換
+    def generate_insurance_code(value)
         if @jahis_tables.nil? then
             filename = Pathname.new(File.dirname(File.expand_path(__FILE__))).join('json').join('JAHIS_TABLES.json')
             @jahis_tables = File.open(filename) do |io|
@@ -218,9 +218,9 @@ class GenerateAbstract
         end
     end
 
-    # MERIT-9(MR9P):剤形略号 → 電子処方箋CDA:1.2.392.100495.20.2.21(剤形区分コード) 変換
-    def get_medication_category(record)
-        codeable_concept = get_codeable_concept(record)
+    # MERIT-9(MR9P):剤形略号 -> 電子処方箋CDA:1.2.392.100495.20.2.21(剤形区分コード) 変換
+    def generate_medication_category(record)
+        codeable_concept = generate_codeable_concept(record)
         coding = FHIR::Coding.new()
         coding.system = 'OID:1.2.392.100495.20.2.21'
         case codeable_concept.coding.code

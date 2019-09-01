@@ -41,7 +41,7 @@ class GenerateServiceRequest < GenerateAbstract
             when "Pharmacy/Treatment Supplier's Special Dispensing Instructions" then
                 # RXE-21.薬剤部門/治療部門による特別な調剤指示
                 field['array_data'].each do |record|
-                    service_request.category.push(get_codeable_concept(record))
+                    service_request.category.push(generate_codeable_concept(record))
                 end
             end
         end
@@ -55,6 +55,6 @@ class GenerateServiceRequest < GenerateAbstract
     end
 end
 
-# test
+# debug
 # generator = FhirPrescriptionGenerator.new(get_message_example('RDE'), generate: true)
 # puts generator.get_resources.to_json

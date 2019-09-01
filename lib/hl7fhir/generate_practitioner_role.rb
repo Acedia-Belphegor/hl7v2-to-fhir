@@ -45,7 +45,7 @@ class GeneratePractitionerRole < GenerateAbstract
                 end
             when 'Entering Organization' then
                 # ORC-17.入力組織（診療科）
-                practitioner_role.specialty.push(get_codeable_concept(field['array_data'].first))
+                practitioner_role.specialty.push(generate_codeable_concept(field['array_data'].first))
             end
         end
         # 医療機関の参照

@@ -31,7 +31,7 @@ class GenerateCoverage < GenerateAbstract
                     }.each do |element|
                         case element['name']
                         when 'Identifier' then
-                            insurance = get_insurance_code(element['value'])
+                            insurance = generate_insurance_code(element['value'])
                             if !insurance.nil? then
                                 coverage.type = create_codeable_concept(insurance[0],insurance[1],'1.2.392.100495.20.2.61')
                             end

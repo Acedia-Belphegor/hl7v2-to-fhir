@@ -35,7 +35,7 @@ class GeneratePatient < GenerateAbstract
             when 'Patient Name' then
                 # PID-5.患者氏名
                 field['array_data'].each do |record|
-                    human_name = get_human_name(record)
+                    human_name = generate_human_name(record)
                     human_name.use = 'official'
                     patient.name.push(human_name)
                 end
@@ -52,17 +52,17 @@ class GeneratePatient < GenerateAbstract
             when 'Patient Address' then
                 # PID-11.患者の住所
                 field['array_data'].each do |record|
-                    patient.address.push(get_address(record))
+                    patient.address.push(generate_address(record))
                 end
             when 'Phone Number - Home' then
                 # PID-13.電話番号-自宅
                 field['array_data'].each do |record|
-                    patient.telecom.push(get_contact_point(record))
+                    patient.telecom.push(generate_contact_point(record))
                 end
             when 'Phone Number - Business' then
                 # PID-14.電話番号-勤務先
                 field['array_data'].each do |record|
-                    patient.telecom.push(get_contact_point(record))
+                    patient.telecom.push(generate_contact_point(record))
                 end
             end
         end

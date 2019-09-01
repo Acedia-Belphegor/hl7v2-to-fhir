@@ -42,7 +42,7 @@ class GeneratePractitioner < GenerateAbstract
                 end
                 field['array_data'].each do |record|
                     # 医師氏名
-                    practitioner.name.push(get_human_name(record))
+                    practitioner.name.push(generate_human_name(record))
                 end
             end
         end

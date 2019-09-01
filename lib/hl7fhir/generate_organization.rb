@@ -46,12 +46,12 @@ class GenerateOrganization < GenerateAbstract
             when 'Ordering Facility Address' then
                 # ORC-22.オーダ施設住所
                 field['array_data'].each do |record|
-                    organization.address.push(get_address(record))
+                    organization.address.push(generate_address(record))
                 end                
             when 'Ordering Facility Phone Number' then
                 # ORC-23.オーダ施設電話番号
                 field['array_data'].each do |record|
-                    organization.telecom.push(get_contact_point(record))
+                    organization.telecom.push(generate_contact_point(record))
                 end
             end
         end

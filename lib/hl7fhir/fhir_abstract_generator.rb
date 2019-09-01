@@ -28,6 +28,10 @@ class FhirAbstractGenerator
         return @bundle
     end
 
+    def get_resources_from_type(resource_type)
+        return @bundle.entry.select{|c| c.resource.resourceType == resource_type}
+    end
+
     def get_params()
         return {parser: @parser, bundle: @bundle}
     end
