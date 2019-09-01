@@ -54,7 +54,3 @@ class GenerateServiceRequest < GenerateAbstract
         return Array[entry]
     end
 end
-
-# debug
-# generator = FhirPrescriptionGenerator.new(get_message_example('RDE'), generate: true)
-# puts generator.get_resources.to_json

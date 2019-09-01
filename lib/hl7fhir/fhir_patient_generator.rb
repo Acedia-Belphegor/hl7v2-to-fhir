@@ -17,7 +17,3 @@ class FhirPatientGenerator < FhirAbstractGenerator
         true
     end
 end
-
-# debug
-# generator = FhirPatientGenerator.new(get_message_example('ADT'), generate: true)
-# puts generator.get_resources.to_json
