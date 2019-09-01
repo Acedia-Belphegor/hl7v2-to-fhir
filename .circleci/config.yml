@@ -51,7 +51,11 @@ jobs:
       # - run: bundle exec rake db:create
       # - run: bundle exec rake db:schema:load
 
-      # run tests!
+      - run:
+          name: test
+          command: bundle exec rspec --format documentation
+          
+      # # run tests!
       # - run:
       #     name: run tests
       #     command: |
@@ -66,20 +70,12 @@ jobs:
       #         --format progress \
       #         $TEST_FILES
 
-      - type: shell
-        command: |
-          bundle exec rspec 
-            --format RspecJunitFormatter \
-            --out test_results/rspec.xml \
-            --format progress \
-            $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
-
-      # collect reports
-      - store_test_results:
-          path: /tmp/test-results
-      - store_artifacts:
-          path: /tmp/test-results
-          destination: test-results
+      # # collect reports
+      # - store_test_results:
+      #     path: /tmp/test-results
+      # - store_artifacts:
+      #     path: /tmp/test-results
+      #     destination: test-results
       
       - deploy:
           name: Deploy Master to Heroku
