@@ -27,7 +27,7 @@ RSpec.describe FhirPrescriptionGenerator do
 
     it '#perform' do
         generator.perform
-        expect(generator.get_resources.entry.count).to eq 11
+        expect(generator.get_resources.entry.count).to eq 10
     end
 
     # it 'generate patient' do
