@@ -4,7 +4,7 @@ require_relative 'generate_abstract'
 class GeneratePractitionerRole < GenerateAbstract
     def perform()
         practitioner_role = FHIR::PractitionerRole.new()
-        practitioner_role.id = 0
+        practitioner_role.id = '0'
 
         orc_segment = @parser.get_parsed_segments('ORC')
         if orc_segment.nil? then
@@ -34,9 +34,9 @@ class GeneratePractitionerRole < GenerateAbstract
                         identifier = FHIR::Identifier.new()
                         identifier.system = "OID:1.2.392.100495.20.3.41.1#{@parser.get_sending_facility[:all]}"
                         identifier.value = element['value']
-                        practitioner_role.identifier = identifier
+                        practitioner_role.identifier.push(identifier)
                         # 役割
-                        practitioner_role.code = create_codeable_concept('doctor','Doctor','http://terminology.hl7.org/CodeSystem/practitioner-role')
+                        practitioner_role.code = Array[create_codeable_concept('doctor','Doctor','http://terminology.hl7.org/CodeSystem/practitioner-role')]
                         # 処方医の参照
                         get_resources_from_identifier('Practitioner', identifier).each do |entry|
                             practitioner_role.practitioner = create_reference(entry)

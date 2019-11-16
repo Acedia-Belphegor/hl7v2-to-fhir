@@ -4,7 +4,7 @@ require_relative 'generate_abstract'
 class GeneratePatient < GenerateAbstract
     def perform()
         patient = FHIR::Patient.new()
-        patient.id = 0
+        patient.id = '0'
 
         pid_segment = @parser.get_parsed_segments('PID')
         if pid_segment.nil? then
@@ -31,7 +31,7 @@ class GeneratePatient < GenerateAbstract
                 identifier = FHIR::Identifier.new()
                 identifier.system = "OID:1.2.392.100495.20.3.51.1#{@parser.get_sending_facility[:all]}"
                 identifier.value = field['array_data'].first.find{|c| c['name'] == 'ID Number'}['value']
-                patient.identifier = identifier
+                patient.identifier.push(identifier)
             when 'Patient Name' then
                 # PID-5.患者氏名
                 field['array_data'].each do |record|

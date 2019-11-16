@@ -11,7 +11,7 @@ class FhirPrescriptionGenerator < FhirAbstractGenerator
         @bundle.entry.concat(GeneratePractitionerRole.new(get_params).perform) # PractitionerRole
         @bundle.entry.concat(GenerateOrganization.new(get_params).perform) # Organization
         @bundle.entry.concat(GenerateMedicationRequest.new(get_params).perform) # MedicationRequest
-        @bundle.entry.concat(GenerateServiceRequest.new(get_params).perform) # ServiceRequest
+        # @bundle.entry.concat(GenerateServiceRequest.new(get_params).perform) # ServiceRequest
     end
 
     private

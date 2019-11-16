@@ -4,7 +4,7 @@ require_relative 'generate_abstract'
 class GeneratePractitioner < GenerateAbstract
     def perform()
         practitioner = FHIR::Practitioner.new()
-        practitioner.id = 0
+        practitioner.id = '0'
 
         orc_segment = @parser.get_parsed_segments('ORC')
         if orc_segment.nil? then
@@ -37,7 +37,7 @@ class GeneratePractitioner < GenerateAbstract
                         identifier = FHIR::Identifier.new()
                         identifier.system = "OID:1.2.392.100495.20.3.41.1#{@parser.get_sending_facility[:all]}"
                         identifier.value = element['value']
-                        practitioner.identifier = identifier
+                        practitioner.identifier.push(identifier)
                     end
                 end
                 field['array_data'].each do |record|

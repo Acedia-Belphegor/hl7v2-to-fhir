@@ -44,7 +44,7 @@ class GenerateAbstract
                 coding.system = element['value']
             end
         end
-        codeable_concept.coding = coding
+        codeable_concept.coding.push(coding)
         return codeable_concept
     end
 
@@ -64,7 +64,7 @@ class GenerateAbstract
                 human_name.family = element['value']
             when 'Given Name' then
                 # XPN-2,XCN-3.名
-                human_name.given = element['value']
+                human_name.given.push(element['value'])
             when 'Name Representation Code' then
                 # XPN-8,XCN-15.名前表記コード
                 extension = FHIR::Extension.new()
@@ -112,13 +112,13 @@ class GenerateAbstract
             case element['name']
             when 'Quantity' then
                 # CQ-1.数量
-                quantity.value = element['value']
+                quantity.value = element['value'].to_i
             when 'Units' then
                 # CQ-2.単位付複合数量
                 if !element['array_data'].nil? then
                     codeable_concept = generate_codeable_concept(element['array_data'])
-                    quantity.code = codeable_concept.coding.code
-                    quantity.unit = codeable_concept.coding.display
+                    quantity.code = codeable_concept.coding.first.code
+                    quantity.unit = codeable_concept.coding.first.display
                 end
             end
         end
@@ -238,7 +238,7 @@ class GenerateAbstract
             coding.display = 'その他'
             codeable_concept.text = codeable_concept.coding.displey
         end
-        codeable_concept.coding = coding
+        codeable_concept.coding.push(coding)
         return codeable_concept
     end
 
@@ -248,7 +248,7 @@ class GenerateAbstract
         coding.code = code
         coding.display = display
         coding.system = system
-        codeable_concept.coding = coding
+        codeable_concept.coding.push(coding)
         return codeable_concept
     end
 

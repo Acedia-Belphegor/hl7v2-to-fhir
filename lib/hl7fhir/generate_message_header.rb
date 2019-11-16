@@ -4,7 +4,7 @@ require_relative 'generate_abstract'
 class GenerateMessageHeader < GenerateAbstract
     def perform()
         message_header = FHIR::MessageHeader.new()
-        message_header.id = 0
+        message_header.id = '0'
 
         msh_segment = @parser.get_parsed_segments('MSH')
         if msh_segment.nil? then
@@ -32,12 +32,12 @@ class GenerateMessageHeader < GenerateAbstract
                 # MSH-5.受信アプリケーション
                 destination = FHIR::MessageHeader::Destination.new()
                 destination.name = field['value']
-                message_header.destination = destination
+                message_header.destination.push(destination)
             when 'Message Type' then
                 # MSH-9.メッセージ型
                 coding = FHIR::Coding.new()
                 coding.code = field['value']
-                coding.system = 'http://www.hl7.org'
+                coding.system = 'http://www.hl7fhir.jp'
                 message_header.eventCoding = coding
             end
         end

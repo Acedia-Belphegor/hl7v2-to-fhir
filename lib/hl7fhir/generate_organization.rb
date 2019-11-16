@@ -4,7 +4,7 @@ require_relative 'generate_abstract'
 class GenerateOrganization < GenerateAbstract
     def perform()
         organization = FHIR::Organization.new()
-        organization.id = 0
+        organization.id = '0'
 
         # 都道府県番号
         identifier = FHIR::Identifier.new()

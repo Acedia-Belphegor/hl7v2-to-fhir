@@ -6,7 +6,7 @@ class GenerateCoverage < GenerateAbstract
         result = Array[]
         @parser.get_parsed_segments('IN1').each do |segment|
             coverage = FHIR::Coverage.new()
-            coverage.id = result.length
+            coverage.id = result.length.to_s
             segment.select{|c| 
                 Array[
                     "Insurance Plan ID",
@@ -40,7 +40,7 @@ class GenerateCoverage < GenerateAbstract
                 when 'Insurance Company ID' then
                     # IN1-3.保険会社ID(保険者番号 / 公費負担者番号)
                     identifier = FHIR::Identifier.new()
-                    if coverage.type.coding.code == '8' then
+                    if coverage.type.coding.first.code == '8' then
                         identifier.system = "OID:1.2.392.100495.20.3.71" # 公費負担者番号
                     else
                         identifier.system = "OID:1.2.392.100495.20.3.61" # 保険者番号
@@ -49,7 +49,7 @@ class GenerateCoverage < GenerateAbstract
                     coverage.identifier.push(identifier)
                 when 'Insured’s Group Emp ID' then
                     # IN1-10.被保険者グループ雇用者ID(記号)
-                    if coverage.type.coding.code == '8' then
+                    if coverage.type.coding.first.code == '8' then
                         next # 公費の場合は無視する
                     end
                     identifier = FHIR::Identifier.new()
@@ -58,7 +58,7 @@ class GenerateCoverage < GenerateAbstract
                     coverage.identifier.push(identifier)
                 when 'Insured’s Group Emp Name' then
                     # IN1-11.被保険者グループ雇用者名(番号)
-                    if coverage.type.coding.code == '8' then
+                    if coverage.type.coding.first.code == '8' then
                         next # 公費の場合は無視する
                     end
                     identifier = FHIR::Identifier.new()
@@ -87,7 +87,7 @@ class GenerateCoverage < GenerateAbstract
                     end
                 when 'Insured’s Relationship To Patient' then
                     # IN1-17.被保険者と患者の関係(本人/家族)
-                    if coverage.type.coding.code == '8' then
+                    if coverage.type.coding.first.code == '8' then
                         next # 公費の場合は無視する
                     end
                     field['array_data'].first.select{|c| 
@@ -108,12 +108,21 @@ class GenerateCoverage < GenerateAbstract
                                 coding.code = '2' # 被扶養者
                                 coding.display = '被扶養者'
                             end
-                            codeable_concept.coding = coding
+                            codeable_concept.coding.push(coding)
                             coverage.relationship = codeable_concept    
                         end
                     end
                 end
             end
+            # 受益者の参照
+            get_resources_from_type('Patient').each do |entry|
+                coverage.beneficiary = create_reference(entry)
+            end
+            # 支払者の参照
+            reference = FHIR::Reference.new()
+            reference.type = 'Organization'
+            reference.id = 'dummy'
+            coverage.payor = Array[reference]
             entry = FHIR::Bundle::Entry.new()
             entry.resource = coverage
             result.push(entry)
