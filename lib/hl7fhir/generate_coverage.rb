@@ -66,7 +66,7 @@ class GenerateCoverage < GenerateAbstract
                     identifier.value = field['value']
                     coverage.identifier.push(identifier)
                 when 'Plan Effective Date' then
-                    # IN1-13.プラン有効日付(有効開始日)
+                    # IN1-12.プラン有効日付(有効開始日)
                     if !field['value'].empty? then
                         if coverage.period.nil? then
                             period = FHIR::Period.new()
@@ -76,7 +76,7 @@ class GenerateCoverage < GenerateAbstract
                         period.start = parse_str_datetime(field['value'])    
                     end
                 when 'Plan Expiration Date' then
-                    # IN1-14.プラン失効日付(有効終了日)
+                    # IN1-13.プラン失効日付(有効終了日)
                     if !field['value'].empty? then
                         if coverage.period.nil? then
                             period = FHIR::Period.new()

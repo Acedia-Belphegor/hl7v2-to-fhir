@@ -61,6 +61,7 @@ class GenerateMedicationRequest < GenerateAbstract
                             "Dispense Amount",
                             "Dispense Units",
                             "Give Indication",
+                            "Prescription Number",
                             "Total Daily Dose",
                             "Pharmacy/Treatment Supplier's Special Dispensing Instructions",
                             "Give Indication",
@@ -125,6 +126,12 @@ class GenerateMedicationRequest < GenerateAbstract
                             codeable_concept = generate_codeable_concept(field['array_data'].first)
                             quantity.code = codeable_concept.coding.first.code
                             quantity.unit = codeable_concept.coding.first.display
+                        when 'Prescription Number' then
+                            # RXE-15.処方箋番号
+                            identifier = FHIR::Identifier.new()
+                            identifier.system = 'OID:1.2.392.100495.20.3.11'
+                            identifier.value = field['value']
+                            medication_request.identifier.push(identifier)
                         when 'Total Daily Dose' then
                             # RXE-19.1日あたりの総投与量
                             quantity = FHIR::Quantity.new()

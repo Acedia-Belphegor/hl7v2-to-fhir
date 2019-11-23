@@ -20,6 +20,12 @@ class GeneratePatient < GenerateAbstract
                 "Patient Address",
                 "Phone Number - Home",
                 "Phone Number - Business",
+                "Primary Language",
+                "Marital Status",
+                "Multiple Birth Indicator",
+                "Birth Order",
+                "Patient Death Date and Time",
+                "Patient Death Indicator",
             ].include?(c['name'])
         }.each do |field|
             if ignore_fields?(field) then
@@ -63,6 +69,42 @@ class GeneratePatient < GenerateAbstract
                 # PID-14.電話番号-勤務先
                 field['array_data'].each do |record|
                     patient.telecom.push(generate_contact_point(record))
+                end
+            when 'Primary Language' then
+                # PID-15.使用言語
+                communication = FHIR::Communication.new()
+                communication.language = generate_codeable_concept(field['value']) 
+                patient.communication = communication
+            when 'Marital Status' then
+                # PID-16.婚姻状況
+                patient.maritalStatus = generate_codeable_concept(field['value'])
+            when 'Multiple Birth Indicator' then
+                # PID-24.多胎児識別情報
+                if !field['value'].empty? then
+                    if field['value'] == 'Y' then
+                        patient.multipleBirthBoolean = true
+                    else
+                        patient.multipleBirthBoolean = false
+                    end
+                end
+            when 'Birth Order' then
+                # PID-25.誕生順序
+                if !field['value'].empty? then
+                    patient.multipleBirthInteger = field['value'].to_i
+                end
+            when 'Patient Death Date and Time' then
+                # PID-29.患者死亡日時
+                if !field['value'].empty? then
+                    patient.deceasedDateTime = DateTime.parse(field['value'])
+                end
+            when 'Patient Death Indicator' then
+                # PID-30.患者死亡識別情報
+                if !field['value'].empty? then
+                    if field['value'] == 'Y' then
+                        patient.deceasedBoolean = true
+                    else
+                        patient.deceasedBoolean = false
+                    end
                 end
             end
         end
