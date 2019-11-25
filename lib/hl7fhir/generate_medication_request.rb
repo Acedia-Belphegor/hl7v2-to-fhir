@@ -18,6 +18,7 @@ class GenerateMedicationRequest < GenerateAbstract
                             "Placer Order Number",
                             "Placer Group Number",
                             "Date/Time of Transaction",
+                            "Entered By",
                             "Ordering Provider",
                         ].include?(c['name'])
                     }.each do |field|
@@ -40,6 +41,9 @@ class GenerateMedicationRequest < GenerateAbstract
                         when 'Date/Time of Transaction' then
                             # ORC-9.トランザクション日時(交付年月日)
                             medication_request.authoredOn = Date.parse(field['value'])
+                        when 'Entered By' then
+                            # ORC-10.入力者
+                            
                         when 'Ordering Provider' then
                             # ORC-12.依頼者
                             identifier = generate_identifier_from_xcn(field['array_data'].first)
