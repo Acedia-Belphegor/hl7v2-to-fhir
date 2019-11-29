@@ -189,7 +189,7 @@
 | 10 | Dispense Amount | MedicationRequest | dispenseRequest.quantity |
 | 11 | Dispense Units | MedicationRequest | dispenseRequest.quantity |
 | 12 | Number of Refills |  |  |  |
-| 13 | Ordering Provider's DEA Number |  |  |  |
+| 13 | Ordering Provider's DEA Number | Practitioner | qualification.identifier |  |
 | 14 | Pharmacist/Treatment Supplier's Verifier ID |  |  |  |
 | 15 | Prescription Number | MedicationRequest | identifier |
 | 16 | Number of Refills Remaining |  |  |  |

@@ -64,6 +64,7 @@ class GenerateMedicationRequest < GenerateAbstract
                             "Provider's Administration Instructions",
                             "Dispense Amount",
                             "Dispense Units",
+                            "Ordering Provider's DEA Number",
                             "Give Indication",
                             "Prescription Number",
                             "Total Daily Dose",
@@ -130,6 +131,9 @@ class GenerateMedicationRequest < GenerateAbstract
                             codeable_concept = generate_codeable_concept(field['array_data'].first)
                             quantity.code = codeable_concept.coding.first.code
                             quantity.unit = codeable_concept.coding.first.display
+                        when "Ordering Provider's DEA Number" then
+                            # RXE-13.オーダ発行者の DEA 番号
+
                         when 'Prescription Number' then
                             # RXE-15.処方箋番号
                             identifier = FHIR::Identifier.new()
