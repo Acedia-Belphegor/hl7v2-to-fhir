@@ -49,7 +49,7 @@ class HL7Parser
     # 指定されたセグメント、フィールドを返す
     def get_parsed_fields(segment_id, field_name)
         segments = get_parsed_segments(segment_id)
-        if !segments.nil? then
+        if !segments.nil? && !segments.empty? then
             return segments.first.select{|c| c['name'] == field_name}
         end
     end
@@ -57,7 +57,7 @@ class HL7Parser
     # 指定されたセグメント、フィールドの値を返す
     def get_parsed_value(segment_id, field_name)
         segments = get_parsed_segments(segment_id)
-        if !segments.nil? then
+        if !segments.nil? && !segments.empty? then
             field = segments.first.find{|c| c['name'] == field_name}
             if !field.nil? then
                 return field['value']

@@ -46,13 +46,16 @@ class GeneratePractitioner < GenerateAbstract
                 end
 
                 # RXE-13.オーダ発行者の DEA 番号
-                @parser.get_parsed_fields("RXE", "Ordering Provider's DEA Number").first['array_data'].each do |record|
-                    identifier = FHIR::Identifier.new()
-                    identifier.system = "OID:1.2.392.100495.20.3.32"
-                    identifier.value = record[0]['value']
-                    qualification = FHIR::Practitioner::Qualification.new()
-                    qualification.identifier = identifier
-                    practitioner.qualification = qualification
+                dea_number = @parser.get_parsed_fields("RXE", "Ordering Provider's DEA Number")
+                if !dea_number.nil? then
+                    dea_number.first['array_data'].each do |record|
+                        identifier = FHIR::Identifier.new()
+                        identifier.system = "OID:1.2.392.100495.20.3.32"
+                        identifier.value = record[0]['value']
+                        qualification = FHIR::Practitioner::Qualification.new()
+                        qualification.identifier = identifier
+                        practitioner.qualification = qualification
+                    end
                 end
             end
         end
