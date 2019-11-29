@@ -238,7 +238,7 @@
 | 11 | Text instruction | MedicationRequest | dosageInstruction.dosage.patientInstruction |
 | 12 | Conjunction |  |  |  |
 | 13 | Occurrence duration |  |  |  |
-| 14 | Total occurrence's |  |  |  |
+| 14 | Total occurrence's | MedicationRequest | dosageInstruction.dosage.timing.repeat |  |
 
 ### RXR
 | v2 field | v2 name | FHIR resource | FHIR element | memo |

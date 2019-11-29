@@ -165,6 +165,7 @@ class GenerateMedicationRequest < GenerateAbstract
                             "Service Duration",
                             "Start date/time",
                             "Text instruction",
+                            "Total occurrence's",
                         ].include?(c['name'])
                     }.each do |field|
                         if ignore_fields?(field) then
@@ -213,8 +214,8 @@ class GenerateMedicationRequest < GenerateAbstract
                                     # 投薬日数／回数単位
                                     timing_repeat.periodUnit = 
                                         case period_unit
-                                        when '日','日分','D' then 'd' # 投薬日数
-                                        when '回','回分' then '1' # 投薬回数等
+                                        when '日','日分','D' then '日' # 投薬日数
+                                        when '回','回分','T' then '回' # 投薬回数等
                                         end
                                 end
                             end
@@ -225,6 +226,12 @@ class GenerateMedicationRequest < GenerateAbstract
                         when 'Text instruction' then
                             # TQ1-11.テキスト指令
                             dosage.patientInstruction = field['value']
+                        when "Total occurrence's" then
+                            # TQ1-14.事象総数
+                            timing_repeat = FHIR::Timing::Repeat.new()
+                            timing_repeat.period = field['value'].to_i
+                            timing_repeat.periodUnit = '回'
+                            timing.repeat = timing_repeat
                         end
                     end
                     dosage.timing = timing
