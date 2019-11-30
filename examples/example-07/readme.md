@@ -17,3 +17,6 @@ RXE||105271807^プレドニン錠５ｍｇ^HOT|3||TAB^錠^MR9P|||||21|TAB^錠^MR
 TQ1|||1011000400000000&内服・経口・１日１回朝食後&JAMISDP01~I1100000&１日おき&JAMISDP01|||7^D&日&ISO+|20160825
 RXR|PO^口^HL70162
 ```
+
+## FHIR
+- [json](https://github.com/Acedia-Belphegor/hl7v2-to-fhir/blob/master/examples/example-07/example_07.json)

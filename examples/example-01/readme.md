@@ -33,3 +33,8 @@ RXE||100565315^フェノバルビタール散１０％「ホエイ」^HOT|50||MG
 TQ1|||1012040400000000&内服・経口・１日２回朝夕食後&JAMISDP01|||14^D&日&ISO+|20160825
 RXR|PO^口^HL70162
 ```
+
+## FHIR
+- [json](https://github.com/Acedia-Belphegor/hl7v2-to-fhir/blob/master/examples/example-01/example_01.json)
+
+- [xml](https://github.com/Acedia-Belphegor/hl7v2-to-fhir/blob/master/examples/example-01/example_01.xml)

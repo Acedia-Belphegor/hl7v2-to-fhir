@@ -17,3 +17,6 @@ RXE||106238001^ジフラール軟膏０．０５％^HOT|""||""|OIT^軟膏^MR9P||
 TQ1|||2B74000000000000&外用・塗布・１日４回&JAMISDP01||||20160825
 RXR|AP^外用^HL70162|77L^左手^JAMISDP01
 ```
+
+## FHIR
+- [json](https://github.com/Acedia-Belphegor/hl7v2-to-fhir/blob/master/examples/example-02/example_02.json)

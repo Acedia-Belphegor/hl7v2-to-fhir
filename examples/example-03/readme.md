@@ -16,3 +16,6 @@ RXE||105625901^ボラギノールＮ坐薬 ^HOT|1||KO^ 個 ^MR9P|SUP^ 坐 剤 ^M
 TQ1|||2R62090900000000&外用・肛門挿入・１日２回朝夕&JAMISDP01|||14^D&日&ISO+|20160825
 RXR|PR^直腸^HL70162|8H0^肛門部^JAMISDP01
 ```
+
+## FHIR
+- [json](https://github.com/Acedia-Belphegor/hl7v2-to-fhir/blob/master/examples/example-03/example_03.json)

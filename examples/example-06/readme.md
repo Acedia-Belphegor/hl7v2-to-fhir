@@ -31,3 +31,6 @@ RXE||101230901^ペルマックス錠５０μｇ^HOT|3||TAB^錠^MR9P|||||18|TAB^�
 TQ1|||1013033300000000&内服・経口・１日３回朝昼夕食直後&JAMISDP01|||2^D&日&ISO+|20160830
 RXR|PO^口^HL70162
 ```
+
+## FHIR
+- [json](https://github.com/Acedia-Belphegor/hl7v2-to-fhir/blob/master/examples/example-06/example_06.json)
