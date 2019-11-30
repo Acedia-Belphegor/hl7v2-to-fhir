@@ -228,10 +228,12 @@ class GenerateMedicationRequest < GenerateAbstract
                             dosage.patientInstruction = field['value']
                         when "Total occurrence's" then
                             # TQ1-14.事象総数
-                            timing_repeat = FHIR::Timing::Repeat.new()
-                            timing_repeat.period = field['value'].to_i
-                            timing_repeat.periodUnit = '回'
-                            timing.repeat = timing_repeat
+                            if !field['value'].empty? then
+                                timing_repeat = FHIR::Timing::Repeat.new()
+                                timing_repeat.period = field['value'].to_i
+                                timing_repeat.periodUnit = '回'
+                                timing.repeat = timing_repeat
+                            end
                         end
                     end
                     dosage.timing = timing
