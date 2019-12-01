@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Bundle xmlns="http://hl7.org/fhir">
+    <type value="message"/>
+    <entry>
+        <resource>
+            <MessageHeader>
+                <id value="0"/>
+                <eventCoding>
+                    <system value="http://www.hl7fhir.jp"/>
+                    <code value="RDE^O11^RDE_O11"/>
+                </eventCoding>
+                <destination>
+                    <name value="RECEIVE"/>
+                </destination>
+                <source>
+                    <name value="SEND"/>
+                </source>
+            </MessageHeader>
+        </resource>
+    </entry>
+    <entry>
+        <resource>
+            <Patient>
+                <id value="0"/>
+                <identifier>
+                    <system value="OID:1.2.392.100495.20.3.51.1"/>
+                    <value value="1000000001"/>
+                </identifier>
+                <name>
+                    <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-EN-representation">
+                        <valueCode value="IDE"/>
+                    </extension>
+                    <use value="official"/>
+                    <family value="患者"/>
+                    <given value="太郎"/>
+                </name>
+                <name>
+                    <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-EN-representation">
+                        <valueCode value="SYL"/>
+                    </extension>
+                    <use value="official"/>
+                    <family value="カンジャ"/>
+                    <given value="タロウ"/>
+                </name>
+                <gender value="male"/>
+                <birthDate value="1960-12-24"/>
+            </Patient>
+        </resource>
+    </entry>
+    <entry>
+        <resource>
+            <Coverage>
+                <id value="0"/>
+                <identifier>
+                    <system value="OID:1.2.392.100495.20.3.61"/>
+                    <value value="&quot;&quot;"/>
+                </identifier>
+                <type>
+                    <coding>
+                        <system value="1.2.392.100495.20.2.61"/>
+                        <code value="1"/>
+                        <display value="社保"/>
+                    </coding>
+                </type>
+                <beneficiary id="0">
+                    <type value="Patient"/>
+                </beneficiary>
+                <payor id="dummy">
+                    <type value="Organization"/>
+                </payor>
+            </Coverage>
+        </resource>
+    </entry>
+    <entry>
+        <resource>
+            <Practitioner>
+                <id value="0"/>
+                <identifier>
+                    <system value="OID:1.2.392.100495.20.3.41.1"/>
+                    <value value="123456"/>
+                </identifier>
+                <name>
+                    <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-EN-representation">
+                        <valueCode value="IDE"/>
+                    </extension>
+                    <family value="医師"/>
+                    <given value="春子"/>
+                </name>
+                <name>
+                    <extension url="http://hl7.org/fhir/StructureDefinition/iso21090-EN-representation">
+                        <valueCode value="SYL"/>
+                    </extension>
+                    <family value="イシ"/>
+                    <given value="ハルコ"/>
+                </name>
+            </Practitioner>
+        </resource>
+    </entry>
+    <entry>
+        <resource>
+            <PractitionerRole>
+                <id value="0"/>
+                <identifier>
+                    <system value="OID:1.2.392.100495.20.3.41.1"/>
+                    <value value="123456"/>
+                </identifier>
+                <code>
+                    <coding>
+                        <system value="http://terminology.hl7.org/CodeSystem/practitioner-role"/>
+                        <code value="doctor"/>
+                        <display value="Doctor"/>
+                    </coding>
+                </code>
+                <specialty>
+                    <coding>
+                        <system value="99Z01"/>
+                        <code value="01"/>
+                        <display value="内科"/>
+                    </coding>
+                </specialty>
+            </PractitionerRole>
+        </resource>
+    </entry>
+    <entry>
+        <resource>
+            <Organization>
+                <id value="0"/>
+                <identifier>
+                    <system value="OID:1.2.392.100495.20.3.21"/>
+                </identifier>
+                <identifier>
+                    <system value="OID:1.2.392.100495.20.3.22"/>
+                </identifier>
+                <identifier>
+                    <system value="OID:1.2.392.100495.20.3.23"/>
+                </identifier>
+            </Organization>
+        </resource>
+    </entry>
+    <entry>
+        <resource>
+            <MedicationRequest>
+                <id value="0"/>
+                <identifier>
+                    <system value="OID:1.2.392.100495.20.3.11"/>
+                    <value value="12345678"/>
+                </identifier>
+                <identifier>
+                    <system value="OID:1.2.392.100495.20.3.81"/>
+                    <value value="12345678_01"/>
+                </identifier>
+                <status value="draft"/>
+                <intent value="order"/>
+                <category>
+                    <coding>
+                        <system value="HL70482"/>
+                        <code value="O"/>
+                        <display value="外来患者オーダ"/>
+                    </coding>
+                </category>
+                <category>
+                    <coding>
+                        <system value="MR9P"/>
+                        <code value="OHP"/>
+                        <display value="外来処方"/>
+                    </coding>
+                </category>
+                <category>
+                    <coding>
+                        <system value="MR9P"/>
+                        <code value="OHO"/>
+                        <display value="院外処方"/>
+                    </coding>
+                </category>
+                <category>
+                    <coding>
+                        <system value="JHSP0003"/>
+                        <code value="21"/>
+                        <display value="内服"/>
+                    </coding>
+                </category>
+                <medicationCodeableConcept>
+                    <coding>
+                        <system value="OID:1.2.392.100495.20.2.74"/>
+                        <code value="105271807"/>
+                        <display value="プレドニン錠５ｍｇ"/>
+                    </coding>
+                </medicationCodeableConcept>
+                <subject id="0">
+                    <type value="Patient"/>
+                </subject>
+                <authoredOn value="2016-08-25"/>
+                <insurance id="0">
+                    <type value="Coverage"/>
+                </insurance>
+                <dosageInstruction>
+                    <text value="内服・経口・１日１回朝食後　月曜日、木曜日"/>
+                    <additionalInstruction>
+                        <coding>
+                            <system value="JAMISDP01"/>
+                            <code value=" W0100100"/>
+                            <display value="月曜日、木曜日"/>
+                        </coding>
+                    </additionalInstruction>
+                    <timing>
+                        <event value="2016-08-25T00:00:00+00:00"/>
+                        <repeat>
+                            <period value="7"/>
+                            <periodUnit value="日"/>
+                        </repeat>
+                        <code>
+                            <coding>
+                                <system value="JAMISDP01"/>
+                                <code value="1011000400000000"/>
+                                <display value="内服・経口・１日１回朝食後"/>
+                            </coding>
+                        </code>
+                    </timing>
+                    <route>
+                        <coding>
+                            <system value="HL70162"/>
+                            <code value="PO"/>
+                            <display value="口"/>
+                        </coding>
+                    </route>
+                    <doseAndRate>
+                        <type>
+                            <coding>
+                                <system value="LC"/>
+                                <code value="Give Amount - Minimum"/>
+                                <display value="与薬量－最小"/>
+                            </coding>
+                        </type>
+                        <doseQuantity>
+                            <value value="3"/>
+                            <unit value="錠"/>
+                            <code value="TAB"/>
+                        </doseQuantity>
+                    </doseAndRate>
+                    <doseAndRate>
+                        <type>
+                            <coding>
+                                <system value="LC"/>
+                                <code value="Total Daily Dose"/>
+                                <display value="1 日あたりの総投与量"/>
+                            </coding>
+                        </type>
+                        <doseQuantity>
+                            <value value="3"/>
+                            <unit value="錠"/>
+                            <code value="TAB"/>
+                        </doseQuantity>
+                    </doseAndRate>
+                </dosageInstruction>
+                <dispenseRequest>
+                    <quantity>
+                        <value value="21"/>
+                        <unit value="錠"/>
+                        <code value="TAB"/>
+                    </quantity>
+                </dispenseRequest>
+            </MedicationRequest>
+        </resource>
+    </entry>
+</Bundle>

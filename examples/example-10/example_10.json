@@ -127,12 +127,6 @@
             ]
           }
         ],
-        "qualification": {
-          "identifier": {
-            "system": "OID:1.2.392.100495.20.3.32",
-            "value": "4-321"
-          }
-        },
         "resourceType": "Practitioner"
       }
     },
@@ -207,8 +201,8 @@
             "coding": [
               {
                 "system": "HL70482",
-                "code": "I",
-                "display": "入院患者オーダ"
+                "code": "O",
+                "display": "外来患者オーダ"
               }
             ]
           },
@@ -216,8 +210,8 @@
             "coding": [
               {
                 "system": "MR9P",
-                "code": "IHP",
-                "display": "入院処方"
+                "code": "OHP",
+                "display": "外来処方"
               }
             ]
           },
@@ -225,8 +219,8 @@
             "coding": [
               {
                 "system": "MR9P",
-                "code": "XTR",
-                "display": "定期処方"
+                "code": "OHI",
+                "display": "院内処方"
               }
             ]
           },
@@ -244,8 +238,8 @@
           "coding": [
             {
               "system": "OID:1.2.392.100495.20.2.74",
-              "code": "112052301",
-              "display": "ＭＳコンチン錠１０ｍｇ"
+              "code": "105271807",
+              "display": "プレドニン錠５ｍｇ"
             }
           ]
         },
@@ -253,7 +247,7 @@
           "id": "0",
           "type": "Patient"
         },
-        "authoredOn": "2016-08-21",
+        "authoredOn": "2016-08-25",
         "insurance": [
           {
             "id": "0",
@@ -262,14 +256,14 @@
         ],
         "dosageInstruction": [
           {
-            "text": "内服・経口・１日２回１２時間毎",
+            "text": " １日１回朝食後 　 隔 日 ",
             "additionalInstruction": [
               {
                 "coding": [
                   {
-                    "system": "JHSP0005",
-                    "code": "02",
-                    "display": "２回目から服用"
+                    "system": "JAMISDP01",
+                    "code": "I1100000",
+                    "display": " 隔 日 "
                   }
                 ]
               }
@@ -287,8 +281,8 @@
                   "coding": [
                     {
                       "system": "JAMISDP01",
-                      "code": "1022000000000000",
-                      "display": "内服・経口・１日２回１２時間毎"
+                      "code": "1011000400000000",
+                      "display": " １日１回朝食後 "
                     }
                   ]
                 }
@@ -315,7 +309,7 @@
                   ]
                 },
                 "doseQuantity": {
-                  "value": 2,
+                  "value": 3,
                   "unit": "錠",
                   "code": "TAB"
                 }
@@ -331,8 +325,8 @@
                   ]
                 },
                 "doseQuantity": {
-                  "value": 4,
-                  "unit": "錠",
+                  "value": 3,
+                  "unit": " 錠",
                   "code": "TAB"
                 }
               }
@@ -341,7 +335,169 @@
         ],
         "dispenseRequest": {
           "quantity": {
-            "value": 28,
+            "value": 21,
+            "unit": "錠",
+            "code": "TAB"
+          }
+        },
+        "resourceType": "MedicationRequest"
+      }
+    },
+    {
+      "resource": {
+        "id": "1",
+        "identifier": [
+          {
+            "system": "OID:1.2.392.100495.20.3.11",
+            "value": "12345678"
+          },
+          {
+            "system": "OID:1.2.392.100495.20.3.81",
+            "value": "12345678_02"
+          }
+        ],
+        "status": "draft",
+        "intent": "order",
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "HL70482",
+                "code": "O",
+                "display": "外来患者オーダ"
+              }
+            ]
+          },
+          {
+            "coding": [
+              {
+                "system": "MR9P",
+                "code": "OHP",
+                "display": "外来処方"
+              }
+            ]
+          },
+          {
+            "coding": [
+              {
+                "system": "MR9P",
+                "code": "OHI",
+                "display": "院内処方"
+              }
+            ]
+          },
+          {
+            "coding": [
+              {
+                "system": "JHSP0003",
+                "code": "21",
+                "display": "内服"
+              }
+            ]
+          }
+        ],
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "OID:1.2.392.100495.20.2.74",
+              "code": "105271807",
+              "display": "プレドニン錠５ｍｇ"
+            }
+          ]
+        },
+        "subject": {
+          "id": "0",
+          "type": "Patient"
+        },
+        "authoredOn": "2016-08-25",
+        "insurance": [
+          {
+            "id": "0",
+            "type": "Coverage"
+          }
+        ],
+        "dosageInstruction": [
+          {
+            "text": " １日１回朝食後 　 隔 日 ",
+            "additionalInstruction": [
+              {
+                "coding": [
+                  {
+                    "system": "JAMISDP01",
+                    "code": "I1100000",
+                    "display": " 隔 日 "
+                  }
+                ]
+              }
+            ],
+            "timing": {
+              "event": [
+                "2016-08-26T00:00:00+00:00"
+              ],
+              "repeat": {
+                "period": 7,
+                "periodUnit": "日"
+              },
+              "code": [
+                {
+                  "coding": [
+                    {
+                      "system": "JAMISDP01",
+                      "code": "1011000400000000",
+                      "display": " １日１回朝食後 "
+                    }
+                  ]
+                }
+              ]
+            },
+            "route": {
+              "coding": [
+                {
+                  "system": "HL70162",
+                  "code": "PO",
+                  "display": "口"
+                }
+              ]
+            },
+            "doseAndRate": [
+              {
+                "type": {
+                  "coding": [
+                    {
+                      "system": "LC",
+                      "code": "Give Amount - Minimum",
+                      "display": "与薬量－最小"
+                    }
+                  ]
+                },
+                "doseQuantity": {
+                  "value": 1,
+                  "unit": "錠",
+                  "code": "TAB"
+                }
+              },
+              {
+                "type": {
+                  "coding": [
+                    {
+                      "system": "LC",
+                      "code": "Total Daily Dose",
+                      "display": "1 日あたりの総投与量"
+                    }
+                  ]
+                },
+                "doseQuantity": {
+                  "value": 1,
+                  "unit": " 錠",
+                  "code": "TAB"
+                }
+              }
+            ]
+          }
+        ],
+        "dispenseRequest": {
+          "quantity": {
+            "value": 7,
             "unit": "錠",
             "code": "TAB"
           }

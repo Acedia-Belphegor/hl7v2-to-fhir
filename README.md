@@ -171,7 +171,7 @@
 | 26 | Advanced Beneficiary Notice Override Reason |  |  |  |
 | 27 | Filler's Expected Availability Date/Time |  |  |  |
 | 28 | Confidentiality Code |  |  |  |
-| 29 | Order Type |  |  |  |
+| 29 | Order Type | MedicationRequest | category |  |
 | 30 | Enterer Authorization Mode |  |  |  |
 
 ### RXE
@@ -197,7 +197,7 @@
 | 18 | D/T of Most Recent Refill or Dose Dispensed |  |  |  |
 | 19 | Total Daily Dose | MedicationRequest | dosageInstruction.dosage.doseAndRate.doseQuantity |
 | 20 | Needs Human Review |  |  |  |
-| 21 | Pharmacy/Treatment Supplier's Special Dispensing Instructions |  |  |  |
+| 21 | Pharmacy/Treatment Supplier's Special Dispensing Instructions | MedicationRequest | category |  |
 | 22 | Give Per (Time Unit) |  |  |  |
 | 23 | Give Rate Amount |  |  |  |
 | 24 | Give Rate Units |  |  |  |

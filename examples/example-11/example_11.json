@@ -127,12 +127,6 @@
             ]
           }
         ],
-        "qualification": {
-          "identifier": {
-            "system": "OID:1.2.392.100495.20.3.32",
-            "value": "4-321"
-          }
-        },
         "resourceType": "Practitioner"
       }
     },
@@ -207,8 +201,8 @@
             "coding": [
               {
                 "system": "HL70482",
-                "code": "I",
-                "display": "入院患者オーダ"
+                "code": "O",
+                "display": "外来患者オーダ"
               }
             ]
           },
@@ -216,8 +210,8 @@
             "coding": [
               {
                 "system": "MR9P",
-                "code": "IHP",
-                "display": "入院処方"
+                "code": "INJ",
+                "display": "注射剤"
               }
             ]
           },
@@ -225,8 +219,17 @@
             "coding": [
               {
                 "system": "MR9P",
-                "code": "XTR",
-                "display": "定期処方"
+                "code": "OHP",
+                "display": "外来処方"
+              }
+            ]
+          },
+          {
+            "coding": [
+              {
+                "system": "MR9P",
+                "code": "OHO",
+                "display": "院外処方"
               }
             ]
           },
@@ -234,8 +237,8 @@
             "coding": [
               {
                 "system": "JHSP0003",
-                "code": "21",
-                "display": "内服"
+                "code": "24",
+                "display": "自己注射"
               }
             ]
           }
@@ -244,8 +247,8 @@
           "coding": [
             {
               "system": "OID:1.2.392.100495.20.2.74",
-              "code": "112052301",
-              "display": "ＭＳコンチン錠１０ｍｇ"
+              "code": "105466802",
+              "display": "ヒューマリンＮ注１００単位／ｍＬ"
             }
           ]
         },
@@ -262,24 +265,13 @@
         ],
         "dosageInstruction": [
           {
-            "text": "内服・経口・１日２回１２時間毎",
-            "additionalInstruction": [
-              {
-                "coding": [
-                  {
-                    "system": "JHSP0005",
-                    "code": "02",
-                    "display": "２回目から服用"
-                  }
-                ]
-              }
-            ],
+            "text": "注射・皮下注射・ １ 日 １ 回 朝 食直前・ワンショット・在宅・自己",
             "timing": {
               "event": [
                 "2016-08-25T00:00:00+00:00"
               ],
               "repeat": {
-                "period": 7,
+                "period": 14,
                 "periodUnit": "日"
               },
               "code": [
@@ -287,8 +279,8 @@
                   "coding": [
                     {
                       "system": "JAMISDP01",
-                      "code": "1022000000000000",
-                      "display": "内服・経口・１日２回１２時間毎"
+                      "code": "3211000200000014",
+                      "display": "注射・皮下注射・ １ 日 １ 回 朝 食直前・ワンショット・在宅・自己"
                     }
                   ]
                 }
@@ -298,8 +290,8 @@
               "coding": [
                 {
                   "system": "HL70162",
-                  "code": "PO",
-                  "display": "口"
+                  "code": "SC",
+                  "display": "皮下"
                 }
               ]
             },
@@ -315,9 +307,9 @@
                   ]
                 },
                 "doseQuantity": {
-                  "value": 2,
-                  "unit": "錠",
-                  "code": "TAB"
+                  "value": 50,
+                  "unit": "単位",
+                  "code": "UNT"
                 }
               },
               {
@@ -331,9 +323,9 @@
                   ]
                 },
                 "doseQuantity": {
-                  "value": 4,
-                  "unit": "錠",
-                  "code": "TAB"
+                  "value": 50,
+                  "unit": "単位",
+                  "code": "UNT"
                 }
               }
             ]
@@ -341,9 +333,9 @@
         ],
         "dispenseRequest": {
           "quantity": {
-            "value": 28,
-            "unit": "錠",
-            "code": "TAB"
+            "value": 700,
+            "unit": "単位",
+            "code": "UNT"
           }
         },
         "resourceType": "MedicationRequest"

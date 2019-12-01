@@ -19,3 +19,5 @@ RXR|PO^口^HL70162
 
 ## FHIR
 - [json](https://github.com/Acedia-Belphegor/hl7v2-to-fhir/blob/master/examples/example-04/example_04.json)
+
+- [xml](https://github.com/Acedia-Belphegor/hl7v2-to-fhir/blob/master/examples/example-04/example_04.xml)

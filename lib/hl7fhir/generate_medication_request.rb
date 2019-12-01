@@ -20,6 +20,7 @@ class GenerateMedicationRequest < GenerateAbstract
                             "Date/Time of Transaction",
                             "Entered By",
                             "Ordering Provider",
+                            "Order Type",
                         ].include?(c['name'])
                     }.each do |field|
                         if ignore_fields?(field) then
@@ -51,6 +52,9 @@ class GenerateMedicationRequest < GenerateAbstract
                             get_resources_from_identifier('PractitionerRole', identifier).each do |entry|
                                 medication_request.requester = create_reference(entry)
                             end
+                        when 'Order Type' then
+                            # ORC-29.オーダタイプ
+                            medication_request.category.push(generate_codeable_concept(field['array_data'].first))
                         end
                     end
                 when 'RXE' then
@@ -91,12 +95,14 @@ class GenerateMedicationRequest < GenerateAbstract
                             if field['value'].empty?
                                 next
                             end
-                            quantity = FHIR::Quantity.new()
-                            quantity.value = field['value'].to_i
-                            dose_and_rate = FHIR::Dosage::DoseAndRate.new()
-                            dose_and_rate.type = create_codeable_concept(field['name'], field['ja_name'])
-                            dose_and_rate.doseQuantity = quantity
-                            dosage.doseAndRate.push(dose_and_rate)
+                            if field['value'].to_i > 0 then
+                                quantity = FHIR::Quantity.new()
+                                quantity.value = field['value'].to_i
+                                dose_and_rate = FHIR::Dosage::DoseAndRate.new()
+                                dose_and_rate.type = create_codeable_concept(field['name'], field['ja_name'])
+                                dose_and_rate.doseQuantity = quantity
+                                dosage.doseAndRate.push(dose_and_rate)
+                            end
                         when 'Give Units' then
                             # RXE-5.与薬単位
                             if dosage.doseAndRate.nil? then
@@ -136,10 +142,12 @@ class GenerateMedicationRequest < GenerateAbstract
 
                         when 'Prescription Number' then
                             # RXE-15.処方箋番号
-                            identifier = FHIR::Identifier.new()
-                            identifier.system = 'OID:1.2.392.100495.20.3.11'
-                            identifier.value = field['value']
-                            medication_request.identifier.push(identifier)
+                            if !field['value'].empty? then
+                                identifier = FHIR::Identifier.new()
+                                identifier.system = 'OID:1.2.392.100495.20.3.11'
+                                identifier.value = field['value']
+                                medication_request.identifier.push(identifier)
+                            end
                         when 'Total Daily Dose' then
                             # RXE-19.1日あたりの総投与量
                             quantity = FHIR::Quantity.new()
@@ -149,11 +157,12 @@ class GenerateMedicationRequest < GenerateAbstract
                             dosage.doseAndRate.push(dose_and_rate)
                         when "Pharmacy/Treatment Supplier's Special Dispensing Instructions" then
                             # RXE-21.薬剤部門/治療部門による特別な調剤指示
-                            
+                            field['array_data'].each do |record|
+                                medication_request.category.push(generate_codeable_concept(record))
+                            end
                         when 'Give Indication' then
                             # RXE-27.与薬指示
-                            codeable_concept = generate_codeable_concept(field['array_data'].first)
-                            medication_request.category.push(codeable_concept)
+                            medication_request.category.push(generate_codeable_concept(field['array_data'].first))
                         end
                     end
                 when 'TQ1' then                    

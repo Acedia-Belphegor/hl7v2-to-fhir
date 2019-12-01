@@ -182,8 +182,8 @@
                 <medicationCodeableConcept>
                     <coding>
                         <system value="OID:1.2.392.100495.20.2.74"/>
-                        <code value="103835401"/>
-                        <display value="ムコダイン錠２５０ｍｇ"/>
+                        <code value="105271807"/>
+                        <display value="プレドニン錠５ｍｇ"/>
                     </coding>
                 </medicationCodeableConcept>
                 <subject id="0">
@@ -194,25 +194,150 @@
                     <type value="Coverage"/>
                 </insurance>
                 <dosageInstruction>
-                    <text value="内服・経口・１日３回朝昼夕食後"/>
+                    <text value=" １日１回朝食後 　 隔 日 "/>
                     <additionalInstruction>
                         <coding>
-                            <system value="JHSP0005"/>
-                            <code value="01"/>
-                            <display value="１回目から服用"/>
+                            <system value="JAMISDP01"/>
+                            <code value="I1100000"/>
+                            <display value=" 隔 日 "/>
                         </coding>
                     </additionalInstruction>
                     <timing>
                         <event value="2016-08-25T00:00:00+00:00"/>
                         <repeat>
-                            <period value="3"/>
+                            <period value="7"/>
                             <periodUnit value="日"/>
                         </repeat>
                         <code>
                             <coding>
                                 <system value="JAMISDP01"/>
-                                <code value="1013044400000000"/>
-                                <display value="内服・経口・１日３回朝昼夕食後"/>
+                                <code value="1011000400000000"/>
+                                <display value=" １日１回朝食後 "/>
+                            </coding>
+                        </code>
+                    </timing>
+                    <route>
+                        <coding>
+                            <system value="HL70162"/>
+                            <code value="PO"/>
+                            <display value="口"/>
+                        </coding>
+                    </route>
+                    <doseAndRate>
+                        <type>
+                            <coding>
+                                <system value="LC"/>
+                                <code value="Give Amount - Minimum"/>
+                                <display value="与薬量－最小"/>
+                            </coding>
+                        </type>
+                        <doseQuantity>
+                            <value value="3"/>
+                            <unit value="錠"/>
+                            <code value="TAB"/>
+                        </doseQuantity>
+                    </doseAndRate>
+                    <doseAndRate>
+                        <type>
+                            <coding>
+                                <system value="LC"/>
+                                <code value="Total Daily Dose"/>
+                                <display value="1 日あたりの総投与量"/>
+                            </coding>
+                        </type>
+                        <doseQuantity>
+                            <value value="3"/>
+                            <unit value=" 錠"/>
+                            <code value="TAB"/>
+                        </doseQuantity>
+                    </doseAndRate>
+                </dosageInstruction>
+                <dispenseRequest>
+                    <quantity>
+                        <value value="21"/>
+                        <unit value="錠"/>
+                        <code value="TAB"/>
+                    </quantity>
+                </dispenseRequest>
+            </MedicationRequest>
+        </resource>
+    </entry>
+    <entry>
+        <resource>
+            <MedicationRequest>
+                <id value="1"/>
+                <identifier>
+                    <system value="OID:1.2.392.100495.20.3.11"/>
+                    <value value="12345678"/>
+                </identifier>
+                <identifier>
+                    <system value="OID:1.2.392.100495.20.3.81"/>
+                    <value value="12345678_02"/>
+                </identifier>
+                <status value="draft"/>
+                <intent value="order"/>
+                <category>
+                    <coding>
+                        <system value="HL70482"/>
+                        <code value="O"/>
+                        <display value="外来患者オーダ"/>
+                    </coding>
+                </category>
+                <category>
+                    <coding>
+                        <system value="MR9P"/>
+                        <code value="OHP"/>
+                        <display value="外来処方"/>
+                    </coding>
+                </category>
+                <category>
+                    <coding>
+                        <system value="MR9P"/>
+                        <code value="OHI"/>
+                        <display value="院内処方"/>
+                    </coding>
+                </category>
+                <category>
+                    <coding>
+                        <system value="JHSP0003"/>
+                        <code value="21"/>
+                        <display value="内服"/>
+                    </coding>
+                </category>
+                <medicationCodeableConcept>
+                    <coding>
+                        <system value="OID:1.2.392.100495.20.2.74"/>
+                        <code value="105271807"/>
+                        <display value="プレドニン錠５ｍｇ"/>
+                    </coding>
+                </medicationCodeableConcept>
+                <subject id="0">
+                    <type value="Patient"/>
+                </subject>
+                <authoredOn value="2016-08-25"/>
+                <insurance id="0">
+                    <type value="Coverage"/>
+                </insurance>
+                <dosageInstruction>
+                    <text value=" １日１回朝食後 　 隔 日 "/>
+                    <additionalInstruction>
+                        <coding>
+                            <system value="JAMISDP01"/>
+                            <code value="I1100000"/>
+                            <display value=" 隔 日 "/>
+                        </coding>
+                    </additionalInstruction>
+                    <timing>
+                        <event value="2016-08-26T00:00:00+00:00"/>
+                        <repeat>
+                            <period value="7"/>
+                            <periodUnit value="日"/>
+                        </repeat>
+                        <code>
+                            <coding>
+                                <system value="JAMISDP01"/>
+                                <code value="1011000400000000"/>
+                                <display value=" １日１回朝食後 "/>
                             </coding>
                         </code>
                     </timing>
@@ -246,406 +371,17 @@
                             </coding>
                         </type>
                         <doseQuantity>
-                            <value value="3"/>
-                            <unit value="錠"/>
+                            <value value="1"/>
+                            <unit value=" 錠"/>
                             <code value="TAB"/>
                         </doseQuantity>
                     </doseAndRate>
                 </dosageInstruction>
                 <dispenseRequest>
                     <quantity>
-                        <value value="9"/>
+                        <value value="7"/>
                         <unit value="錠"/>
                         <code value="TAB"/>
-                    </quantity>
-                </dispenseRequest>
-            </MedicationRequest>
-        </resource>
-    </entry>
-    <entry>
-        <resource>
-            <MedicationRequest>
-                <id value="1"/>
-                <identifier>
-                    <system value="OID:1.2.392.100495.20.3.11"/>
-                    <value value="12345678"/>
-                </identifier>
-                <identifier>
-                    <system value="OID:1.2.392.100495.20.3.81"/>
-                    <value value="12345678_01"/>
-                </identifier>
-                <status value="draft"/>
-                <intent value="order"/>
-                <category>
-                    <coding>
-                        <system value="HL70482"/>
-                        <code value="O"/>
-                        <display value="外来患者オーダ"/>
-                    </coding>
-                </category>
-                <category>
-                    <coding>
-                        <system value="MR9P"/>
-                        <code value="OHP"/>
-                        <display value="外来処方"/>
-                    </coding>
-                </category>
-                <category>
-                    <coding>
-                        <system value="MR9P"/>
-                        <code value="OHI"/>
-                        <display value="院内処方"/>
-                    </coding>
-                </category>
-                <category>
-                    <coding>
-                        <system value="JHSP0003"/>
-                        <code value="21"/>
-                        <display value="内服"/>
-                    </coding>
-                </category>
-                <medicationCodeableConcept>
-                    <coding>
-                        <system value="OID:1.2.392.100495.20.2.74"/>
-                        <code value="110626901"/>
-                        <display value="パンスポリンＴ錠１００ １００ｍｇ"/>
-                    </coding>
-                </medicationCodeableConcept>
-                <subject id="0">
-                    <type value="Patient"/>
-                </subject>
-                <authoredOn value="2016-08-25"/>
-                <insurance id="0">
-                    <type value="Coverage"/>
-                </insurance>
-                <dosageInstruction>
-                    <text value="内服・経口・１日３回朝昼夕食後"/>
-                    <additionalInstruction>
-                        <coding>
-                            <system value="JHSP0005"/>
-                            <code value=" 01"/>
-                            <display value="１回目から服用"/>
-                        </coding>
-                    </additionalInstruction>
-                    <timing>
-                        <event value="2016-08-25T00:00:00+00:00"/>
-                        <repeat>
-                            <period value="3"/>
-                            <periodUnit value="日"/>
-                        </repeat>
-                        <code>
-                            <coding>
-                                <system value="JAMISDP01"/>
-                                <code value="1013044400000000"/>
-                                <display value="内服・経口・１日３回朝昼夕食後"/>
-                            </coding>
-                        </code>
-                    </timing>
-                    <route>
-                        <coding>
-                            <system value="HL70162"/>
-                            <code value="PO"/>
-                            <display value="口"/>
-                        </coding>
-                    </route>
-                    <doseAndRate>
-                        <type>
-                            <coding>
-                                <system value="LC"/>
-                                <code value="Give Amount - Minimum"/>
-                                <display value="与薬量－最小"/>
-                            </coding>
-                        </type>
-                        <doseQuantity>
-                            <value value="2"/>
-                            <unit value="錠"/>
-                            <code value="TAB"/>
-                        </doseQuantity>
-                    </doseAndRate>
-                    <doseAndRate>
-                        <type>
-                            <coding>
-                                <system value="LC"/>
-                                <code value="Total Daily Dose"/>
-                                <display value="1 日あたりの総投与量"/>
-                            </coding>
-                        </type>
-                        <doseQuantity>
-                            <value value="6"/>
-                            <unit value="錠"/>
-                            <code value="TAB"/>
-                        </doseQuantity>
-                    </doseAndRate>
-                </dosageInstruction>
-                <dispenseRequest>
-                    <quantity>
-                        <value value="18"/>
-                        <unit value="錠"/>
-                        <code value="TAB"/>
-                    </quantity>
-                </dispenseRequest>
-            </MedicationRequest>
-        </resource>
-    </entry>
-    <entry>
-        <resource>
-            <MedicationRequest>
-                <id value="2"/>
-                <identifier>
-                    <system value="OID:1.2.392.100495.20.3.11"/>
-                    <value value="12345678"/>
-                </identifier>
-                <identifier>
-                    <system value="OID:1.2.392.100495.20.3.81"/>
-                    <value value="12345678_02"/>
-                </identifier>
-                <status value="draft"/>
-                <intent value="order"/>
-                <category>
-                    <coding>
-                        <system value="HL70482"/>
-                        <code value="O"/>
-                        <display value="外来患者オーダ"/>
-                    </coding>
-                </category>
-                <category>
-                    <coding>
-                        <system value="MR9P"/>
-                        <code value="PWD"/>
-                        <display value="散剤"/>
-                    </coding>
-                </category>
-                <category>
-                    <coding>
-                        <system value="MR9P"/>
-                        <code value="OHP"/>
-                        <display value="外来処方"/>
-                    </coding>
-                </category>
-                <category>
-                    <coding>
-                        <system value="MR9P"/>
-                        <code value="OHI"/>
-                        <display value="院内処方"/>
-                    </coding>
-                </category>
-                <category>
-                    <coding>
-                        <system value="JHSP0003"/>
-                        <code value="21"/>
-                        <display value="内服"/>
-                    </coding>
-                </category>
-                <medicationCodeableConcept>
-                    <coding>
-                        <system value="OID:1.2.392.100495.20.2.74"/>
-                        <code value="100607002"/>
-                        <display value="アレビアチン散１０％"/>
-                    </coding>
-                </medicationCodeableConcept>
-                <subject id="0">
-                    <type value="Patient"/>
-                </subject>
-                <authoredOn value="2016-08-25"/>
-                <insurance id="0">
-                    <type value="Coverage"/>
-                </insurance>
-                <dosageInstruction>
-                    <text value="内服・経口・１日２回朝夕食後"/>
-                    <additionalInstruction>
-                        <coding>
-                            <system value="JHSP0005"/>
-                            <code value="01"/>
-                            <display value="１回目から服用"/>
-                        </coding>
-                    </additionalInstruction>
-                    <timing>
-                        <event value="2016-08-25T00:00:00+00:00"/>
-                        <repeat>
-                            <period value="14"/>
-                            <periodUnit value="日"/>
-                        </repeat>
-                        <code>
-                            <coding>
-                                <system value="JAMISDP01"/>
-                                <code value="1012040400000000"/>
-                                <display value="内服・経口・１日２回朝夕食後"/>
-                            </coding>
-                        </code>
-                    </timing>
-                    <route>
-                        <coding>
-                            <system value="HL70162"/>
-                            <code value="PO"/>
-                            <display value="口"/>
-                        </coding>
-                    </route>
-                    <doseAndRate>
-                        <type>
-                            <coding>
-                                <system value="LC"/>
-                                <code value="Give Amount - Minimum"/>
-                                <display value="与薬量－最小"/>
-                            </coding>
-                        </type>
-                        <doseQuantity>
-                            <value value="50"/>
-                            <unit value="ミリグラム"/>
-                            <code value="MG"/>
-                        </doseQuantity>
-                    </doseAndRate>
-                    <doseAndRate>
-                        <type>
-                            <coding>
-                                <system value="LC"/>
-                                <code value="Total Daily Dose"/>
-                                <display value="1 日あたりの総投与量"/>
-                            </coding>
-                        </type>
-                        <doseQuantity>
-                            <value value="100"/>
-                            <unit value="ミリグラム"/>
-                            <code value="MG"/>
-                        </doseQuantity>
-                    </doseAndRate>
-                </dosageInstruction>
-                <dispenseRequest>
-                    <quantity>
-                        <value value="1"/>
-                        <unit value="グラム"/>
-                        <code value="G"/>
-                    </quantity>
-                </dispenseRequest>
-            </MedicationRequest>
-        </resource>
-    </entry>
-    <entry>
-        <resource>
-            <MedicationRequest>
-                <id value="3"/>
-                <identifier>
-                    <system value="OID:1.2.392.100495.20.3.11"/>
-                    <value value="12345678"/>
-                </identifier>
-                <identifier>
-                    <system value="OID:1.2.392.100495.20.3.81"/>
-                    <value value="12345678_02"/>
-                </identifier>
-                <status value="draft"/>
-                <intent value="order"/>
-                <category>
-                    <coding>
-                        <system value="HL70482"/>
-                        <code value="O"/>
-                        <display value="外来患者オーダ"/>
-                    </coding>
-                </category>
-                <category>
-                    <coding>
-                        <system value="MR9P"/>
-                        <code value="PWD"/>
-                        <display value="散剤"/>
-                    </coding>
-                </category>
-                <category>
-                    <coding>
-                        <system value="MR9P"/>
-                        <code value="OHP"/>
-                        <display value="外来処方"/>
-                    </coding>
-                </category>
-                <category>
-                    <coding>
-                        <system value="MR9P"/>
-                        <code value="OHI"/>
-                        <display value="院内処方"/>
-                    </coding>
-                </category>
-                <category>
-                    <coding>
-                        <system value="JHSP0003"/>
-                        <code value="21"/>
-                        <display value="内服"/>
-                    </coding>
-                </category>
-                <medicationCodeableConcept>
-                    <coding>
-                        <system value="OID:1.2.392.100495.20.2.74"/>
-                        <code value="100565315"/>
-                        <display value="フェノバルビタール散１０％「ホエイ」"/>
-                    </coding>
-                </medicationCodeableConcept>
-                <subject id="0">
-                    <type value="Patient"/>
-                </subject>
-                <authoredOn value="2016-08-25"/>
-                <insurance id="0">
-                    <type value="Coverage"/>
-                </insurance>
-                <dosageInstruction>
-                    <text value="内服・経口・１日２回朝夕食後"/>
-                    <additionalInstruction>
-                        <coding>
-                            <system value="JHSP0005"/>
-                            <code value="01"/>
-                            <display value="１回目から服用"/>
-                        </coding>
-                    </additionalInstruction>
-                    <timing>
-                        <event value="2016-08-25T00:00:00+00:00"/>
-                        <repeat>
-                            <period value="14"/>
-                            <periodUnit value="日"/>
-                        </repeat>
-                        <code>
-                            <coding>
-                                <system value="JAMISDP01"/>
-                                <code value="1012040400000000"/>
-                                <display value="内服・経口・１日２回朝夕食後"/>
-                            </coding>
-                        </code>
-                    </timing>
-                    <route>
-                        <coding>
-                            <system value="HL70162"/>
-                            <code value="PO"/>
-                            <display value="口"/>
-                        </coding>
-                    </route>
-                    <doseAndRate>
-                        <type>
-                            <coding>
-                                <system value="LC"/>
-                                <code value="Give Amount - Minimum"/>
-                                <display value="与薬量－最小"/>
-                            </coding>
-                        </type>
-                        <doseQuantity>
-                            <value value="50"/>
-                            <unit value="ミリグラム"/>
-                            <code value="MG"/>
-                        </doseQuantity>
-                    </doseAndRate>
-                    <doseAndRate>
-                        <type>
-                            <coding>
-                                <system value="LC"/>
-                                <code value="Total Daily Dose"/>
-                                <display value="1 日あたりの総投与量"/>
-                            </coding>
-                        </type>
-                        <doseQuantity>
-                            <value value="100"/>
-                            <unit value="ミリグラム"/>
-                            <code value="MG"/>
-                        </doseQuantity>
-                    </doseAndRate>
-                </dosageInstruction>
-                <dispenseRequest>
-                    <quantity>
-                        <value value="1"/>
-                        <unit value="グラム"/>
-                        <code value="G"/>
                     </quantity>
                 </dispenseRequest>
             </MedicationRequest>

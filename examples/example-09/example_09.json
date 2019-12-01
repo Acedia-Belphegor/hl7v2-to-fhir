@@ -127,12 +127,6 @@
             ]
           }
         ],
-        "qualification": {
-          "identifier": {
-            "system": "OID:1.2.392.100495.20.3.32",
-            "value": "4-321"
-          }
-        },
         "resourceType": "Practitioner"
       }
     },
@@ -207,8 +201,8 @@
             "coding": [
               {
                 "system": "HL70482",
-                "code": "I",
-                "display": "入院患者オーダ"
+                "code": "O",
+                "display": "外来患者オーダ"
               }
             ]
           },
@@ -216,8 +210,8 @@
             "coding": [
               {
                 "system": "MR9P",
-                "code": "IHP",
-                "display": "入院処方"
+                "code": "OHP",
+                "display": "外来処方"
               }
             ]
           },
@@ -225,8 +219,8 @@
             "coding": [
               {
                 "system": "MR9P",
-                "code": "XTR",
-                "display": "定期処方"
+                "code": "OHI",
+                "display": "院内処方"
               }
             ]
           },
@@ -235,7 +229,7 @@
               {
                 "system": "JHSP0003",
                 "code": "21",
-                "display": "内服"
+                "display": "内服薬"
               }
             ]
           }
@@ -244,8 +238,8 @@
           "coding": [
             {
               "system": "OID:1.2.392.100495.20.2.74",
-              "code": "112052301",
-              "display": "ＭＳコンチン錠１０ｍｇ"
+              "code": "105271807",
+              "display": "プレドニン錠５ｍｇ"
             }
           ]
         },
@@ -262,14 +256,32 @@
         ],
         "dosageInstruction": [
           {
-            "text": "内服・経口・１日２回１２時間毎",
+            "text": "内服・経口・１日３回朝昼夕食後",
             "additionalInstruction": [
               {
                 "coding": [
                   {
-                    "system": "JHSP0005",
-                    "code": "02",
-                    "display": "２回目から服用"
+                    "system": "JAMISDP01",
+                    "code": "V14NNNNN",
+                    "display": "４錠"
+                  }
+                ]
+              },
+              {
+                "coding": [
+                  {
+                    "system": "JAMISDP01",
+                    "code": "V22NNNNN",
+                    "display": "２錠"
+                  }
+                ]
+              },
+              {
+                "coding": [
+                  {
+                    "system": "JAMISDP01",
+                    "code": "V31NNNNN",
+                    "display": "１錠"
                   }
                 ]
               }
@@ -287,8 +299,8 @@
                   "coding": [
                     {
                       "system": "JAMISDP01",
-                      "code": "1022000000000000",
-                      "display": "内服・経口・１日２回１２時間毎"
+                      "code": "1013044400000000",
+                      "display": "内服・経口・１日３回朝昼夕食後"
                     }
                   ]
                 }
@@ -315,7 +327,23 @@
                   ]
                 },
                 "doseQuantity": {
-                  "value": 2,
+                  "value": 1,
+                  "unit": "錠",
+                  "code": "TAB"
+                }
+              },
+              {
+                "type": {
+                  "coding": [
+                    {
+                      "system": "LC",
+                      "code": "Give Amount - Maximum",
+                      "display": "与薬量－最大"
+                    }
+                  ]
+                },
+                "doseQuantity": {
+                  "value": 4,
                   "unit": "錠",
                   "code": "TAB"
                 }
@@ -331,7 +359,7 @@
                   ]
                 },
                 "doseQuantity": {
-                  "value": 4,
+                  "value": 7,
                   "unit": "錠",
                   "code": "TAB"
                 }
@@ -341,7 +369,7 @@
         ],
         "dispenseRequest": {
           "quantity": {
-            "value": 28,
+            "value": 49,
             "unit": "錠",
             "code": "TAB"
           }
