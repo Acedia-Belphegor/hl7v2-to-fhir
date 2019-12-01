@@ -18,6 +18,6 @@ RXR|PR^直腸^HL70162|8H0^肛門部^JAMISDP01
 ```
 
 ## FHIR
-- [json](https://github.com/Acedia-Belphegor/hl7v2-to-fhir/blob/master/examples/example-03/example_03.json)
+- [json](https://github.com/Acedia-Belphegor/hl7v2-to-fhir/blob/master/examples/prescription/example-03/example_03.json)
 
-- [xml](https://github.com/Acedia-Belphegor/hl7v2-to-fhir/blob/master/examples/example-03/example_03.xml)
+- [xml](https://github.com/Acedia-Belphegor/hl7v2-to-fhir/blob/master/examples/prescription/example-03/example_03.xml)
