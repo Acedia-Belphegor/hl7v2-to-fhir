@@ -1,0 +1,889 @@
+{
+    "type": "message",
+    "entry": [
+      {
+        "resource": {
+          "id": "0",
+          "eventCoding": {
+            "system": "http://www.hl7fhir.jp",
+            "code": "RDE^O11^RDE_O11"
+          },
+          "destination": [
+            {
+              "name": "RECEIVE"
+            }
+          ],
+          "source": {
+            "name": "SEND"
+          },
+          "resourceType": "MessageHeader"
+        }
+      },
+      {
+        "resource": {
+          "id": "0",
+          "identifier": [
+            {
+              "system": "OID:1.2.392.100495.20.3.51.1",
+              "value": "0012345678"
+            }
+          ],
+          "name": [
+            {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-representation",
+                  "valueCode": "IDE"
+                }
+              ],
+              "use": "official",
+              "family": "患者",
+              "given": [
+                "太郎"
+              ]
+            },
+            {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-representation",
+                  "valueCode": "SYL"
+                }
+              ],
+              "use": "official",
+              "family": "カンジャ",
+              "given": [
+                "タロウ"
+              ]
+            }
+          ],
+          "gender": "male",
+          "birthDate": "1965-04-15",
+          "resourceType": "Patient"
+        }
+      },
+      {
+        "resource": {
+          "id": "0",
+          "identifier": [
+            {
+              "system": "OID:1.2.392.100495.20.3.61",
+              "value": "\"\""
+            }
+          ],
+          "type": {
+            "coding": [
+              {
+                "system": "1.2.392.100495.20.2.61",
+                "code": "1",
+                "display": "社保"
+              }
+            ]
+          },
+          "beneficiary": {
+            "id": "0",
+            "type": "Patient"
+          },
+          "payor": [
+            {
+              "id": "dummy",
+              "type": "Organization"
+            }
+          ],
+          "resourceType": "Coverage"
+        }
+      },
+      {
+        "resource": {
+          "id": "0",
+          "identifier": [
+            {
+              "system": "OID:1.2.392.100495.20.3.41.1",
+              "value": "10001"
+            }
+          ],
+          "name": [
+            {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-representation",
+                  "valueCode": "IDE"
+                }
+              ],
+              "family": "医師",
+              "given": [
+                "一郎"
+              ]
+            }
+          ],
+          "qualification": {
+            "identifier": {
+              "system": "OID:1.2.392.100495.20.3.32",
+              "value": "123456"
+            }
+          },
+          "resourceType": "Practitioner"
+        }
+      },
+      {
+        "resource": {
+          "id": "0",
+          "identifier": [
+            {
+              "system": "OID:1.2.392.100495.20.3.41.1",
+              "value": "10001"
+            }
+          ],
+          "code": [
+            {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/practitioner-role",
+                  "code": "doctor",
+                  "display": "Doctor"
+                }
+              ]
+            }
+          ],
+          "specialty": [
+            {
+              "coding": [
+                {
+                  "system": "99ILL",
+                  "code": "01",
+                  "display": "内科"
+                }
+              ]
+            }
+          ],
+          "resourceType": "PractitionerRole"
+        }
+      },
+      {
+        "resource": {
+          "id": "0",
+          "identifier": [
+            {
+              "system": "OID:1.2.392.100495.20.3.21"
+            },
+            {
+              "system": "OID:1.2.392.100495.20.3.22"
+            },
+            {
+              "system": "OID:1.2.392.100495.20.3.23"
+            }
+          ],
+          "resourceType": "Organization"
+        }
+      },
+      {
+        "resource": {
+          "id": "0",
+          "contained": [
+            {
+              "id": "0",
+              "form": {
+                "coding": [
+                  {
+                    "system": "MR9P",
+                    "code": "INJ",
+                    "display": "注射剤"
+                  }
+                ]
+              },
+              "amount": {
+                "numerator": {
+                  "value": 50,
+                  "unit": "ミリリッター",
+                  "code": "ml"
+                }
+              },
+              "ingredient": [
+                {
+                  "itemCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "OID:1.2.392.100495.20.2.74",
+                        "code": "185040601",
+                        "display": "モルヒネ塩酸塩注射液１０ｍｇ"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "itemCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "OID:1.2.392.100495.20.2.74",
+                        "code": "101329001",
+                        "display": "ノバミン筋注５ｍｇ"
+                      }
+                    ]
+                  },
+                  "strength": {
+                    "denominator": {
+                      "value": 1,
+                      "unit": "アンプル",
+                      "code": "AMP"
+                    }
+                  }
+                },
+                {
+                  "itemCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "OID:1.2.392.100495.20.2.74",
+                        "code": "107675201",
+                        "display": "大塚生食注５０ｍＬ"
+                      }
+                    ]
+                  },
+                  "strength": {
+                    "denominator": {
+                      "value": 1,
+                      "unit": "瓶",
+                      "code": "BTL"
+                    }
+                  }
+                }
+              ],
+              "resourceType": "Medication"
+            }
+          ],
+          "identifier": [
+            {
+              "system": "OID:1.2.392.100495.20.3.11",
+              "value": "123456789012345"
+            },
+            {
+              "system": "OID:1.2.392.100495.20.3.81",
+              "value": "123456789012345_01_001"
+            },
+            {
+              "system": "OID:1.2.392.100495.20.3.11",
+              "value": "20160701-001"
+            }
+          ],
+          "status": "draft",
+          "intent": "order",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "HL70482",
+                  "code": "I",
+                  "display": "入院患者オーダ"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "MR9P",
+                  "code": "IHP",
+                  "display": "入院処方"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "JHSI0001",
+                  "code": "FTP",
+                  "display": "定時処方"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "JHSI0009",
+                  "code": "02",
+                  "display": "点滴"
+                }
+              ]
+            }
+          ],
+          "priority": "routine",
+          "medicationReference": {
+            "id": "0",
+            "type": "Medication"
+          },
+          "subject": {
+            "id": "0",
+            "type": "Patient"
+          },
+          "authoredOn": "2016-07-01",
+          "insurance": [
+            {
+              "id": "0",
+              "type": "Coverage"
+            }
+          ],
+          "dosageInstruction": [
+            {
+              "additionalInstruction": [
+                {
+                  "coding": [
+                    {
+                      "system": "JHSIC007",
+                      "display": "投与時間は前後２時間の範囲であれば適宜調整可"
+                    }
+                  ]
+                },
+                {
+                  "coding": [
+                    {
+                      "system": "JHSIC005",
+                      "display": "側管1"
+                    }
+                  ]
+                },
+                {
+                  "coding": [
+                    {
+                      "system": "HL70495",
+                      "code": "L",
+                      "display": "左"
+                    }
+                  ]
+                }
+              ],
+              "timing": {
+                "repeat": {
+                  "boundsPeriod": {
+                    "start": "2016-07-01T14:00:00+00:00",
+                    "end": "2016-07-01T14:12:00+00:00"
+                  }
+                }
+              },
+              "site": {
+                "coding": [
+                  {
+                    "system": "HL70550",
+                    "code": "JUGI",
+                    "display": "内部頸静脈"
+                  }
+                ]
+              },
+              "route": {
+                "coding": [
+                  {
+                    "system": "HL70162",
+                    "code": "IV",
+                    "display": "静脈内"
+                  }
+                ]
+              },
+              "method": {
+                "coding": [
+                  {
+                    "system": "99ILL",
+                    "code": "102",
+                    "display": "点滴静注(末梢)"
+                  }
+                ]
+              },
+              "doseAndRate": [
+                {
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "LC",
+                        "code": "Give Rate Amount",
+                        "display": "与薬速度"
+                      }
+                    ]
+                  },
+                  "rateQuantity": {
+                    "value": 250,
+                    "unit": "ミリリッター／時間",
+                    "code": "ml/hr"
+                  }
+                }
+              ]
+            }
+          ],
+          "resourceType": "MedicationRequest"
+        }
+      },
+      {
+        "resource": {
+          "id": "1",
+          "contained": [
+            {
+              "id": "1",
+              "form": {
+                "coding": [
+                  {
+                    "system": "MR9P",
+                    "code": "INJ",
+                    "display": "注射剤"
+                  }
+                ]
+              },
+              "amount": {
+                "numerator": {
+                  "value": 50,
+                  "unit": "ミリリッター",
+                  "code": "ml"
+                }
+              },
+              "ingredient": [
+                {
+                  "itemCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "OID:1.2.392.100495.20.2.74",
+                        "code": "185040601",
+                        "display": "モルヒネ塩酸塩注射液１０ｍｇ"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "itemCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "OID:1.2.392.100495.20.2.74",
+                        "code": "101329001",
+                        "display": "ノバミン筋注５ｍｇ"
+                      }
+                    ]
+                  },
+                  "strength": {
+                    "denominator": {
+                      "value": 1,
+                      "unit": "アンプル",
+                      "code": "AMP"
+                    }
+                  }
+                },
+                {
+                  "itemCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "OID:1.2.392.100495.20.2.74",
+                        "code": "107675201",
+                        "display": "大塚生食注５０ｍＬ"
+                      }
+                    ]
+                  },
+                  "strength": {
+                    "denominator": {
+                      "value": 1,
+                      "unit": "瓶",
+                      "code": "BTL"
+                    }
+                  }
+                }
+              ],
+              "resourceType": "Medication"
+            }
+          ],
+          "identifier": [
+            {
+              "system": "OID:1.2.392.100495.20.3.11",
+              "value": "123456789012345"
+            },
+            {
+              "system": "OID:1.2.392.100495.20.3.81",
+              "value": "123456789012345_01_002"
+            },
+            {
+              "system": "OID:1.2.392.100495.20.3.11",
+              "value": "20160701-002"
+            }
+          ],
+          "status": "draft",
+          "intent": "order",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "HL70482",
+                  "code": "I",
+                  "display": "入院患者オーダ"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "MR9P",
+                  "code": "IHP",
+                  "display": "入院処方"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "JHSI0001",
+                  "code": "FTP",
+                  "display": "定時処方"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "JHSI0009",
+                  "code": "02",
+                  "display": "点滴"
+                }
+              ]
+            }
+          ],
+          "priority": "routine",
+          "medicationReference": {
+            "id": "1",
+            "type": "Medication"
+          },
+          "subject": {
+            "id": "0",
+            "type": "Patient"
+          },
+          "authoredOn": "2016-07-01",
+          "insurance": [
+            {
+              "id": "0",
+              "type": "Coverage"
+            }
+          ],
+          "dosageInstruction": [
+            {
+              "additionalInstruction": [
+                {
+                  "coding": [
+                    {
+                      "system": "JHSIC007",
+                      "display": "投与時間は前後２時間の範囲であれば適宜調整可"
+                    }
+                  ]
+                },
+                {
+                  "coding": [
+                    {
+                      "system": "JHSIC003",
+                      "display": "できるだけ太い静脈を使用"
+                    }
+                  ]
+                },
+                {
+                  "coding": [
+                    {
+                      "system": "JHSIC005",
+                      "display": "側管1"
+                    }
+                  ]
+                },
+                {
+                  "coding": [
+                    {
+                      "system": "HL70495",
+                      "code": "L",
+                      "display": "左"
+                    }
+                  ]
+                }
+              ],
+              "timing": {
+                "repeat": {
+                  "boundsPeriod": {
+                    "start": "2016-07-01T21:00:00+00:00",
+                    "end": "2016-07-01T21:12:00+00:00"
+                  }
+                }
+              },
+              "site": {
+                "coding": [
+                  {
+                    "system": "HL70550",
+                    "code": "JUGI",
+                    "display": "内部頸静脈"
+                  }
+                ]
+              },
+              "route": {
+                "coding": [
+                  {
+                    "system": "HL70162",
+                    "code": "IV",
+                    "display": "静脈内"
+                  }
+                ]
+              },
+              "method": {
+                "coding": [
+                  {
+                    "system": "99ILL",
+                    "code": "102",
+                    "display": "点滴静注(末梢)"
+                  }
+                ]
+              },
+              "doseAndRate": [
+                {
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "LC",
+                        "code": "Give Rate Amount",
+                        "display": "与薬速度"
+                      }
+                    ]
+                  },
+                  "rateQuantity": {
+                    "value": 250,
+                    "unit": "ミリリッター／時間",
+                    "code": "ml/hr"
+                  }
+                }
+              ]
+            }
+          ],
+          "resourceType": "MedicationRequest"
+        }
+      },
+      {
+        "resource": {
+          "id": "2",
+          "contained": [
+            {
+              "id": "2",
+              "form": {
+                "coding": [
+                  {
+                    "system": "MR9P",
+                    "code": "INJ",
+                    "display": "注射剤"
+                  }
+                ]
+              },
+              "amount": {
+                "numerator": {
+                  "value": 50,
+                  "unit": "ミリリッター",
+                  "code": "ml"
+                }
+              },
+              "ingredient": [
+                {
+                  "itemCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "OID:1.2.392.100495.20.2.74",
+                        "code": "185040601",
+                        "display": "モルヒネ塩酸塩注射液１０ｍｇ"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "itemCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "OID:1.2.392.100495.20.2.74",
+                        "code": "101329001",
+                        "display": "ノバミン筋注５ｍｇ"
+                      }
+                    ]
+                  },
+                  "strength": {
+                    "denominator": {
+                      "value": 1,
+                      "unit": "アンプル",
+                      "code": "AMP"
+                    }
+                  }
+                },
+                {
+                  "itemCodeableConcept": {
+                    "coding": [
+                      {
+                        "system": "OID:1.2.392.100495.20.2.74",
+                        "code": "107675201",
+                        "display": "大塚生食注５０ｍＬ"
+                      }
+                    ]
+                  },
+                  "strength": {
+                    "denominator": {
+                      "value": 1,
+                      "unit": "瓶",
+                      "code": "BTL"
+                    }
+                  }
+                }
+              ],
+              "resourceType": "Medication"
+            }
+          ],
+          "identifier": [
+            {
+              "system": "OID:1.2.392.100495.20.3.11",
+              "value": "123456789012345"
+            },
+            {
+              "system": "OID:1.2.392.100495.20.3.81",
+              "value": "123456789012345_01_003"
+            },
+            {
+              "system": "OID:1.2.392.100495.20.3.11",
+              "value": "20160701-003"
+            }
+          ],
+          "status": "draft",
+          "intent": "order",
+          "category": [
+            {
+              "coding": [
+                {
+                  "system": "HL70482",
+                  "code": "I",
+                  "display": "入院患者オーダ"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "MR9P",
+                  "code": "IHP",
+                  "display": "入院処方"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "JHSI0001",
+                  "code": "FTP",
+                  "display": "定時処方"
+                }
+              ]
+            },
+            {
+              "coding": [
+                {
+                  "system": "JHSI0009",
+                  "code": "02",
+                  "display": "点滴"
+                }
+              ]
+            }
+          ],
+          "priority": "routine",
+          "medicationReference": {
+            "id": "2",
+            "type": "Medication"
+          },
+          "subject": {
+            "id": "0",
+            "type": "Patient"
+          },
+          "authoredOn": "2016-07-01",
+          "insurance": [
+            {
+              "id": "0",
+              "type": "Coverage"
+            }
+          ],
+          "dosageInstruction": [
+            {
+              "additionalInstruction": [
+                {
+                  "coding": [
+                    {
+                      "system": "JHSIC007",
+                      "display": "投与時間は前後２時間の範囲であれば適宜調整可"
+                    }
+                  ]
+                },
+                {
+                  "coding": [
+                    {
+                      "system": "JHSIC003",
+                      "display": "できるだけ太い静脈を使用"
+                    }
+                  ]
+                },
+                {
+                  "coding": [
+                    {
+                      "system": "JHSIC005",
+                      "display": "側管1"
+                    }
+                  ]
+                },
+                {
+                  "coding": [
+                    {
+                      "system": "HL70495",
+                      "code": "L",
+                      "display": "左"
+                    }
+                  ]
+                }
+              ],
+              "timing": {
+                "repeat": {
+                  "boundsPeriod": {
+                    "start": "2016-07-02T06:00:00+00:00",
+                    "end": "2016-07-02T06:12:00+00:00"
+                  }
+                }
+              },
+              "site": {
+                "coding": [
+                  {
+                    "system": "HL70550",
+                    "code": "JUGI",
+                    "display": "内部頸静脈"
+                  }
+                ]
+              },
+              "route": {
+                "coding": [
+                  {
+                    "system": "HL70162",
+                    "code": "IV",
+                    "display": "静脈内"
+                  }
+                ]
+              },
+              "method": {
+                "coding": [
+                  {
+                    "system": "99ILL",
+                    "code": "102",
+                    "display": "点滴静注(末梢)"
+                  }
+                ]
+              },
+              "doseAndRate": [
+                {
+                  "type": {
+                    "coding": [
+                      {
+                        "system": "LC",
+                        "code": "Give Rate Amount",
+                        "display": "与薬速度"
+                      }
+                    ]
+                  },
+                  "rateQuantity": {
+                    "value": 250,
+                    "unit": "ミリリッター／時間",
+                    "code": "ml/hr"
+                  }
+                }
+              ]
+            }
+          ],
+          "resourceType": "MedicationRequest"
+        }
+      }
+    ],
+    "resourceType": "Bundle"
+  }

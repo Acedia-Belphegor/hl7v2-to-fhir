@@ -258,6 +258,13 @@ class GenerateAbstract
         reference.id = entry.resource.id
         return reference
     end
+
+    def create_reference_from_resource(resource)
+        reference = FHIR::Reference.new()
+        reference.type = resource.resourceType
+        reference.id = resource.id
+        return reference
+    end    
     
     def ignore_fields?(field)
         if Array['*','ST','TX','FT','NM','IS','ID','DT','TM','DTM','SI','GTS'].include?(field['type']) then

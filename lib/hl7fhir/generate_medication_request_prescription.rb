@@ -1,7 +1,7 @@
 # encoding: UTF-8
 require_relative 'generate_abstract'
 
-class GenerateMedicationRequest < GenerateAbstract
+class GenerateMedicationRequestPrescription < GenerateAbstract
     def perform()
         result = Array[]
         get_segments_group().each do |segments|
