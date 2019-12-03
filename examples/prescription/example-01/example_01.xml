@@ -323,7 +323,7 @@
                     <additionalInstruction>
                         <coding>
                             <system value="JHSP0005"/>
-                            <code value=" 01"/>
+                            <code value="01"/>
                             <display value="１回目から服用"/>
                         </coding>
                     </additionalInstruction>

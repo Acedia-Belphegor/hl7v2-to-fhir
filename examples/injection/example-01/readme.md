@@ -30,3 +30,6 @@ RXC|A|100558502^ホリゾン注射液１０ｍｇ^HOT|1|AMP^アンプル^MR9P|||
 OBX|1|ST|54531-9^病名・疾患名 ^LN||突発性てんかんの疑い||||||F
 OBX|2|CWE|67188-3^感染症(有無)^LN||Y^あり^HL70532||||||F
 ```
+
+## FHIR
+- [json](https://github.com/Acedia-Belphegor/hl7v2-to-fhir/blob/master/examples/injection/example-01/example_01.json)
