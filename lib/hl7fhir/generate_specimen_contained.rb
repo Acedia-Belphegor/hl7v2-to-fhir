@@ -1,35 +1,21 @@
 # encoding: UTF-8
 require_relative 'generate_abstract'
 
-class GenerateObservation < GenerateAbstract
+class GenerateSpecimenContained < GenerateAbstract
     def perform()
         result = Array[]        
         get_segments_group().each do |segments|
-            segments.each do |segment|                
+            specimen = FHIR::Specimen.new()
+            specimen.id = result.length
+            segments.each do |segment|
                 case segment[0]['value']
-                when 'ORC' then
-                    segment.select{|c| 
-                        Array[
-                            "Placer Order Number",
-                        ].include?(c['name'])
-                    }.each do |field|
-                        if ignore_fields?(field) then
-                            next
-                        end
-                        case field['name']
-                        when 'Placer Order Number' then
-                            # ORC-2.依頼者オーダ番号
-                            @identifier = FHIR::Identifier.new()
-                            @identifier.system = 'ORC-2'
-                            @identifier.value = field['value']
-                        end
-                    end
                 when 'SPM' then
-                    @specimen_ids = []
                     segment.select{|c| 
                         Array[
                             "Set ID – SPM",
                             "Specimen ID ",
+                            "Specimen Type",
+                            "Specimen Collection Date/Time",
                         ].include?(c['name'])
                     }.each do |field|
                         if ignore_fields?(field) then
@@ -41,18 +27,55 @@ class GenerateObservation < GenerateAbstract
                             identifier = FHIR::Identifier.new()
                             identifier.system = 'SPM-1'
                             identifier.value = field['value']
-                            @specimen_ids.push(identifier)
+                            specimen.identifier.push(identifier)
                         when 'Specimen ID ' then
                             # SPM-2.検体ID
                             identifier = FHIR::Identifier.new()
                             identifier.system = 'SPM-2'
                             identifier.value = field['value']
-                            @specimen_ids.push(identifier)
+                            specimen.identifier.push(identifier)
+                        when 'Specimen Type' then
+                            # SPM-4.検体タイプ
+                            specimen.type = generate_codeable_concept(field['array_data'].first)
+                        when 'Specimen Collection Date/Time' then
+                            # SPM-17.検体採取日時
+                            date_time = parse_str_datetime(field['value'])
+                            if !date_time.nil? then
+                                collection = FHIR::Specimen::Collection.new()
+                                collection.collectedDateTime = date_time
+                                specimen.collection = collection
+                            end
+                        end
+                    end
+                when 'OBR' then
+                    segment.select{|c| 
+                        Array[
+                            "Universal Service Identifier",
+                            "Observation Date/Time #",
+                        ].include?(c['name'])
+                    }.each do |field|
+                        if ignore_fields?(field) then
+                            next
+                        end
+                        case field['name']
+                        when 'Universal Service Identifier' then
+                            # OBR-4.検査項目ID
+                            processing = FHIR::Specimen::Processing.new()
+                            processing.procedure = generate_codeable_concept(field['array_data'].first)
+                            specimen.processing = processing
+                        when 'Observation Date/Time #' then
+                            # OBR-7.検査/採取日時
+                            date_time = parse_str_datetime(field['value'])
+                            if !date_time.nil? then
+                                collection = FHIR::Specimen::Collection.new()
+                                collection.collectedDateTime = date_time
+                                specimen.collection = collection
+                            end
                         end
                     end
                 when 'OBX' then
                     observation = FHIR::Observation.new()
-                    observation.id = result.length
+                    observation.id = specimen.contained.length
                     segment.select{|c| 
                         Array[
                             "Value Type",
@@ -86,6 +109,8 @@ class GenerateObservation < GenerateAbstract
                                 observation.valueString = field['value']
                             when 'CWE' then # Coded With Exceptions                                
                                 observation.valueCodeableConcept = generate_codeable_concept(field['array_data'].first)
+                            else
+                                observation.valueString = field['value']
                             end
                         when "Units" then
                             # OBX-6.単位
@@ -131,20 +156,16 @@ class GenerateObservation < GenerateAbstract
                             observation.effectiveDateTime = DateTime.parse(field['value'])
                         end
                     end
-                    observation.identifier.push(@identifier)
-                    # 検体の参照
-                    get_resources_from_identifier('Specimen', @specimen_ids).each do |entry|
-                        observation.specimen = create_reference(entry)
-                    end
-                    # 患者の参照
-                    get_resources_from_type('Patient').each do |entry|
-                        observation.subject = create_reference(entry)
-                    end
-                    entry = FHIR::Bundle::Entry.new()
-                    entry.resource = observation
-                    result.push(entry)
+                    specimen.contained.push(observation)
                 end
             end
+            # 患者の参照
+            get_resources_from_type('Patient').each do |entry|
+                specimen.subject = create_reference(entry)
+            end
+            entry = FHIR::Bundle::Entry.new()
+            entry.resource = specimen
+            result.push(entry)
         end
         return result
     end
@@ -153,12 +174,12 @@ class GenerateObservation < GenerateAbstract
         segments_group = Array[]
         segments = Array[]
 
+        # MSH-9.MessageTypeの値に応じて、読込対象とするセグメントを識別する
         message_type = @parser.get_parsed_fields('MSH','Message Type').first
         segment_ids = 
             case message_type['array_data'].first.select{|c| c['name'] == 'Message Structure'}.first['value']
             when 'OUL_R22' then Array['SPM','ORC','OBR','OBX']
             when 'ORU_R01' then Array['ORC','OBR','OBX']
-            else Array['OBX']
             end
 
         # SPM,ORC,OBR,OBXを1つのグループにまとめて配列を生成する

@@ -81,7 +81,7 @@ class GenerateSpecimen < GenerateAbstract
             end
             entry = FHIR::Bundle::Entry.new()
             entry.resource = specimen
-            result.push(entry)        
+            result.push(entry)
         end
         return result
     end
@@ -90,11 +90,19 @@ class GenerateSpecimen < GenerateAbstract
         segments_group = Array[]
         segments = Array[]
 
+        message_type = @parser.get_parsed_fields('MSH','Message Type').first
+        segment_ids = 
+            case message_type['array_data'].first.select{|c| c['name'] == 'Message Structure'}.first['value']
+            when 'OUL_R22' then Array['SPM','OBR']
+            when 'ORU_R01' then Array['OBR']
+            else Array[]
+            end
+
         # SPM,OBRを1つのグループにまとめて配列を生成する
         @parser.get_parsed_message().select{|c| 
-            Array['SPM','OBR'].include?(c[0]['value'])
+            segment_ids.include?(c[0]['value'])
         }.each do |segment|
-            if segment[0]['value'] == 'SPM' then
+            if segment[0]['value'] == segment_ids.first then
                 segments_group.push(segments) if !segments.empty?
                 segments = Array[]
             end

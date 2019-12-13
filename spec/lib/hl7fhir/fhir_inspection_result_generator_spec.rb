@@ -38,6 +38,7 @@ RSpec.describe FhirInspectionResultGenerator do
 
     it '#perform' do
         generator.perform
-        expect(generator.get_resources.entry.count).to eq 28
+        # expect(generator.get_resources.entry.count).to eq 28
+        expect(generator.get_resources.entry.count).to eq 7
     end
 end
