@@ -3,12 +3,12 @@ require_relative 'generate_abstract'
 
 class GenerateRelatedPerson < GenerateAbstract
     def perform()
-        result = Array[]
+        results = []
         @parser.get_parsed_segments('NK1').each do |segment|
-            related_person = FHIR::RelatedPerson.new()
-            related_person.id = result.length
+            related_person = FHIR::RelatedPerson.new
+            related_person.id = results.length
             segment.select{|c| 
-                Array[
+                [
                     "Name",
                     "Relationship",
                     "Address",
@@ -16,34 +16,32 @@ class GenerateRelatedPerson < GenerateAbstract
                     "Business Phone Number",
                 ].include?(c['name'])
             }.each do |field|
-                if ignore_fields?(field) then
-                    next
-                end
+                next if ignore_fields?(field)
                 case field['name']
-                when 'Name' then
+                when 'Name'
                     # NK1-2.氏名
                     field['array_data'].each do |record|
                         human_name = generate_human_name(record)
                         human_name.use = 'official'
-                        related_person.name.push(human_name)
+                        related_person.name << human_name
                     end
-                when 'Relationship' then
+                when 'Relationship'
                     # NK1-3.続柄
                     related_person.relationship = generate_codeable_concept(field['array_data'].first)
-                when 'Address' then
+                when 'Address'
                     # NK1-4.住所
                     field['array_data'].each do |record|
-                        related_person.address.push(generate_address(record))
+                        related_person.address << generate_address(record)
                     end
-                when 'Phone Number' then
+                when 'Phone Number'
                     # NK1-5.電話番号
                     field['array_data'].each do |record|
-                        related_person.telecom.push(generate_contact_point(record))
+                        related_person.telecom << generate_contact_point(record)
                     end
-                when 'Business Phone Number' then
+                when 'Business Phone Number'
                     # NK1-6.勤務先電話番号
                     field['array_data'].each do |record|
-                        related_person.telecom.push(generate_contact_point(record))
+                        related_person.telecom << generate_contact_point(record)
                     end
                 end
             end
@@ -51,10 +49,10 @@ class GenerateRelatedPerson < GenerateAbstract
             get_resources_from_type('Patient').each do |entry|
                 related_person.patient = create_reference(entry)
             end
-            entry = FHIR::Bundle::Entry.new()
+            entry = FHIR::Bundle::Entry.new
             entry.resource = related_person
-            result.push(entry)
+            results << entry
         end
-        return result
+        results
     end
 end

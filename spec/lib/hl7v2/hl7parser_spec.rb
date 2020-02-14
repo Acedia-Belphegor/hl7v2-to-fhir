@@ -29,7 +29,7 @@ RSpec.describe HL7Parser do
         MSG
         parser.parse(msg)
         parser.get_parsed_fields('PID','Patient Name').first['array_data'].first.select{|c|
-            Array[
+            [
                 "Family Name",
                 "Given Name",
             ].include?(c['name'])

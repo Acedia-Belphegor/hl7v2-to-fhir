@@ -3,58 +3,45 @@ require_relative 'generate_abstract'
 
 class GenerateObservation < GenerateAbstract
     def perform()
-        result = Array[]        
-        get_segments_group().each do |segments|
+        results = []        
+        get_segments_group.each do |segments|
             segments.each do |segment|                
                 case segment[0]['value']
-                when 'ORC' then
-                    segment.select{|c| 
-                        Array[
-                            "Placer Order Number",
-                        ].include?(c['name'])
-                    }.each do |field|
-                        if ignore_fields?(field) then
-                            next
-                        end
+                when 'ORC'
+                    segment.select{ |c| ["Placer Order Number"].include?(c['name']) }.each do |field|
+                        next if ignore_fields?(field)
                         case field['name']
-                        when 'Placer Order Number' then
+                        when 'Placer Order Number'
                             # ORC-2.依頼者オーダ番号
-                            @identifier = FHIR::Identifier.new()
+                            @identifier = FHIR::Identifier.new
                             @identifier.system = 'ORC-2'
                             @identifier.value = field['value']
                         end
                     end
-                when 'SPM' then
+                when 'SPM'
                     @specimen_ids = []
-                    segment.select{|c| 
-                        Array[
-                            "Set ID – SPM",
-                            "Specimen ID ",
-                        ].include?(c['name'])
-                    }.each do |field|
-                        if ignore_fields?(field) then
-                            next
-                        end
+                    segment.select{ |c| ["Set ID – SPM","Specimen ID "].include?(c['name']) }.each do |field|
+                        next if ignore_fields?(field)
                         case field['name']
-                        when 'Set ID – SPM' then
+                        when 'Set ID – SPM'
                             # SPM-1.セットID-SPM
-                            identifier = FHIR::Identifier.new()
+                            identifier = FHIR::Identifier.new
                             identifier.system = 'SPM-1'
                             identifier.value = field['value']
-                            @specimen_ids.push(identifier)
-                        when 'Specimen ID ' then
+                            @specimen_ids << identifier
+                        when 'Specimen ID '
                             # SPM-2.検体ID
-                            identifier = FHIR::Identifier.new()
+                            identifier = FHIR::Identifier.new
                             identifier.system = 'SPM-2'
                             identifier.value = field['value']
-                            @specimen_ids.push(identifier)
+                            @specimen_ids << identifier
                         end
                     end
-                when 'OBX' then
-                    observation = FHIR::Observation.new()
-                    observation.id = result.length
+                when 'OBX'
+                    observation = FHIR::Observation.new
+                    observation.id = results.length
                     segment.select{|c| 
-                        Array[
+                        [
                             "Value Type",
                             "Observation Identifier",
                             "Observation Value",
@@ -65,59 +52,51 @@ class GenerateObservation < GenerateAbstract
                             "Date/Time of the Observation",
                         ].include?(c['name'])
                     }.each do |field|
-                        if ignore_fields?(field) then
-                            next
-                        end
+                        next if ignore_fields?(field)
                         case field['name']
-                        when "Value Type" then
+                        when "Value Type"
                             # OBX-2.値型
                             @value_type = field['value']
-                        when "Observation Identifier" then
+                        when "Observation Identifier"
                             # OBX-3.検査項目ID
                             observation.code = generate_codeable_concept(field['array_data'].first)
-                        when "Observation Value" then
+                        when "Observation Value"
                             # OBX-5.検査値
                             case @value_type
-                            when 'NM' then # Numeric                                
-                                quantity = FHIR::Quantity.new()
+                            when 'NM' # Numeric                                
+                                quantity = FHIR::Quantity.new
                                 quantity.value = field['value']
                                 observation.valueQuantity = quantity
-                            when 'ST' then # String Data                                
+                            when 'ST' # String Data                                
                                 observation.valueString = field['value']
-                            when 'CWE' then # Coded With Exceptions                                
+                            when 'CWE' # Coded With Exceptions                                
                                 observation.valueCodeableConcept = generate_codeable_concept(field['array_data'].first)
                             end
-                        when "Units" then
+                        when "Units"
                             # OBX-6.単位
-                            if !observation.valueQuantity.nil? then
+                            unless observation.valueQuantity.nil?
                                 units = generate_codeable_concept(field['array_data'].first)
                                 quantity = observation.valueQuantity
                                 quantity.unit = units.coding.display 
                             end
-                        when "References Range" then
+                        when "References Range"
                             # OBX-7.基準値範囲
-                            reference_range = FHIR::Observation::ReferenceRange.new()
+                            reference_range = FHIR::Observation::ReferenceRange.new
                             reference_range.text = field['value']
                             # 値がハイフンで区切られている場合は範囲値とみなして分割する
-                            if reference_range.text.match(/^.+-.+$/) then
+                            if reference_range.text.match(/^.+-.+$/)
                                 reference_range.text.split('-').each do |value|
-                                    quantity = FHIR::Quantity.new()
+                                    quantity = FHIR::Quantity.new
                                     quantity.value = value
                                     quantity.unit = observation.valueQuantity.unit if !observation.valueQuantity.nil?
-                                    if reference_range.low.nil? then
-                                        reference_range.low = quantity # 下限値
-                                    else
-                                        reference_range.high = quantity # 上限値
-                                    end
+                                    reference_range.low.nil? ? reference_range.low = quantity : reference_range.high = quantity
                                 end
                             end
                             observation.referenceRange = reference_range
-                        when "Abnormal Flags" then
+                        when "Abnormal Flags"
                             # OBX-8.異常フラグ
-                            if !field['value'].empty? then
-                                observation.interpretation.push(get_interpretation(field['value']))
-                            end
-                        when "Observation Result Status" then
+                            observation.interpretation << get_interpretation(field['value']) unless field['value'].empty?
+                        when "Observation Result Status"
                             # OBX-11.検査結果状態
                             observation.status = 
                                 case field['value']
@@ -126,12 +105,12 @@ class GenerateObservation < GenerateAbstract
                                 when 'D' then 'cancelled'
                                 when 'P' then 'preliminary'
                                 end
-                        when "Date/Time of the Observation" then
+                        when "Date/Time of the Observation"
                             # OBX-14.検査日時
                             observation.effectiveDateTime = DateTime.parse(field['value'])
                         end
                     end
-                    observation.identifier.push(@identifier)
+                    observation.identifier << @identifier
                     # 検体の参照
                     get_resources_from_identifier('Specimen', @specimen_ids).each do |entry|
                         observation.specimen = create_reference(entry)
@@ -140,44 +119,42 @@ class GenerateObservation < GenerateAbstract
                     get_resources_from_type('Patient').each do |entry|
                         observation.subject = create_reference(entry)
                     end
-                    entry = FHIR::Bundle::Entry.new()
+                    entry = FHIR::Bundle::Entry.new
                     entry.resource = observation
-                    result.push(entry)
+                    results << entry
                 end
             end
         end
-        return result
+        results
     end
 
     def get_segments_group()
-        segments_group = Array[]
-        segments = Array[]
+        segments_group = []
+        segments = []
 
         message_type = @parser.get_parsed_fields('MSH','Message Type').first
         segment_ids = 
             case message_type['array_data'].first.select{|c| c['name'] == 'Message Structure'}.first['value']
-            when 'OUL_R22' then Array['SPM','ORC','OBR','OBX']
-            when 'ORU_R01' then Array['ORC','OBR','OBX']
-            else Array['OBX']
+            when 'OUL_R22' then ['SPM','ORC','OBR','OBX']
+            when 'ORU_R01' then ['ORC','OBR','OBX']
+            else ['OBX']
             end
 
         # SPM,ORC,OBR,OBXを1つのグループにまとめて配列を生成する
-        @parser.get_parsed_message().select{|c| 
-            segment_ids.include?(c[0]['value'])
-        }.each do |segment|
-            if segment[0]['value'] == segment_ids.first then
-                segments_group.push(segments) if !segments.empty?
-                segments = Array[]
+        @parser.get_parsed_message().select{ |c| segment_ids.include?(c[0]['value']) }.each do |segment|
+            if segment[0]['value'] == segment_ids.first
+                segments_group << segments if !segments.empty?
+                segments = []
             end
-            segments.push(segment)
+            segments << segment
         end
-        segments_group.push(segments) if !segments.empty?
-        return segments_group
+        segments_group << segments if !segments.empty?
+        segments_group
     end
 
     def get_interpretation(value)
-        codeable_concept = FHIR::CodeableConcept.new()
-        coding = FHIR::Coding.new()
+        codeable_concept = FHIR::CodeableConcept.new
+        coding = FHIR::Coding.new
         coding.code = 
             case value
             when 'MS','VS' then 'S' # MS:Moderately sensitive 少し敏感 / VS:Very sensitive 過敏
@@ -204,6 +181,6 @@ class GenerateObservation < GenerateAbstract
             end
         coding.system = 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation'
         codeable_concept.coding = coding
-        return codeable_concept
+        codeable_concept
     end
 end

@@ -3,71 +3,62 @@ require_relative 'generate_abstract'
 
 class GenerateSpecimen < GenerateAbstract
     def perform()
-        result = Array[]        
-        get_segments_group().each do |segments|
-            specimen = FHIR::Specimen.new()
-            specimen.id = result.length
+        results = []        
+        get_segments_group.each do |segments|
+            specimen = FHIR::Specimen.new
+            specimen.id = results.length
             segments.each do |segment|
                 case segment[0]['value']
-                when 'SPM' then
+                when 'SPM'
                     segment.select{|c| 
-                        Array[
+                        [
                             "Set ID – SPM",
                             "Specimen ID ",
                             "Specimen Type",
                             "Specimen Collection Date/Time",
                         ].include?(c['name'])
                     }.each do |field|
-                        if ignore_fields?(field) then
-                            next
-                        end
+                        next if ignore_fields?(field)
                         case field['name']
-                        when 'Set ID – SPM' then
+                        when 'Set ID – SPM'
                             # SPM-1.セットID-SPM
-                            identifier = FHIR::Identifier.new()
+                            identifier = FHIR::Identifier.new
                             identifier.system = 'SPM-1'
                             identifier.value = field['value']
-                            specimen.identifier.push(identifier)
-                        when 'Specimen ID ' then
+                            specimen.identifier << identifier
+                        when 'Specimen ID '
                             # SPM-2.検体ID
-                            identifier = FHIR::Identifier.new()
+                            identifier = FHIR::Identifier.new
                             identifier.system = 'SPM-2'
                             identifier.value = field['value']
-                            specimen.identifier.push(identifier)
-                        when 'Specimen Type' then
+                            specimen.identifier << identifier
+                        when 'Specimen Type'
                             # SPM-4.検体タイプ
                             specimen.type = generate_codeable_concept(field['array_data'].first)
-                        when 'Specimen Collection Date/Time' then
+                        when 'Specimen Collection Date/Time'
                             # SPM-17.検体採取日時
                             date_time = parse_str_datetime(field['value'])
-                            if !date_time.nil? then
-                                collection = FHIR::Specimen::Collection.new()
+                            unless date_time.nil?
+                                collection = FHIR::Specimen::Collection.new
                                 collection.collectedDateTime = date_time
                                 specimen.collection = collection
                             end
                         end
                     end
-                when 'OBR' then
-                    segment.select{|c| 
-                        Array[
-                            "Universal Service Identifier",
-                            "Observation Date/Time #",
-                        ].include?(c['name'])
-                    }.each do |field|
-                        if ignore_fields?(field) then
-                            next
-                        end
+                when 'OBR'
+                    segment.select{ |c| ["Universal Service Identifier","Observation Date/Time #"].include?(c['name']) }.each do |field|
+                        next if ignore_fields?(field)
                         case field['name']
-                        when 'Universal Service Identifier' then
+                        when 'Universal Service Identifier'
                             # OBR-4.検査項目ID
-                            processing = FHIR::Specimen::Processing.new()
+                            processing = FHIR::Specimen::Processing.new
                             processing.procedure = generate_codeable_concept(field['array_data'].first)
                             specimen.processing = processing
-                        when 'Observation Date/Time #' then
+                        when 'Observation Date/Time #'
                             # OBR-7.検査/採取日時
                             date_time = parse_str_datetime(field['value'])
-                            if !date_time.nil? then
-                                collection = FHIR::Specimen::Collection.new()
+                            unless date_time.nil?
+                                collection = FHIR::Specimen::Collection.new
                                 collection.collectedDateTime = date_time
                                 specimen.collection = collection
                             end
@@ -79,35 +70,33 @@ class GenerateSpecimen < GenerateAbstract
             get_resources_from_type('Patient').each do |entry|
                 specimen.subject = create_reference(entry)
             end
-            entry = FHIR::Bundle::Entry.new()
+            entry = FHIR::Bundle::Entry.new
             entry.resource = specimen
-            result.push(entry)
+            results << entry
         end
-        return result
+        results
     end
 
     def get_segments_group()
-        segments_group = Array[]
-        segments = Array[]
+        segments_group = []
+        segments = []
 
         message_type = @parser.get_parsed_fields('MSH','Message Type').first
         segment_ids = 
             case message_type['array_data'].first.select{|c| c['name'] == 'Message Structure'}.first['value']
-            when 'OUL_R22' then Array['SPM','OBR']
-            when 'ORU_R01' then Array['OBR']
-            else Array[]
+            when 'OUL_R22' then ['SPM','OBR']
+            when 'ORU_R01' then ['OBR']
+            else []
             end
 
         # SPM,OBRを1つのグループにまとめて配列を生成する
-        @parser.get_parsed_message().select{|c| 
-            segment_ids.include?(c[0]['value'])
-        }.each do |segment|
-            if segment[0]['value'] == segment_ids.first then
-                segments_group.push(segments) if !segments.empty?
-                segments = Array[]
+        @parser.get_parsed_message().select{ |c| segment_ids.include?(c[0]['value']) }.each do |segment|
+            if segment[0]['value'] == segment_ids.first
+                segments_group << segments if !segments.empty?
+                segments = []
             end
-            segments.push(segment)
+            segments << segment
         end
-        segments_group.push(segments) if !segments.empty?
+        segments_group << segments if !segments.empty?
     end
 end
