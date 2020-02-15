@@ -4,7 +4,7 @@ require_relative 'generate_abstract'
 class GeneratePractitioner < GenerateAbstract
     def perform()
         practitioner = FHIR::Practitioner.new
-        practitioner.id = '0'
+        practitioner.id = SecureRandom.uuid
 
         orc_segment = @parser.get_parsed_segments('ORC')
         return if orc_segment.nil?

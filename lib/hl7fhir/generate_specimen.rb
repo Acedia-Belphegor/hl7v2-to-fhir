@@ -6,7 +6,7 @@ class GenerateSpecimen < GenerateAbstract
         results = []        
         get_segments_group.each do |segments|
             specimen = FHIR::Specimen.new
-            specimen.id = results.length
+            specimen.id = SecureRandom.uuid
             segments.each do |segment|
                 case segment[0]['value']
                 when 'SPM'

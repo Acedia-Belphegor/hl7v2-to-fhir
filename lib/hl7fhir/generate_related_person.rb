@@ -6,7 +6,7 @@ class GenerateRelatedPerson < GenerateAbstract
         results = []
         @parser.get_parsed_segments('NK1').each do |segment|
             related_person = FHIR::RelatedPerson.new
-            related_person.id = results.length
+            related_person.id = SecureRandom.uuid
             segment.select{|c| 
                 [
                     "Name",

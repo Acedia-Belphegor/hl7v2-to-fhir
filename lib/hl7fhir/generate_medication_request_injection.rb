@@ -6,7 +6,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
         results = []
          get_segments_group.each do |segments|
             medication_request = FHIR::MedicationRequest.new
-            medication_request.id = results.length.to_s
+            medication_request.id = SecureRandom.uuid
             medication_request.status = 'draft'
             medication_request.intent = 'order'
             medication = FHIR::Medication.new
@@ -46,7 +46,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
                     # ORC-12.依頼者
                     identifier = generate_identifier_from_xcn(field['array_data'].first)
                     # 参照
-                    get_resources_from_identifier('PractitionerRole', identifier).each do |entry|
+                    get_resources_from_identifier('Practitioner', identifier).each do |entry|
                         medication_request.requester = create_reference(entry)
                     end
                 when 'Order Type'

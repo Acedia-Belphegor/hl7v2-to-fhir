@@ -39,7 +39,7 @@ class GenerateObservation < GenerateAbstract
                     end
                 when 'OBX'
                     observation = FHIR::Observation.new
-                    observation.id = results.length
+                    observation.id = SecureRandom.uuid
                     segment.select{|c| 
                         [
                             "Value Type",

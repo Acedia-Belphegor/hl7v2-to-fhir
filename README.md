@@ -195,7 +195,7 @@
 | 16 | Number of Refills Remaining |  |  |  |
 | 17 | Number of Refills/Doses Dispensed |  |  |  |
 | 18 | D/T of Most Recent Refill or Dose Dispensed |  |  |  |
-| 19 | Total Daily Dose | MedicationRequest | dosageInstruction.dosage.doseAndRate.doseQuantity |
+| 19 | Total Daily Dose | MedicationRequest | dosageInstruction.dosage.extension |
 | 20 | Needs Human Review |  |  |  |
 | 21 | Pharmacy/Treatment Supplier's Special Dispensing Instructions | MedicationRequest | category |  |
 | 22 | Give Per (Time Unit) |  |  |  |

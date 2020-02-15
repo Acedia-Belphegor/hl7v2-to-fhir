@@ -6,7 +6,7 @@ class GenerateSpecimenContained < GenerateAbstract
         results = []        
         get_segments_group.each do |segments|
             specimen = FHIR::Specimen.new
-            specimen.id = results.length
+            specimen.id = SecureRandom.uuid
             segments.each do |segment|
                 case segment[0]['value']
                 when 'SPM'
@@ -46,12 +46,7 @@ class GenerateSpecimenContained < GenerateAbstract
                         end
                     end
                 when 'OBR'
-                    segment.select{|c| 
-                        [
-                            "Universal Service Identifier",
-                            "Observation Date/Time #",
-                        ].include?(c['name'])
-                    }.each do |field|
+                    segment.select{ |c| ["Universal Service Identifier","Observation Date/Time #"].include?(c['name']) }.each do |field|
                         next if ignore_fields?(field)
                         case field['name']
                         when 'Universal Service Identifier'

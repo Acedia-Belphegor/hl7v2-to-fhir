@@ -6,7 +6,7 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
         results = []
         get_segments_group.each do |segments|
             medication_request = FHIR::MedicationRequest.new
-            medication_request.id = results.length.to_s
+            medication_request.id = SecureRandom.uuid
             medication_request.status = 'draft'
             medication_request.intent = 'order'
             dosage = FHIR::Dosage.new
@@ -46,7 +46,7 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                             # ORC-12.依頼者
                             identifier = generate_identifier_from_xcn(field['array_data'].first)
                             # 参照
-                            get_resources_from_identifier('PractitionerRole', identifier).each do |entry|
+                            get_resources_from_identifier('Practitioner', identifier).each do |entry|
                                 medication_request.requester = create_reference(entry)
                             end
                         when 'Order Type'
@@ -65,7 +65,6 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                             "Provider's Administration Instructions",
                             "Dispense Amount",
                             "Dispense Units",
-                            "Ordering Provider's DEA Number",
                             "Give Indication",
                             "Prescription Number",
                             "Total Daily Dose",
@@ -78,12 +77,7 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                         when 'Give Code'
                             # RXE-2.与薬コード
                             codeable_concept = generate_codeable_concept(field['array_data'].first)
-                            codeable_concept.coding.first.system =
-                                case codeable_concept.coding.first.system
-                                when 'HOT' then 'OID:1.2.392.100495.20.2.74' # HOTコード
-                                when 'YJ' then 'OID:1.2.392.100495.20.2.73' # YJコード
-                                else codeable_concept.coding.first.system
-                                end
+                            codeable_concept.coding.first.system = 'OID:1.2.392.100495.20.2.74' if codeable_concept.coding.first.system == 'HOT' # HOTコード
                             medication_request.medicationCodeableConcept = codeable_concept
                         # when 'Give Amount - Minimum','Give Amount - Maximum'
                         #     # RXE-3.与薬量－最小 / RXE-4.与薬量－最大
@@ -138,8 +132,6 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                             codeable_concept = generate_codeable_concept(field['array_data'].first)
                             quantity.code = codeable_concept.coding.first.code
                             quantity.unit = codeable_concept.coding.first.display
-                        when "Ordering Provider's DEA Number"
-                            # RXE-13.オーダ発行者の DEA 番号
                         when 'Prescription Number'
                             # RXE-15.処方箋番号
                             if field['value'].present?
@@ -166,7 +158,10 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                             end
                         when 'Give Indication'
                             # RXE-27.与薬指示
-                            medication_request.category << generate_codeable_concept(field['array_data'].first)
+                            # medication_request.category << generate_codeable_concept(field['array_data'].first)
+                            codeable_concept = generate_codeable_concept(field['array_data'].first)
+                            medication_request.category << codeable_concept
+                            dosage.asNeededBoolean = true if codeable_concept.coding.first.code == '22' # 頓用
                         end
                     end
                 when 'TQ1'
@@ -188,6 +183,13 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                             field['array_data'].each do |record|
                                 record.select{ |c| c['name'] == 'Repeat Pattern Code' }.each do |element|
                                     codeable_concept = generate_codeable_concept(element['array_data'])
+                                    # categories = medication_request.category.select{ |c| c.coding.first.system == 'JHSP0003' }
+                                    # if categories.present? && categories.first.coding.first.code == '22'
+                                    #     # 頓用
+                                    #     dosage.asNeededCodeableConcept.nil? ? dosage.asNeededCodeableConcept = codeable_concept : dosage.additionalInstruction << codeable_concept
+                                    # else
+                                    #     timing.code.nil? ? timing.code = [codeable_concept] : dosage.additionalInstruction << codeable_concept
+                                    # end
                                     timing.code.nil? ? timing.code = [codeable_concept] : dosage.additionalInstruction << codeable_concept
                                     # 可読部の編集
                                     dosage.text += "　" if !dosage.text.empty?
@@ -255,12 +257,6 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
             get_resources_from_type('Coverage').each do |entry|
                 medication_request.insurance << create_reference(entry)
             end
-            # # 処方医の参照
-            # get_resources_from_type('PractitionerRole').select{|c|
-            #     c.resource.code.coding.first.code == 'doctor'
-            # }.each do |entry|
-            #     medication_request.requester = entry.resource.practitioner
-            # end
             entry = FHIR::Bundle::Entry.new
             entry.resource = medication_request
             results << entry

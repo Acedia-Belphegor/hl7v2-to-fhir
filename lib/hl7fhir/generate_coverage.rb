@@ -6,7 +6,7 @@ class GenerateCoverage < GenerateAbstract
         results = []
         @parser.get_parsed_segments('IN1').each do |segment|
             coverage = FHIR::Coverage.new
-            coverage.id = results.length.to_s
+            coverage.id = SecureRandom.uuid
             segment.select{|c| 
                 [
                     "Insurance Plan ID",
@@ -26,7 +26,7 @@ class GenerateCoverage < GenerateAbstract
                         case element['name']
                         when 'Identifier'
                             insurance = generate_insurance_code(element['value'])
-                            coverage.type = create_codeable_concept(insurance[0],insurance[1],'1.2.392.100495.20.2.61') if insurance.present?
+                            coverage.type = create_codeable_concept(insurance[0],insurance[1],'OID:1.2.392.100495.20.2.61') if insurance.present?
                         end
                     end
                 when 'Insurance Company ID'
@@ -41,9 +41,7 @@ class GenerateCoverage < GenerateAbstract
                     coverage.identifier << identifier
                 when 'Insured’s Group Emp ID'
                     # IN1-10.被保険者グループ雇用者ID(記号)
-                    if coverage.type.coding.first.code == '8'
-                        next # 公費の場合は無視する
-                    end
+                    next if coverage.type.coding.first.code == '8' # 公費の場合は無視する
                     identifier = FHIR::Identifier.new
                     identifier.system = "OID:1.2.392.100495.20.3.62"
                     identifier.value = field['value']
@@ -75,7 +73,7 @@ class GenerateCoverage < GenerateAbstract
                         when 'Identifier'
                             codeable_concept = FHIR::CodeableConcept.new
                             coding = FHIR::Coding.new            
-                            coding.system = '1.2.392.100495.20.2.61'
+                            coding.system = 'OID:1.2.392.100495.20.2.62'
                             case element['value']
                             when 'SEL', 'EME'
                                 coding.code = '1' # 被保険者

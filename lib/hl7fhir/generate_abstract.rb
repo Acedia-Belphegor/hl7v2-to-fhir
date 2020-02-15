@@ -1,6 +1,7 @@
 # encoding: UTF-8
 require 'json'
 require 'fhir_client'
+require 'securerandom'
 require_relative '../hl7v2/hl7parser'
 
 class GenerateAbstract
@@ -18,12 +19,13 @@ class GenerateAbstract
     end
 
     def get_resources_from_identifier(resource_type, identifier)
-        get_resources_from_type(resource_type).select{ |c| c.resource.identifier == identifier }
+        get_resources_from_type(resource_type).select{ |c| c.resource.identifier.include?(identifier) }
     end
 
     # HL7v2:CWE -> FHIR:CodeableConcept
     def generate_codeable_concept(record)
         codeable_concept = FHIR::CodeableConcept.new
+        
         coding = FHIR::Coding.new
         record.select{ |c| ["Identifier","Text","Name of Coding System"].include?(c['name']) }.each do |element|
             case element['name']
@@ -35,6 +37,22 @@ class GenerateAbstract
                 coding.display = element['value']
             when 'Name of Coding System'
                 # CWE-3.コードシステム名
+                coding.system = element['value']
+            end
+        end
+        codeable_concept.coding << coding
+        
+        coding = FHIR::Coding.new
+        record.select{ |c| ["Alternate Identifier","Alternate Text","Name of Alternate Coding System"].include?(c['name']) }.each do |element|
+            case element['name']
+            when 'Alternate Identifier'
+                # CWE-4.代替識別子
+                coding.code = element['value']
+            when 'Alternate Text'
+                # CWE-5.代替テキスト
+                coding.display = element['value']
+            when 'Name of Alternate Coding System'
+                # CWE-6.代替コードシステム名
                 coding.system = element['value']
             end
         end
@@ -128,7 +146,7 @@ class GenerateAbstract
             case element['name']
             when 'Telephone Number','Unformatted Telephone number '
                 # XTN-1.電話番号 / XTN-12.非定型の電話番号
-                contact_point.value = element['value'] if contact_point.value.nil? && !element['value'].empty?
+                contact_point.value = element['value'] if contact_point.value.nil? && element['value'].present?
             when 'Telecommunication Use Code'
                 # XTN-2.テレコミュニケーション用途コード
                 case element['value']
@@ -246,12 +264,9 @@ class GenerateAbstract
     end    
     
     def ignore_fields?(field)
-        if ['*','ST','TX','FT','NM','IS','ID','DT','TM','DTM','SI','GTS'].include?(field['type'])
-            return false # 単一データ型のフィールドのため無視しない
-        else
-            if field['array_data'].nil? || field['array_data'].empty?
-                return true # 複数データ型のフィールドで配列(パースデータ)が存在しない場合は無視する
-            end
+        unless ['*','ST','TX','FT','NM','IS','ID','DT','TM','DTM','SI','GTS'].include?(field['type'])
+            # 複数データ型のフィールドで配列(パースデータ)が存在しない場合は無視する
+            return true if field['array_data'].blank?
         end
         false # 無視しない
     end
