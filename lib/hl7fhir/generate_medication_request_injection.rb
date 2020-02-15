@@ -96,13 +96,13 @@ class GenerateMedicationRequestInjection < GenerateAbstract
                     # RXE-5.与薬単位
                     codeable_concept = generate_codeable_concept(field['array_data'].first)
                     # numerator
-                    unless medication.amount.numerator.nil?
+                    if medication.amount.numerator.present?
                         quantity = medication.amount.numerator
                         quantity.code = codeable_concept.coding.first.code
                         quantity.unit = codeable_concept.coding.first.display
                     end
                     # denominator
-                    unless medication.amount.denominator.nil?
+                    if medication.amount.denominator.present?
                         quantity = medication.amount.denominator
                         quantity.code = codeable_concept.coding.first.code
                         quantity.unit = codeable_concept.coding.first.display
@@ -117,7 +117,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
                     end
                 when 'Prescription Number'
                     # RXE-15.処方箋番号
-                    unless field['value'].empty?
+                    if field['value'].present?
                         identifier = FHIR::Identifier.new
                         identifier.system = 'OID:1.2.392.100495.20.3.11'
                         identifier.value = field['value']
@@ -304,11 +304,11 @@ class GenerateMedicationRequestInjection < GenerateAbstract
         @parser.get_parsed_message.select{ |c| ['ORC','RXE','TQ1','RXR','RXC'].include?(c[0]['value']) }.each do |segment|
             # ORCの出現を契機に配列を作成する
             if segment[0]['value'] == 'ORC'
-                segments_group << segments if !segments.empty?
+                segments_group << segments if segments.present?
                 segments = []
             end
             segments << segment
         end
-        segments_group << segments if !segments.empty?
+        segments_group << segments if segments.present?
     end
 end

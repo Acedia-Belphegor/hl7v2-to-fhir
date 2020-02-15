@@ -76,18 +76,18 @@ class GeneratePatient < GenerateAbstract
                 patient.maritalStatus = generate_codeable_concept(field['value'])
             when 'Multiple Birth Indicator'
                 # PID-24.多胎児識別情報
-                unless field['value'].empty?
+                if field['value'].present?
                     field['value'] == 'Y' ? patient.multipleBirthBoolean = true : patient.multipleBirthBoolean = false
                 end
             when 'Birth Order'
                 # PID-25.誕生順序
-                patient.multipleBirthInteger = field['value'].to_i unless field['value'].empty?
+                patient.multipleBirthInteger = field['value'].to_i if field['value'].present?
             when 'Patient Death Date and Time'
                 # PID-29.患者死亡日時
-                patient.deceasedDateTime = DateTime.parse(field['value']) unless field['value'].empty?
+                patient.deceasedDateTime = DateTime.parse(field['value']) if field['value'].present?
             when 'Patient Death Indicator'
                 # PID-30.患者死亡識別情報
-                unless field['value'].empty?
+                if field['value'].present?
                     field['value'] == 'Y' ? patient.deceasedBoolean = true : patient.deceasedBoolean = false
                 end
             end

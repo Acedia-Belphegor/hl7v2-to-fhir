@@ -74,7 +74,7 @@ class GenerateObservation < GenerateAbstract
                             end
                         when "Units"
                             # OBX-6.単位
-                            unless observation.valueQuantity.nil?
+                            if observation.valueQuantity.present?
                                 units = generate_codeable_concept(field['array_data'].first)
                                 quantity = observation.valueQuantity
                                 quantity.unit = units.coding.display 
@@ -95,7 +95,7 @@ class GenerateObservation < GenerateAbstract
                             observation.referenceRange = reference_range
                         when "Abnormal Flags"
                             # OBX-8.異常フラグ
-                            observation.interpretation << get_interpretation(field['value']) unless field['value'].empty?
+                            observation.interpretation << get_interpretation(field['value']) if field['value'].present?
                         when "Observation Result Status"
                             # OBX-11.検査結果状態
                             observation.status = 

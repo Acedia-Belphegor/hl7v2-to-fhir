@@ -15,7 +15,7 @@ class FhirPrescriptionGenerator < FhirAbstractGenerator
 
     private
     def validation()
-        raise 'reject message, incorrect [MSH-9.MessageType]' if !validate_message_type('RDE','O11')
+        raise 'reject message, incorrect [MSH-9.MessageType]' unless validate_message_type('RDE','O11')
         true
     end
 end
@@ -24,10 +24,10 @@ class GenerateServiceRequest < GenerateAbstract
     def perform()
         service_request = FHIR::ServiceRequest.new
 
-        rxe_segment = @parser.get_parsed_segments('RXE')
-        return if rxe_segment.nil?
+        rxe_segments = @parser.get_parsed_segments('RXE')
+        return if rxe_segments.blank?
 
-        rxe_segment.first.select{ |c| ["Pharmacy/Treatment Supplier's Special Dispensing Instructions"].include?(c['name']) }.each do |field|
+        rxe_segments.first.select{ |c| ["Pharmacy/Treatment Supplier's Special Dispensing Instructions"].include?(c['name']) }.each do |field|
             next if ignore_fields?(field)
             case field['name']
             when "Pharmacy/Treatment Supplier's Special Dispensing Instructions"

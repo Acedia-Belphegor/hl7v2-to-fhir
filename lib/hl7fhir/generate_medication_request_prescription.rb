@@ -59,7 +59,7 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                         [
                             "Give Code",
                             "Give Amount - Minimum",
-                            "Give Amount - Maximum",
+                            # "Give Amount - Maximum",
                             "Give Units",
                             "Give Dosage Form",
                             "Provider's Administration Instructions",
@@ -85,14 +85,24 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                                 else codeable_concept.coding.first.system
                                 end
                             medication_request.medicationCodeableConcept = codeable_concept
-                        when 'Give Amount - Minimum','Give Amount - Maximum'
-                            # RXE-3.与薬量－最小 / RXE-4.与薬量－最大
+                        # when 'Give Amount - Minimum','Give Amount - Maximum'
+                        #     # RXE-3.与薬量－最小 / RXE-4.与薬量－最大
+                        #     next if field['value'].empty?
+                        #     if field['value'].to_i > 0
+                        #         quantity = FHIR::Quantity.new
+                        #         quantity.value = field['value'].to_i
+                        #         dose_and_rate = FHIR::Dosage::DoseAndRate.new
+                        #         dose_and_rate.type = create_codeable_concept(field['name'], field['ja_name'])
+                        #         dose_and_rate.doseQuantity = quantity
+                        #         dosage.doseAndRate << dose_and_rate
+                        #     end
+                        when 'Give Amount - Minimum'
+                            # RXE-3.与薬量－最小
                             next if field['value'].empty?
                             if field['value'].to_i > 0
                                 quantity = FHIR::Quantity.new
                                 quantity.value = field['value'].to_i
                                 dose_and_rate = FHIR::Dosage::DoseAndRate.new
-                                dose_and_rate.type = create_codeable_concept(field['name'], field['ja_name'])
                                 dose_and_rate.doseQuantity = quantity
                                 dosage.doseAndRate << dose_and_rate
                             end
@@ -132,7 +142,7 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                             # RXE-13.オーダ発行者の DEA 番号
                         when 'Prescription Number'
                             # RXE-15.処方箋番号
-                            unless field['value'].empty?
+                            if field['value'].present?
                                 identifier = FHIR::Identifier.new
                                 identifier.system = 'OID:1.2.392.100495.20.3.11'
                                 identifier.value = field['value']
@@ -140,11 +150,15 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                             end
                         when 'Total Daily Dose'
                             # RXE-19.1日あたりの総投与量
-                            quantity = FHIR::Quantity.new
-                            dose_and_rate = FHIR::Dosage::DoseAndRate.new
-                            dose_and_rate.type = create_codeable_concept(field['name'], field['ja_name'])
-                            dose_and_rate.doseQuantity = generate_quantity(field['array_data'].first)
-                            dosage.doseAndRate << dose_and_rate
+                            extension = FHIR::Extension.new
+                            extension.url = "http://hl7fhir.jp/fhir/StructureDefinition/Extension-JPCore-TotalDailyDose"
+                            extension.valueQuantity = generate_quantity(field['array_data'].first)
+                            dosage.extension << extension
+
+                            # dose_and_rate = FHIR::Dosage::DoseAndRate.new
+                            # dose_and_rate.type = create_codeable_concept(field['name'], field['ja_name'])
+                            # dose_and_rate.doseQuantity = generate_quantity(field['array_data'].first)
+                            # dosage.doseAndRate << dose_and_rate
                         when "Pharmacy/Treatment Supplier's Special Dispensing Instructions"
                             # RXE-21.薬剤部門/治療部門による特別な調剤指示
                             field['array_data'].each do |record|
@@ -191,12 +205,7 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                                     # 投薬日数／回数
                                     timing_repeat.period = element['value'].to_i
                                 when 'Units'
-                                    if element['array_data'].nil?
-                                        period_unit = element['value']
-                                    else
-                                        codeable_concept = generate_codeable_concept(element['array_data'])
-                                        period_unit = codeable_concept.coding.first.code
-                                    end
+                                    element['array_data'].nil? ? period_unit = element['value'] : generate_codeable_concept(element['array_data']).coding.first.code
                                     # 投薬日数／回数単位
                                     timing_repeat.periodUnit = 
                                         case period_unit
@@ -214,7 +223,7 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                             dosage.patientInstruction = field['value']
                         when "Total occurrence's"
                             # TQ1-14.事象総数
-                            unless field['value'].empty?
+                            if field['value'].present?
                                 timing_repeat = FHIR::Timing::Repeat.new
                                 timing_repeat.period = field['value'].to_i
                                 timing_repeat.periodUnit = '回'
@@ -267,11 +276,11 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
         @parser.get_parsed_message.select{ |c| ['ORC','RXE','TQ1','RXR'].include?(c[0]['value']) }.each do |segment|
             # ORCの出現を契機に配列を作成する
             if segment[0]['value'] == 'ORC'
-                segments_group << segments if !segments.empty?
+                segments_group << segments if segments.present?
                 segments = []
             end
             segments << segment
         end
-        segments_group << segments if !segments.empty?
+        segments_group << segments if segments.present?
     end
 end

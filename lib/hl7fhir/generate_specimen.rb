@@ -38,7 +38,7 @@ class GenerateSpecimen < GenerateAbstract
                         when 'Specimen Collection Date/Time'
                             # SPM-17.検体採取日時
                             date_time = parse_str_datetime(field['value'])
-                            unless date_time.nil?
+                            if date_time.present?
                                 collection = FHIR::Specimen::Collection.new
                                 collection.collectedDateTime = date_time
                                 specimen.collection = collection
@@ -57,7 +57,7 @@ class GenerateSpecimen < GenerateAbstract
                         when 'Observation Date/Time #'
                             # OBR-7.検査/採取日時
                             date_time = parse_str_datetime(field['value'])
-                            unless date_time.nil?
+                            if date_time.present?
                                 collection = FHIR::Specimen::Collection.new
                                 collection.collectedDateTime = date_time
                                 specimen.collection = collection
@@ -92,11 +92,11 @@ class GenerateSpecimen < GenerateAbstract
         # SPM,OBRを1つのグループにまとめて配列を生成する
         @parser.get_parsed_message().select{ |c| segment_ids.include?(c[0]['value']) }.each do |segment|
             if segment[0]['value'] == segment_ids.first
-                segments_group << segments if !segments.empty?
+                segments_group << segments if segments.present?
                 segments = []
             end
             segments << segment
         end
-        segments_group << segments if !segments.empty?
+        segments_group << segments if segments.present?
     end
 end

@@ -38,7 +38,7 @@ class GenerateSpecimenContained < GenerateAbstract
                         when 'Specimen Collection Date/Time'
                             # SPM-17.検体採取日時
                             date_time = parse_str_datetime(field['value'])
-                            unless date_time.nil?
+                            if date_time.present?
                                 collection = FHIR::Specimen::Collection.new
                                 collection.collectedDateTime = date_time
                                 specimen.collection = collection
@@ -62,7 +62,7 @@ class GenerateSpecimenContained < GenerateAbstract
                         when 'Observation Date/Time #'
                             # OBR-7.検査/採取日時
                             date_time = parse_str_datetime(field['value'])
-                            unless date_time.nil?
+                            if date_time.present?
                                 collection = FHIR::Specimen::Collection.new
                                 collection.collectedDateTime = date_time
                                 specimen.collection = collection
@@ -109,7 +109,7 @@ class GenerateSpecimenContained < GenerateAbstract
                             end
                         when "Units"
                             # OBX-6.単位
-                            unless observation.valueQuantity.nil?
+                            if observation.valueQuantity.present?
                                 units = generate_codeable_concept(field['array_data'].first)
                                 quantity = observation.valueQuantity
                                 quantity.unit = units.coding.display 
@@ -130,7 +130,7 @@ class GenerateSpecimenContained < GenerateAbstract
                             observation.referenceRange = reference_range
                         when "Abnormal Flags"
                             # OBX-8.異常フラグ
-                            observation.interpretation << get_interpretation(field['value']) unless field['value'].empty?
+                            observation.interpretation << get_interpretation(field['value']) if field['value'].present?
                         when "Observation Result Status"
                             # OBX-11.検査結果状態
                             observation.status = 
@@ -174,12 +174,12 @@ class GenerateSpecimenContained < GenerateAbstract
         # SPM,ORC,OBR,OBXを1つのグループにまとめて配列を生成する
         @parser.get_parsed_message.select{ |c| segment_ids.include?(c[0]['value']) }.each do |segment|
             if segment[0]['value'] == segment_ids.first
-                segments_group << segments if !segments.empty?
+                segments_group << segments if segments.present?
                 segments = []
             end
             segments << segment
         end
-        segments_group << segments if !segments.empty?
+        segments_group << segments if segments.present?
         segments_group
     end
 

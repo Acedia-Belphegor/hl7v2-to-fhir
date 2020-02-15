@@ -34,7 +34,7 @@ class GeneratePractitioner < GenerateAbstract
 
                 # RXE-13.オーダ発行者の DEA 番号
                 dea_number = @parser.get_parsed_fields("RXE", "Ordering Provider's DEA Number")
-                unless dea_number.nil?
+                if dea_number.present?
                     dea_number.first['array_data'].each do |record|
                         identifier = FHIR::Identifier.new
                         identifier.system = "OID:1.2.392.100495.20.3.32"

@@ -7,6 +7,6 @@ class Api::Hl7::V2MessageParsesController < ApplicationController
         # POST：リクエストBODYに設定されたHL7RawDataをJSON形式にパースして返す
         raw_message = request.body.read
         parser = HL7Parser.new(raw_message)
-        render json: parser.get_parsed_message()
+        render json: parser.get_parsed_message
     end
 end

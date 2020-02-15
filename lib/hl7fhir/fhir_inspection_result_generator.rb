@@ -15,7 +15,7 @@ class FhirInspectionResultGenerator < FhirAbstractGenerator
 
     private
     def validation()
-        raise 'reject message, incorrect [MSH-9.MessageType]' if !validate_message_type('OUL','R22') && !validate_message_type('ORU','R01')
+        raise 'reject message, incorrect [MSH-9.MessageType]' unless validate_message_type('OUL','R22') || validate_message_type('ORU','R01')
         true
     end
 end

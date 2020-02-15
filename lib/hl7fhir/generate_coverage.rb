@@ -26,9 +26,7 @@ class GenerateCoverage < GenerateAbstract
                         case element['name']
                         when 'Identifier'
                             insurance = generate_insurance_code(element['value'])
-                            unless insurance.nil?
-                                coverage.type = create_codeable_concept(insurance[0],insurance[1],'1.2.392.100495.20.2.61')
-                            end
+                            coverage.type = create_codeable_concept(insurance[0],insurance[1],'1.2.392.100495.20.2.61') if insurance.present?
                         end
                     end
                 when 'Insurance Company ID'
@@ -59,13 +57,13 @@ class GenerateCoverage < GenerateAbstract
                     coverage.identifier << identifier
                 when 'Plan Effective Date'
                     # IN1-12.プラン有効日付(有効開始日)
-                    unless field['value'].empty?
+                    if field['value'].present?
                         coverage.period.nil? ? period = FHIR::Period.new : period = coverage.period
                         period.start = parse_str_datetime(field['value'])
                     end
                 when 'Plan Expiration Date'
                     # IN1-13.プラン失効日付(有効終了日)
-                    unless field['value'].empty?
+                    if field['value'].present?
                         coverage.period.nil? ? period = FHIR::Period.new : period = coverage.period
                         period.end = parse_str_datetime(field['value'])
                     end

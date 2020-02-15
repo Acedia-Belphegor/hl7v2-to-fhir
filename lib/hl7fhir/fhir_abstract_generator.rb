@@ -42,14 +42,15 @@ class FhirAbstractGenerator
     end
 
     def validate_message_type(message_code, trigger_event)
-        @parser.get_parsed_fields('MSH','Message Type').each do |field|
-            field['array_data'].first.select{ |c| ["Message Code","Trigger Event"].include?(c['name']) }.each do |element|
-                case element['name']
-                when 'Message Code'
-                    return false unless element['value'] == message_code
-                when 'Trigger Event'
-                    return false unless element['value'] == trigger_event
-                end
+        message_types = @parser.get_parsed_fields('MSH','Message Type')
+        return false if message_types.blank?
+
+        message_types.first['array_data'].first.select{ |c| ["Message Code","Trigger Event"].include?(c['name']) }.each do |element|
+            case element['name']
+            when 'Message Code'
+                return false unless element['value'] == message_code
+            when 'Trigger Event'
+                return false unless element['value'] == trigger_event
             end
         end
         true

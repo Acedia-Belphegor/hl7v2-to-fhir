@@ -103,7 +103,7 @@ class GenerateAbstract
                 quantity.value = element['value'].to_i
             when 'Units'
                 # CQ-2.単位付複合数量
-                unless element['array_data'].nil?
+                if element['array_data'].present?
                     codeable_concept = generate_codeable_concept(element['array_data'])
                     quantity.code = codeable_concept.coding.first.code
                     quantity.unit = codeable_concept.coding.first.display

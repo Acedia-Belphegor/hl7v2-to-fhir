@@ -5,13 +5,13 @@ require 'pathname'
 class HL7Parser
     def initialize(raw_message = nil)
         # セグメントターミネータ
-        @segment_delim = "\r"
+        @segment_delim = "\r".freeze
         # フィールドセパレータ
-        @field_delim = '|'
+        @field_delim = '|'.freeze
         # 成分セパレータ
-        @element_delim = '^'
+        @element_delim = '^'.freeze
         # 反復セパレータ
-        @repeat_delim = '~'
+        @repeat_delim = '~'.freeze
         # データ型を定義したJSONファイルを読み込む        
         filename = Pathname.new(File.dirname(File.expand_path(__FILE__))).join('json').join('HL7_DATATYPE.json')
         @hl7_datatypes = File.open(filename) do |io|
@@ -23,7 +23,7 @@ class HL7Parser
             JSON.load(io)
         end
         # 引数にRawデータが設定されている場合はパースする
-        parse(raw_message) if !raw_message.nil?
+        parse(raw_message) if raw_message.present?
     end
 
     # セグメントオブジェクトを返す
@@ -43,26 +43,26 @@ class HL7Parser
 
     # 指定されたセグメントのリストを返す
     def get_parsed_segments(segment_id)
-        @parsed_message.select{|c| c[0]['value'] == segment_id}
+        @parsed_message.select{ |c| c[0]['value'] == segment_id }
     end
 
     # 指定されたセグメント、フィールドを返す
     def get_parsed_fields(segment_id, field_name)
         segments = get_parsed_segments(segment_id)        
-        return segments.first.select{ |c| c['name'] == field_name } if !segments.nil? && !segments.empty?
+        return segments.first.select{ |c| c['name'] == field_name } if segments.present?
     end
 
     # 指定されたセグメント、フィールドの値を返す
     def get_parsed_value(segment_id, field_name)
         segments = get_parsed_segments(segment_id)
-        if !segments.nil? && !segments.empty?
+        if segments.present?
             field = segments.first.find{|c| c['name'] == field_name}
-            return field['value'] unless field.nil?
+            return field['value'] if field.present?
         end
     end
 
     def get_sending_facility()
-        return @sending_facility unless @sending_facility.nil?
+        return @sending_facility if @sending_facility.present?
         value = get_parsed_value('MSH','Sending Facility')
         if value.length == 10
             @sending_facility = {
@@ -79,7 +79,7 @@ class HL7Parser
     # HL7メッセージ(Raw Data)をJSON形式にパースする
     def parse(raw_message)
         begin
-            Rails.logger.info "@raw_message: #{raw_message}"
+            # Rails.logger.info "@raw_message: #{raw_message}"
             # 改行コード(セグメントターミネータ)が「\n」の場合は「\r」に置換する
             raw_message.gsub!("\n", @segment_delim)
             # セグメント分割
@@ -121,7 +121,7 @@ class HL7Parser
                     repeat_fields.each do |repeat_field|
                         # フィールドデータを再帰的にパースする
                         element_value = element_parse(repeat_field, type_id, @element_delim)
-                        element_jsons << element_value if !element_value.nil?
+                        element_jsons << element_value if element_value.present?
                     end
                     # 不要な要素を削除する
                     field.delete('ssmix2-required')
@@ -132,7 +132,7 @@ class HL7Parser
                 results << segment_json
             end
             @parsed_message = results
-            Rails.logger.info "@parsed_message: #{@parsed_message}"
+            # Rails.logger.info "@parsed_message: #{@parsed_message}"
             @parsed_message
         rescue => e
             throw e
@@ -150,7 +150,7 @@ class HL7Parser
                 element.delete('nho_name')
                 element_array.length > element_idx ? value = element_array[element_idx] : value = ''
                 element.store('value', value)
-                unless value.empty?
+                if value.present?
                     array_data = element_parse(value, element['type'], '&')
                     element.store('array_data', array_data)
                 end

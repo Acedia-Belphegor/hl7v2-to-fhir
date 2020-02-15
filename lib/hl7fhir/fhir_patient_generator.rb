@@ -13,7 +13,7 @@ class FhirPatientGenerator < FhirAbstractGenerator
 
     private
     def validation()
-        raise 'reject message, incorrect [MSH-9.MessageType]' if !validate_message_type('ADT','A08')
+        raise 'reject message, incorrect [MSH-9.MessageType]' unless validate_message_type('ADT','A08')
         true
     end
 end
