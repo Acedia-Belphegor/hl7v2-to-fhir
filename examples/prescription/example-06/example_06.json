@@ -3,7 +3,7 @@
   "entry": [
     {
       "resource": {
-        "id": "0",
+        "id": "6548707b-38a3-43e1-81fd-22ae002b4eda",
         "eventCoding": {
           "system": "http://www.hl7fhir.jp",
           "code": "RDE^O11^RDE_O11"
@@ -21,7 +21,7 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "3844bae1-a4b4-4608-b0b2-f4f2d7500f20",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.51.1",
@@ -63,7 +63,7 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "3438da62-0b57-4f51-acc7-990fb6251171",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.61",
@@ -73,14 +73,14 @@
         "type": {
           "coding": [
             {
-              "system": "1.2.392.100495.20.2.61",
+              "system": "OID:1.2.392.100495.20.2.61",
               "code": "1",
               "display": "社保"
             }
           ]
         },
         "beneficiary": {
-          "id": "0",
+          "id": "3844bae1-a4b4-4608-b0b2-f4f2d7500f20",
           "type": "Patient"
         },
         "payor": [
@@ -94,7 +94,7 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "c1a32ae4-2a3e-4bdc-b09b-8fe10dbae475",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.41.1",
@@ -132,13 +132,17 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "6f3864f4-ead8-48fa-8ac5-04c0e66fe9eb",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.41.1",
             "value": "123456"
           }
         ],
+        "practitioner": {
+          "id": "c1a32ae4-2a3e-4bdc-b09b-8fe10dbae475",
+          "type": "Practitioner"
+        },
         "code": [
           {
             "coding": [
@@ -166,7 +170,7 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "c22d9657-a299-4acd-988c-f2c006ab2c05",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.21"
@@ -183,7 +187,7 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "7a683642-ae51-4501-a4bf-6c6a8b564171",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.11",
@@ -244,26 +248,39 @@
           ]
         },
         "subject": {
-          "id": "0",
+          "id": "3844bae1-a4b4-4608-b0b2-f4f2d7500f20",
           "type": "Patient"
         },
         "authoredOn": "2016-08-21",
+        "requester": {
+          "id": "c1a32ae4-2a3e-4bdc-b09b-8fe10dbae475",
+          "type": "Practitioner"
+        },
         "insurance": [
           {
-            "id": "0",
+            "id": "3438da62-0b57-4f51-acc7-990fb6251171",
             "type": "Coverage"
           }
         ],
         "dosageInstruction": [
           {
+            "extension": [
+              {
+                "url": "http://hl7fhir.jp/fhir/StructureDefinition/Extension-JPCore-TotalDailyDose",
+                "valueQuantity": {
+                  "value": 1,
+                  "unit": "錠",
+                  "code": "TAB"
+                }
+              }
+            ],
             "text": "内服・経口・１日１回夕食直後",
             "timing": {
               "event": [
                 "2016-08-25T00:00:00+00:00"
               ],
               "repeat": {
-                "period": 2,
-                "periodUnit": "日"
+                "period": 2
               },
               "code": [
                 {
@@ -288,31 +305,6 @@
             },
             "doseAndRate": [
               {
-                "type": {
-                  "coding": [
-                    {
-                      "system": "LC",
-                      "code": "Give Amount - Minimum",
-                      "display": "与薬量－最小"
-                    }
-                  ]
-                },
-                "doseQuantity": {
-                  "value": 1,
-                  "unit": "錠",
-                  "code": "TAB"
-                }
-              },
-              {
-                "type": {
-                  "coding": [
-                    {
-                      "system": "LC",
-                      "code": "Total Daily Dose",
-                      "display": "1 日あたりの総投与量"
-                    }
-                  ]
-                },
                 "doseQuantity": {
                   "value": 1,
                   "unit": "錠",
@@ -334,7 +326,7 @@
     },
     {
       "resource": {
-        "id": "1",
+        "id": "9dac10b2-636e-4ca7-b264-18c561fc9ece",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.11",
@@ -395,26 +387,39 @@
           ]
         },
         "subject": {
-          "id": "0",
+          "id": "3844bae1-a4b4-4608-b0b2-f4f2d7500f20",
           "type": "Patient"
         },
         "authoredOn": "2016-08-21",
+        "requester": {
+          "id": "c1a32ae4-2a3e-4bdc-b09b-8fe10dbae475",
+          "type": "Practitioner"
+        },
         "insurance": [
           {
-            "id": "0",
+            "id": "3438da62-0b57-4f51-acc7-990fb6251171",
             "type": "Coverage"
           }
         ],
         "dosageInstruction": [
           {
+            "extension": [
+              {
+                "url": "http://hl7fhir.jp/fhir/StructureDefinition/Extension-JPCore-TotalDailyDose",
+                "valueQuantity": {
+                  "value": 4,
+                  "unit": "錠",
+                  "code": "TAB"
+                }
+              }
+            ],
             "text": "内服・経口・１日２回朝夕食直後",
             "timing": {
               "event": [
                 "2016-08-27T00:00:00+00:00"
               ],
               "repeat": {
-                "period": 3,
-                "periodUnit": "日"
+                "period": 3
               },
               "code": [
                 {
@@ -439,33 +444,8 @@
             },
             "doseAndRate": [
               {
-                "type": {
-                  "coding": [
-                    {
-                      "system": "LC",
-                      "code": "Give Amount - Minimum",
-                      "display": "与薬量－最小"
-                    }
-                  ]
-                },
                 "doseQuantity": {
                   "value": 2,
-                  "unit": "錠",
-                  "code": "TAB"
-                }
-              },
-              {
-                "type": {
-                  "coding": [
-                    {
-                      "system": "LC",
-                      "code": "Total Daily Dose",
-                      "display": "1 日あたりの総投与量"
-                    }
-                  ]
-                },
-                "doseQuantity": {
-                  "value": 4,
                   "unit": "錠",
                   "code": "TAB"
                 }
@@ -485,7 +465,7 @@
     },
     {
       "resource": {
-        "id": "2",
+        "id": "dda9d8ef-e16b-4459-a46e-5a54c7830257",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.11",
@@ -546,26 +526,39 @@
           ]
         },
         "subject": {
-          "id": "0",
+          "id": "3844bae1-a4b4-4608-b0b2-f4f2d7500f20",
           "type": "Patient"
         },
         "authoredOn": "2016-08-21",
+        "requester": {
+          "id": "c1a32ae4-2a3e-4bdc-b09b-8fe10dbae475",
+          "type": "Practitioner"
+        },
         "insurance": [
           {
-            "id": "0",
+            "id": "3438da62-0b57-4f51-acc7-990fb6251171",
             "type": "Coverage"
           }
         ],
         "dosageInstruction": [
           {
+            "extension": [
+              {
+                "url": "http://hl7fhir.jp/fhir/StructureDefinition/Extension-JPCore-TotalDailyDose",
+                "valueQuantity": {
+                  "value": 9,
+                  "unit": "錠",
+                  "code": "TAB"
+                }
+              }
+            ],
             "text": "内服・経口・１日３回朝昼夕食直後",
             "timing": {
               "event": [
                 "2016-08-30T00:00:00+00:00"
               ],
               "repeat": {
-                "period": 2,
-                "periodUnit": "日"
+                "period": 2
               },
               "code": [
                 {
@@ -590,33 +583,8 @@
             },
             "doseAndRate": [
               {
-                "type": {
-                  "coding": [
-                    {
-                      "system": "LC",
-                      "code": "Give Amount - Minimum",
-                      "display": "与薬量－最小"
-                    }
-                  ]
-                },
                 "doseQuantity": {
                   "value": 3,
-                  "unit": "錠",
-                  "code": "TAB"
-                }
-              },
-              {
-                "type": {
-                  "coding": [
-                    {
-                      "system": "LC",
-                      "code": "Total Daily Dose",
-                      "display": "1 日あたりの総投与量"
-                    }
-                  ]
-                },
-                "doseQuantity": {
-                  "value": 9,
                   "unit": "錠",
                   "code": "TAB"
                 }

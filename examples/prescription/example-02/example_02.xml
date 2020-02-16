@@ -4,7 +4,7 @@
     <entry>
         <resource>
             <MessageHeader>
-                <id value="0"/>
+                <id value="59df7e83-54c8-4d3a-bd2a-a0a71c027fb5"/>
                 <eventCoding>
                     <system value="http://www.hl7fhir.jp"/>
                     <code value="RDE^O11^RDE_O11"/>
@@ -21,7 +21,7 @@
     <entry>
         <resource>
             <Patient>
-                <id value="0"/>
+                <id value="af7bc543-901b-4843-a5ff-1a4d0b1934d5"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.51.1"/>
                     <value value="1000000001"/>
@@ -50,19 +50,19 @@
     <entry>
         <resource>
             <Coverage>
-                <id value="0"/>
+                <id value="e095f5a5-7221-4851-a152-8b669fdc0e8c"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.61"/>
                     <value value="&quot;&quot;"/>
                 </identifier>
                 <type>
                     <coding>
-                        <system value="1.2.392.100495.20.2.61"/>
+                        <system value="OID:1.2.392.100495.20.2.61"/>
                         <code value="1"/>
                         <display value="社保"/>
                     </coding>
                 </type>
-                <beneficiary id="0">
+                <beneficiary id="af7bc543-901b-4843-a5ff-1a4d0b1934d5">
                     <type value="Patient"/>
                 </beneficiary>
                 <payor id="dummy">
@@ -74,7 +74,7 @@
     <entry>
         <resource>
             <Practitioner>
-                <id value="0"/>
+                <id value="90691414-ffaa-4ed1-9a47-ffc9d94a2464"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.41.1"/>
                     <value value="123456"/>
@@ -99,11 +99,14 @@
     <entry>
         <resource>
             <PractitionerRole>
-                <id value="0"/>
+                <id value="df3f06bc-1c2a-4867-bc2e-37e64fb0bdf3"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.41.1"/>
                     <value value="123456"/>
                 </identifier>
+                <practitioner id="90691414-ffaa-4ed1-9a47-ffc9d94a2464">
+                    <type value="Practitioner"/>
+                </practitioner>
                 <code>
                     <coding>
                         <system value="http://terminology.hl7.org/CodeSystem/practitioner-role"/>
@@ -124,7 +127,7 @@
     <entry>
         <resource>
             <Organization>
-                <id value="0"/>
+                <id value="cb957064-338f-400f-81b5-dfe9e51a2ec2"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.21"/>
                 </identifier>
@@ -140,7 +143,7 @@
     <entry>
         <resource>
             <MedicationRequest>
-                <id value="0"/>
+                <id value="2934284b-3f4b-4030-ac6d-4278ecb39e33"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.11"/>
                     <value value="12345678"/>
@@ -193,11 +196,14 @@
                         <display value="ジフラール軟膏０．０５％"/>
                     </coding>
                 </medicationCodeableConcept>
-                <subject id="0">
+                <subject id="af7bc543-901b-4843-a5ff-1a4d0b1934d5">
                     <type value="Patient"/>
                 </subject>
                 <authoredOn value="2016-08-25"/>
-                <insurance id="0">
+                <requester id="90691414-ffaa-4ed1-9a47-ffc9d94a2464">
+                    <type value="Practitioner"/>
+                </requester>
+                <insurance id="e095f5a5-7221-4851-a152-8b669fdc0e8c">
                     <type value="Coverage"/>
                 </insurance>
                 <dosageInstruction>

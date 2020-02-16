@@ -3,7 +3,7 @@
   "entry": [
     {
       "resource": {
-        "id": "0",
+        "id": "b1de3a3b-1841-4974-a37e-3e6e5a1df3da",
         "eventCoding": {
           "system": "http://www.hl7fhir.jp",
           "code": "RDE^O11^RDE_O11"
@@ -21,7 +21,7 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "89cc18c4-947b-464e-b1ed-fa92433eeb34",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.51.1",
@@ -63,7 +63,7 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "1a9fe6f9-d89c-45d3-a062-656d664feefe",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.61",
@@ -73,14 +73,14 @@
         "type": {
           "coding": [
             {
-              "system": "1.2.392.100495.20.2.61",
+              "system": "OID:1.2.392.100495.20.2.61",
               "code": "1",
               "display": "社保"
             }
           ]
         },
         "beneficiary": {
-          "id": "0",
+          "id": "89cc18c4-947b-464e-b1ed-fa92433eeb34",
           "type": "Patient"
         },
         "payor": [
@@ -94,7 +94,7 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "1f97fc84-0832-490e-b938-aec44ffdc52c",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.41.1",
@@ -138,13 +138,17 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "45cbd34f-1ae1-4f34-a261-4e3bd0604a12",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.41.1",
             "value": "123456"
           }
         ],
+        "practitioner": {
+          "id": "1f97fc84-0832-490e-b938-aec44ffdc52c",
+          "type": "Practitioner"
+        },
         "code": [
           {
             "coding": [
@@ -172,7 +176,7 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "8f96acd9-245f-4165-8140-1deca9d2930f",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.21"
@@ -189,7 +193,7 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "1e35015d-8d48-4dc1-ad78-ec95c42e627e",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.11",
@@ -250,18 +254,32 @@
           ]
         },
         "subject": {
-          "id": "0",
+          "id": "89cc18c4-947b-464e-b1ed-fa92433eeb34",
           "type": "Patient"
         },
         "authoredOn": "2016-08-21",
+        "requester": {
+          "id": "1f97fc84-0832-490e-b938-aec44ffdc52c",
+          "type": "Practitioner"
+        },
         "insurance": [
           {
-            "id": "0",
+            "id": "1a9fe6f9-d89c-45d3-a062-656d664feefe",
             "type": "Coverage"
           }
         ],
         "dosageInstruction": [
           {
+            "extension": [
+              {
+                "url": "http://hl7fhir.jp/fhir/StructureDefinition/Extension-JPCore-TotalDailyDose",
+                "valueQuantity": {
+                  "value": 4,
+                  "unit": "錠",
+                  "code": "TAB"
+                }
+              }
+            ],
             "text": "内服・経口・１日２回１２時間毎",
             "additionalInstruction": [
               {
@@ -279,8 +297,7 @@
                 "2016-08-25T00:00:00+00:00"
               ],
               "repeat": {
-                "period": 7,
-                "periodUnit": "日"
+                "period": 7
               },
               "code": [
                 {
@@ -305,33 +322,8 @@
             },
             "doseAndRate": [
               {
-                "type": {
-                  "coding": [
-                    {
-                      "system": "LC",
-                      "code": "Give Amount - Minimum",
-                      "display": "与薬量－最小"
-                    }
-                  ]
-                },
                 "doseQuantity": {
                   "value": 2,
-                  "unit": "錠",
-                  "code": "TAB"
-                }
-              },
-              {
-                "type": {
-                  "coding": [
-                    {
-                      "system": "LC",
-                      "code": "Total Daily Dose",
-                      "display": "1 日あたりの総投与量"
-                    }
-                  ]
-                },
-                "doseQuantity": {
-                  "value": 4,
                   "unit": "錠",
                   "code": "TAB"
                 }

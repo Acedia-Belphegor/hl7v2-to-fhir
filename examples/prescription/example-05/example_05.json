@@ -3,7 +3,7 @@
   "entry": [
     {
       "resource": {
-        "id": "0",
+        "id": "b20e0ecd-2699-44e8-a774-54eda163fbe3",
         "eventCoding": {
           "system": "http://www.hl7fhir.jp",
           "code": "RDE^O11^RDE_O11"
@@ -21,7 +21,7 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "607e612b-dcd5-4eb2-a9f5-cbbca4cb1de6",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.51.1",
@@ -63,7 +63,7 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "4636f0d1-b550-495f-98d6-b57e46a6a1cf",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.61",
@@ -73,14 +73,14 @@
         "type": {
           "coding": [
             {
-              "system": "1.2.392.100495.20.2.61",
+              "system": "OID:1.2.392.100495.20.2.61",
               "code": "1",
               "display": "社保"
             }
           ]
         },
         "beneficiary": {
-          "id": "0",
+          "id": "607e612b-dcd5-4eb2-a9f5-cbbca4cb1de6",
           "type": "Patient"
         },
         "payor": [
@@ -94,7 +94,7 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "d1a550c1-1e25-4da3-9022-bf64d77a19df",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.41.1",
@@ -132,13 +132,17 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "7dde8f70-b904-4031-90a5-01629fd358f5",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.41.1",
             "value": "123456"
           }
         ],
+        "practitioner": {
+          "id": "d1a550c1-1e25-4da3-9022-bf64d77a19df",
+          "type": "Practitioner"
+        },
         "code": [
           {
             "coding": [
@@ -166,7 +170,7 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "4dafa432-f013-4c78-ac03-b5f0f5a59413",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.21"
@@ -183,7 +187,7 @@
     },
     {
       "resource": {
-        "id": "0",
+        "id": "aadda3cb-6e23-4192-ab22-3aa38960f6bf",
         "identifier": [
           {
             "system": "OID:1.2.392.100495.20.3.11",
@@ -244,13 +248,17 @@
           ]
         },
         "subject": {
-          "id": "0",
+          "id": "607e612b-dcd5-4eb2-a9f5-cbbca4cb1de6",
           "type": "Patient"
         },
         "authoredOn": "2016-08-21",
+        "requester": {
+          "id": "d1a550c1-1e25-4da3-9022-bf64d77a19df",
+          "type": "Practitioner"
+        },
         "insurance": [
           {
-            "id": "0",
+            "id": "4636f0d1-b550-495f-98d6-b57e46a6a1cf",
             "type": "Coverage"
           }
         ],
@@ -278,6 +286,7 @@
                 }
               ]
             },
+            "asNeededBoolean": true,
             "route": {
               "coding": [
                 {
@@ -289,15 +298,6 @@
             },
             "doseAndRate": [
               {
-                "type": {
-                  "coding": [
-                    {
-                      "system": "LC",
-                      "code": "Give Amount - Minimum",
-                      "display": "与薬量－最小"
-                    }
-                  ]
-                },
                 "doseQuantity": {
                   "value": 1,
                   "unit": "錠",

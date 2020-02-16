@@ -4,7 +4,7 @@
     <entry>
         <resource>
             <MessageHeader>
-                <id value="0"/>
+                <id value="c950cee6-1cb3-41e6-a082-4ffff3be7422"/>
                 <eventCoding>
                     <system value="http://www.hl7fhir.jp"/>
                     <code value="RDE^O11^RDE_O11"/>
@@ -21,7 +21,7 @@
     <entry>
         <resource>
             <Patient>
-                <id value="0"/>
+                <id value="c5822ea6-24b3-4d6a-b1f3-a7c2817bd4fd"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.51.1"/>
                     <value value="1000000001"/>
@@ -50,19 +50,19 @@
     <entry>
         <resource>
             <Coverage>
-                <id value="0"/>
+                <id value="1c201bf2-d0d2-4bff-871c-f9c1bef3e984"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.61"/>
                     <value value="&quot;&quot;"/>
                 </identifier>
                 <type>
                     <coding>
-                        <system value="1.2.392.100495.20.2.61"/>
+                        <system value="OID:1.2.392.100495.20.2.61"/>
                         <code value="1"/>
                         <display value="社保"/>
                     </coding>
                 </type>
-                <beneficiary id="0">
+                <beneficiary id="c5822ea6-24b3-4d6a-b1f3-a7c2817bd4fd">
                     <type value="Patient"/>
                 </beneficiary>
                 <payor id="dummy">
@@ -74,7 +74,7 @@
     <entry>
         <resource>
             <Practitioner>
-                <id value="0"/>
+                <id value="47c15d79-1f06-41dc-880b-8eb73532002d"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.41.1"/>
                     <value value="123456"/>
@@ -99,11 +99,14 @@
     <entry>
         <resource>
             <PractitionerRole>
-                <id value="0"/>
+                <id value="fa49810f-7c58-4920-abc7-2e8d0d1348a3"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.41.1"/>
                     <value value="123456"/>
                 </identifier>
+                <practitioner id="47c15d79-1f06-41dc-880b-8eb73532002d">
+                    <type value="Practitioner"/>
+                </practitioner>
                 <code>
                     <coding>
                         <system value="http://terminology.hl7.org/CodeSystem/practitioner-role"/>
@@ -124,7 +127,7 @@
     <entry>
         <resource>
             <Organization>
-                <id value="0"/>
+                <id value="f52fadd9-4f21-48b9-a0bb-911d6bb13d05"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.21"/>
                 </identifier>
@@ -140,7 +143,7 @@
     <entry>
         <resource>
             <MedicationRequest>
-                <id value="0"/>
+                <id value="f6ddcc08-f72e-46e1-8f6f-44f9931a9098"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.11"/>
                     <value value="12345678"/>
@@ -186,14 +189,24 @@
                         <display value="プレドニン錠５ｍｇ"/>
                     </coding>
                 </medicationCodeableConcept>
-                <subject id="0">
+                <subject id="c5822ea6-24b3-4d6a-b1f3-a7c2817bd4fd">
                     <type value="Patient"/>
                 </subject>
                 <authoredOn value="2016-08-21"/>
-                <insurance id="0">
+                <requester id="47c15d79-1f06-41dc-880b-8eb73532002d">
+                    <type value="Practitioner"/>
+                </requester>
+                <insurance id="1c201bf2-d0d2-4bff-871c-f9c1bef3e984">
                     <type value="Coverage"/>
                 </insurance>
                 <dosageInstruction>
+                    <extension url="http://hl7fhir.jp/fhir/StructureDefinition/Extension-JPCore-TotalDailyDose">
+                        <valueQuantity>
+                            <value value="7"/>
+                            <unit value="錠"/>
+                            <code value="TAB"/>
+                        </valueQuantity>
+                    </extension>
                     <text value="内服・経口・１日３回朝昼夕食後"/>
                     <additionalInstruction>
                         <coding>
@@ -220,7 +233,6 @@
                         <event value="2016-08-25T00:00:00+00:00"/>
                         <repeat>
                             <period value="7"/>
-                            <periodUnit value="日"/>
                         </repeat>
                         <code>
                             <coding>
@@ -238,43 +250,8 @@
                         </coding>
                     </route>
                     <doseAndRate>
-                        <type>
-                            <coding>
-                                <system value="LC"/>
-                                <code value="Give Amount - Minimum"/>
-                                <display value="与薬量－最小"/>
-                            </coding>
-                        </type>
                         <doseQuantity>
                             <value value="1"/>
-                            <unit value="錠"/>
-                            <code value="TAB"/>
-                        </doseQuantity>
-                    </doseAndRate>
-                    <doseAndRate>
-                        <type>
-                            <coding>
-                                <system value="LC"/>
-                                <code value="Give Amount - Maximum"/>
-                                <display value="与薬量－最大"/>
-                            </coding>
-                        </type>
-                        <doseQuantity>
-                            <value value="4"/>
-                            <unit value="錠"/>
-                            <code value="TAB"/>
-                        </doseQuantity>
-                    </doseAndRate>
-                    <doseAndRate>
-                        <type>
-                            <coding>
-                                <system value="LC"/>
-                                <code value="Total Daily Dose"/>
-                                <display value="1 日あたりの総投与量"/>
-                            </coding>
-                        </type>
-                        <doseQuantity>
-                            <value value="7"/>
                             <unit value="錠"/>
                             <code value="TAB"/>
                         </doseQuantity>

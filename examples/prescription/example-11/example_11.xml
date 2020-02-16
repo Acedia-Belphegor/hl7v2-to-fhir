@@ -4,7 +4,7 @@
     <entry>
         <resource>
             <MessageHeader>
-                <id value="0"/>
+                <id value="8a692df4-5fd3-4460-9de5-9b3f7de6f381"/>
                 <eventCoding>
                     <system value="http://www.hl7fhir.jp"/>
                     <code value="RDE^O11^RDE_O11"/>
@@ -21,7 +21,7 @@
     <entry>
         <resource>
             <Patient>
-                <id value="0"/>
+                <id value="f8204f5b-41df-41d2-a1ca-2991135cfe0e"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.51.1"/>
                     <value value="1000000001"/>
@@ -50,19 +50,19 @@
     <entry>
         <resource>
             <Coverage>
-                <id value="0"/>
+                <id value="50b03aaf-bace-4eca-b843-d56d303f72ce"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.61"/>
                     <value value="&quot;&quot;"/>
                 </identifier>
                 <type>
                     <coding>
-                        <system value="1.2.392.100495.20.2.61"/>
+                        <system value="OID:1.2.392.100495.20.2.61"/>
                         <code value="1"/>
                         <display value="社保"/>
                     </coding>
                 </type>
-                <beneficiary id="0">
+                <beneficiary id="f8204f5b-41df-41d2-a1ca-2991135cfe0e">
                     <type value="Patient"/>
                 </beneficiary>
                 <payor id="dummy">
@@ -74,7 +74,7 @@
     <entry>
         <resource>
             <Practitioner>
-                <id value="0"/>
+                <id value="ded27861-6c9a-444f-9a52-bc12a735b64a"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.41.1"/>
                     <value value="123456"/>
@@ -99,11 +99,14 @@
     <entry>
         <resource>
             <PractitionerRole>
-                <id value="0"/>
+                <id value="03166535-cbe8-4c84-8f0d-60b9023c28e8"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.41.1"/>
                     <value value="123456"/>
                 </identifier>
+                <practitioner id="ded27861-6c9a-444f-9a52-bc12a735b64a">
+                    <type value="Practitioner"/>
+                </practitioner>
                 <code>
                     <coding>
                         <system value="http://terminology.hl7.org/CodeSystem/practitioner-role"/>
@@ -124,7 +127,7 @@
     <entry>
         <resource>
             <Organization>
-                <id value="0"/>
+                <id value="a927143b-da29-4b25-846b-6b823db8b4ed"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.21"/>
                 </identifier>
@@ -140,7 +143,7 @@
     <entry>
         <resource>
             <MedicationRequest>
-                <id value="0"/>
+                <id value="e3509b64-5084-46fd-997b-0d6474045504"/>
                 <identifier>
                     <system value="OID:1.2.392.100495.20.3.11"/>
                     <value value="12345678"/>
@@ -193,20 +196,29 @@
                         <display value="ヒューマリンＮ注１００単位／ｍＬ"/>
                     </coding>
                 </medicationCodeableConcept>
-                <subject id="0">
+                <subject id="f8204f5b-41df-41d2-a1ca-2991135cfe0e">
                     <type value="Patient"/>
                 </subject>
                 <authoredOn value="2016-08-21"/>
-                <insurance id="0">
+                <requester id="ded27861-6c9a-444f-9a52-bc12a735b64a">
+                    <type value="Practitioner"/>
+                </requester>
+                <insurance id="50b03aaf-bace-4eca-b843-d56d303f72ce">
                     <type value="Coverage"/>
                 </insurance>
                 <dosageInstruction>
+                    <extension url="http://hl7fhir.jp/fhir/StructureDefinition/Extension-JPCore-TotalDailyDose">
+                        <valueQuantity>
+                            <value value="50"/>
+                            <unit value="単位"/>
+                            <code value="UNT"/>
+                        </valueQuantity>
+                    </extension>
                     <text value="注射・皮下注射・ １ 日 １ 回 朝 食直前・ワンショット・在宅・自己"/>
                     <timing>
                         <event value="2016-08-25T00:00:00+00:00"/>
                         <repeat>
                             <period value="14"/>
-                            <periodUnit value="日"/>
                         </repeat>
                         <code>
                             <coding>
@@ -224,27 +236,6 @@
                         </coding>
                     </route>
                     <doseAndRate>
-                        <type>
-                            <coding>
-                                <system value="LC"/>
-                                <code value="Give Amount - Minimum"/>
-                                <display value="与薬量－最小"/>
-                            </coding>
-                        </type>
-                        <doseQuantity>
-                            <value value="50"/>
-                            <unit value="単位"/>
-                            <code value="UNT"/>
-                        </doseQuantity>
-                    </doseAndRate>
-                    <doseAndRate>
-                        <type>
-                            <coding>
-                                <system value="LC"/>
-                                <code value="Total Daily Dose"/>
-                                <display value="1 日あたりの総投与量"/>
-                            </coding>
-                        </type>
                         <doseQuantity>
                             <value value="50"/>
                             <unit value="単位"/>
