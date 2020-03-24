@@ -100,10 +100,10 @@ class GenerateObservation < GenerateAbstract
                             # OBX-11.検査結果状態
                             observation.status = 
                                 case field['value']
-                                when 'F' then 'final'
-                                when 'C' then 'amended'
-                                when 'D' then 'cancelled'
-                                when 'P' then 'preliminary'
+                                when 'F' then :final
+                                when 'C' then :amended
+                                when 'D' then :cancelled
+                                when 'P' then :preliminary
                                 end
                         when "Date/Time of the Observation"
                             # OBX-14.検査日時

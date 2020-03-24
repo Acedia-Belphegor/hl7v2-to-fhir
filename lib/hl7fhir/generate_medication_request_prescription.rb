@@ -7,9 +7,11 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
         get_segments_group.each do |segments|
             medication_request = FHIR::MedicationRequest.new
             medication_request.id = SecureRandom.uuid
-            medication_request.status = 'draft'
-            medication_request.intent = 'order'
-            dosage = FHIR::Dosage.new
+            medication_request.status = :draft
+            medication_request.intent = :order
+            medication = FHIR::Medication.new
+            medication.id = SecureRandom.uuid
+            dosage = FHIR::Dosage.new            
             segments.each do |segment|
                 case segment[0]['value']
                 when 'ORC'
@@ -28,15 +30,16 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                         when 'Placer Order Number'
                             # ORC-2.依頼者オーダ番号
                             identifier = FHIR::Identifier.new
-                            identifier.system = 'OID:1.2.392.100495.20.3.11'
+                            identifier.system = 'urn:oid:1.2.392.100495.20.3.11'
                             identifier.value = field['value']
                             medication_request.identifier << identifier
                         when 'Placer Group Number'
                             # ORC-4.依頼者グループ番号
                             identifier = FHIR::Identifier.new
-                            identifier.system = 'OID:1.2.392.100495.20.3.81'
-                            identifier.value = field['value']
-                            medication_request.identifier << identifier
+                            identifier.system = 'urn:oid:1.2.392.100495.20.3.81'
+                            identifier.value = field['value'].match(/(?:^|(?<=_))(?!.*_).+$/).to_s # アンダースコアで区切られた最後の文字を取得する
+                            # medication_request.identifier << identifier
+                            medication_request.groupIdentifier = identifier
                         when 'Date/Time of Transaction'
                             # ORC-9.トランザクション日時(交付年月日)
                             medication_request.authoredOn = Date.parse(field['value'])
@@ -77,28 +80,32 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                         when 'Give Code'
                             # RXE-2.与薬コード
                             codeable_concept = generate_codeable_concept(field['array_data'].first)
-                            codeable_concept.coding.first.system = 'OID:1.2.392.100495.20.2.74' if codeable_concept.coding.first.system == 'HOT' # HOTコード
-                            medication_request.medicationCodeableConcept = codeable_concept
+                            if codeable_concept.coding.first.system == 'HOT'
+                                codeable_concept.coding.first.system = 'urn:oid:1.2.392.100495.20.2.74' # HOTコード
+                            end
+                            # medication_request.medicationCodeableConcept = codeable_concept
+                            medication.code = codeable_concept
+
                         # when 'Give Amount - Minimum','Give Amount - Maximum'
                         #     # RXE-3.与薬量－最小 / RXE-4.与薬量－最大
                         #     next if field['value'].empty?
-                        #     if field['value'].to_i > 0
+                        #     if field['value'].to_i.positive?
                         #         quantity = FHIR::Quantity.new
                         #         quantity.value = field['value'].to_i
-                        #         dose_and_rate = FHIR::Dosage::DoseAndRate.new
-                        #         dose_and_rate.type = create_codeable_concept(field['name'], field['ja_name'])
-                        #         dose_and_rate.doseQuantity = quantity
-                        #         dosage.doseAndRate << dose_and_rate
+                        #         dose = FHIR::Dosage::DoseAndRate.new
+                        #         dose.type = create_codeable_concept(field['name'], field['ja_name'])
+                        #         dose.doseQuantity = quantity
+                        #         dosage.doseAndRate << dose
                         #     end
                         when 'Give Amount - Minimum'
                             # RXE-3.与薬量－最小
                             next if field['value'].empty?
-                            if field['value'].to_i > 0
+                            if field['value'].to_i.positive?
                                 quantity = FHIR::Quantity.new
                                 quantity.value = field['value'].to_i
-                                dose_and_rate = FHIR::Dosage::DoseAndRate.new
-                                dose_and_rate.doseQuantity = quantity
-                                dosage.doseAndRate << dose_and_rate
+                                dose = FHIR::Dosage::DoseAndRate.new
+                                dose.doseQuantity = quantity
+                                dosage.doseAndRate << dose
                             end
                         when 'Give Units'
                             # RXE-5.与薬単位
@@ -111,8 +118,9 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                             end
                         when 'Give Dosage Form'
                             # RXE-6.与薬剤型
-                            codeable_concept = generate_codeable_concept(field['array_data'].first)
-                            medication_request.category << codeable_concept
+                            # codeable_concept = generate_codeable_concept(field['array_data'].first)
+                            # medication_request.category << codeable_concept
+                            medication.form = generate_codeable_concept(field['array_data'].first)
                         when "Provider's Administration Instructions"
                             # RXE-7.依頼者の投薬指示
                             field['array_data'].each do |record|
@@ -136,7 +144,7 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                             # RXE-15.処方箋番号
                             if field['value'].present?
                                 identifier = FHIR::Identifier.new
-                                identifier.system = 'OID:1.2.392.100495.20.3.11'
+                                identifier.system = 'urn:oid:1.2.392.100495.20.3.11'
                                 identifier.value = field['value']
                                 medication_request.identifier << identifier
                             end
@@ -147,10 +155,10 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                             extension.valueQuantity = generate_quantity(field['array_data'].first)
                             dosage.extension << extension
 
-                            # dose_and_rate = FHIR::Dosage::DoseAndRate.new
-                            # dose_and_rate.type = create_codeable_concept(field['name'], field['ja_name'])
-                            # dose_and_rate.doseQuantity = generate_quantity(field['array_data'].first)
-                            # dosage.doseAndRate << dose_and_rate
+                            # dose = FHIR::Dosage::DoseAndRate.new
+                            # dose.type = create_codeable_concept(field['name'], field['ja_name'])
+                            # dose.doseQuantity = generate_quantity(field['array_data'].first)
+                            # dosage.doseAndRate << dose
                         when "Pharmacy/Treatment Supplier's Special Dispensing Instructions"
                             # RXE-21.薬剤部門/治療部門による特別な調剤指示
                             field['array_data'].each do |record|
@@ -158,10 +166,12 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                             end
                         when 'Give Indication'
                             # RXE-27.与薬指示
-                            # medication_request.category << generate_codeable_concept(field['array_data'].first)
                             codeable_concept = generate_codeable_concept(field['array_data'].first)
                             medication_request.category << codeable_concept
-                            dosage.asNeededBoolean = true if codeable_concept.coding.first.code == '22' # 頓用
+
+                            if codeable_concept.coding.first.code == '22' # 頓用
+                                dosage.asNeededBoolean = true
+                            end
                         end
                     end
                 when 'TQ1'
@@ -183,16 +193,9 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                             field['array_data'].each do |record|
                                 record.select{ |c| c['name'] == 'Repeat Pattern Code' }.each do |element|
                                     codeable_concept = generate_codeable_concept(element['array_data'])
-                                    # categories = medication_request.category.select{ |c| c.coding.first.system == 'JHSP0003' }
-                                    # if categories.present? && categories.first.coding.first.code == '22'
-                                    #     # 頓用
-                                    #     dosage.asNeededCodeableConcept.nil? ? dosage.asNeededCodeableConcept = codeable_concept : dosage.additionalInstruction << codeable_concept
-                                    # else
-                                    #     timing.code.nil? ? timing.code = [codeable_concept] : dosage.additionalInstruction << codeable_concept
-                                    # end
                                     timing.code.nil? ? timing.code = [codeable_concept] : dosage.additionalInstruction << codeable_concept
                                     # 可読部の編集
-                                    dosage.text += "　" if !dosage.text.empty?
+                                    dosage.text += "　" if dosage.text.present?
                                     dosage.text += codeable_concept.coding.first.display
                                 end
                             end
@@ -207,7 +210,7 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                                     # 投薬日数／回数
                                     timing_repeat.period = element['value'].to_i
                                 when 'Units'
-                                    element['array_data'].nil? ? period_unit = element['value'] : generate_codeable_concept(element['array_data']).coding.first.code
+                                    period_unit = element['array_data'].present? ? generate_codeable_concept(element['array_data']).coding.first.code : element['value']
                                     # 投薬日数／回数単位
                                     timing_repeat.periodUnit = 
                                         case period_unit
@@ -248,7 +251,73 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                     end
                 end
             end
+            medication_request.contained << medication
+            # medication_request.dosageInstruction << dosage
+            # # 不均等投与
+            # imbalances = dosage.additionalInstruction.map{ |c| c.coding.select{ |c| c.code.match(/^V[1-9][0-9.N]+$/) && c.system == 'JAMISDP01' } }.compact.reject(&:empty?)
+            # if imbalances.count.positive?
+            #     imbalances.each do |imbalance|
+            #         imbalance_dosage = Marshal.load(Marshal.dump(dosage))
+            #         imbalance_dosage.timing.code = imbalance
+            #         imbalance_dosage.additionalInstruction = nil
+            #         imbalance_dosage.extension = nil
+            #         imbalance_dosage.text = nil
+            #         imbalance_dosage.sequence = imbalance.first.code.slice(1).to_i
+            #         dose = imbalance_dosage.doseAndRate.first
+            #         dose.doseQuantity.value = imbalance.first.code.slice(2..-1).delete('N').to_i
+            #         medication_request.dosageInstruction << imbalance_dosage
+            #     end
+            # else
+            #     medication_request.dosageInstruction << dosage
+            # end
+
+            # # 不均等投与
+            # imbalances = dosage.additionalInstruction.map{ |c| c.coding.select{ |c| c.code.match(/^V[1-9][0-9.N]+$/) && c.system == 'JAMISDP01' } }.compact.reject(&:empty?)
+            # if imbalances.count.positive?
+                # dosage.sequence = 0
+            #     medication_request.dosageInstruction << dosage
+            #     imbalances.each do |imbalance|
+            #         imbalance_dosage = Marshal.load(Marshal.dump(dosage))
+            #         imbalance_dosage.timing.code = imbalance
+            #         imbalance_dosage.timing.event = nil
+            #         imbalance_dosage.timing.repeat = nil
+            #         imbalance_dosage.route = nil
+            #         imbalance_dosage.additionalInstruction = nil
+            #         imbalance_dosage.extension = nil
+            #         imbalance_dosage.text = nil
+            #         imbalance_dosage.sequence = imbalance.first.code.slice(1).to_i
+            #         dose = imbalance_dosage.doseAndRate.first
+            #         dose.doseQuantity.value = imbalance.first.code.slice(2..-1).delete('N').to_i
+            #         medication_request.dosageInstruction << imbalance_dosage
+            #     end
+            #     dosage.additionalInstruction = nil
+            #     dosage.doseAndRate = nil
+            # else
+            #     medication_request.dosageInstruction << dosage
+            # end
+
             medication_request.dosageInstruction << dosage
+            # 不均等投与
+            imbalances = dosage.additionalInstruction.map{ |c| c.coding.select{ |c| c.code.match(/^V[1-9][0-9.N]+$/) && c.system == 'JAMISDP01' } }.compact.reject(&:empty?)
+            if imbalances.count.positive?
+                imbalance_doses = []
+                imbalances.each do |imbalance|
+                    quantity = FHIR::Quantity.new
+                    quantity.value = imbalance.first.code.slice(2..-1).delete('N').to_i
+                    quantity.code = dosage.doseAndRate.first.doseQuantity.code
+                    quantity.unit = dosage.doseAndRate.first.doseQuantity.unit
+                    dose = FHIR::Dosage::DoseAndRate.new
+                    dose.type = imbalance
+                    dose.doseQuantity = quantity
+                    imbalance_doses << dose
+                end
+                dosage.doseAndRate = imbalance_doses
+                dosage.additionalInstruction.delete_if{ |c| imbalances.include?(c.coding) }
+            end
+            # 医薬品の参照
+            medication_request.contained.each do |resource|
+                medication_request.medicationReference = create_reference_from_resource(resource)
+            end
             # 患者の参照
             get_resources_from_type('Patient').each do |entry|
                 medication_request.subject = create_reference(entry)
@@ -264,6 +333,7 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
         results
     end
 
+    private
     def get_segments_group()
         segments_group = []
         segments = []

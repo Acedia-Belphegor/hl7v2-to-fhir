@@ -66,7 +66,7 @@ class GenerateSpecimenContained < GenerateAbstract
                     end
                 when 'OBX'
                     observation = FHIR::Observation.new
-                    observation.id = specimen.contained.length
+                    observation.id = SecureRandom.uuid
                     observation.category = create_codeable_concept('laboratory','検体検査','http://hl7.org/fhir/ValueSet/observation-category')                    
                     segment.select{|c| 
                         [
@@ -130,10 +130,10 @@ class GenerateSpecimenContained < GenerateAbstract
                             # OBX-11.検査結果状態
                             observation.status = 
                                 case field['value']
-                                when 'F' then 'final'
-                                when 'C' then 'amended'
-                                when 'D' then 'cancelled'
-                                when 'P' then 'preliminary'
+                                when 'F' then :final
+                                when 'C' then :amended
+                                when 'D' then :cancelled
+                                when 'P' then :preliminary
                                 end
                         when "Date/Time of the Observation"
                             # OBX-14.検査日時

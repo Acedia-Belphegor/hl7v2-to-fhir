@@ -7,8 +7,8 @@ class GenerateMedicationRequestInjection < GenerateAbstract
          get_segments_group.each do |segments|
             medication_request = FHIR::MedicationRequest.new
             medication_request.id = SecureRandom.uuid
-            medication_request.status = 'draft'
-            medication_request.intent = 'order'
+            medication_request.status = :draft
+            medication_request.intent = :order
             medication = FHIR::Medication.new
             medication.id = medication_request.id
             dosage = FHIR::Dosage.new
@@ -28,13 +28,13 @@ class GenerateMedicationRequestInjection < GenerateAbstract
                 when 'Placer Order Number'
                     # ORC-2.依頼者オーダ番号
                     identifier = FHIR::Identifier.new
-                    identifier.system = 'OID:1.2.392.100495.20.3.11'
+                    identifier.system = 'urn:oid:1.2.392.100495.20.3.11'
                     identifier.value = field['value']
                     medication_request.identifier << identifier
                 when 'Placer Group Number'
                     # ORC-4.依頼者グループ番号
                     identifier = FHIR::Identifier.new
-                    identifier.system = 'OID:1.2.392.100495.20.3.81'
+                    identifier.system = 'urn:oid:1.2.392.100495.20.3.81'
                     identifier.value = field['value']
                     medication_request.identifier << identifier
                 when 'Date/Time of Transaction'
@@ -77,7 +77,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
                 when 'Give Amount - Minimum'
                     # RXE-3.与薬量－最小
                     next if field['value'].empty?
-                    if field['value'].to_i > 0
+                    if field['value'].to_i.positive?
                         medication.amount = FHIR::Ratio.new if medication.amount.nil?
                         quantity = FHIR::Quantity.new
                         quantity.value = field['value'].to_i
@@ -86,7 +86,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
                 when 'Give Amount - Maximum'
                     # RXE-4.与薬量－最大
                     next if field['value'].empty?                        
-                    if field['value'].to_i > 0
+                    if field['value'].to_i.positive?
                         medication.amount = FHIR::Ratio.new if medication.amount.nil?
                         quantity = FHIR::Quantity.new
                         quantity.value = field['value'].to_i
@@ -119,7 +119,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
                     # RXE-15.処方箋番号
                     if field['value'].present?
                         identifier = FHIR::Identifier.new
-                        identifier.system = 'OID:1.2.392.100495.20.3.11'
+                        identifier.system = 'urn:oid:1.2.392.100495.20.3.11'
                         identifier.value = field['value']
                         medication_request.identifier << identifier
                     end
@@ -131,7 +131,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
                 when 'Give Rate Amount'
                     # RXE-23.与薬速度
                     next if field['value'].empty?
-                    if field['value'].to_i > 0 
+                    if field['value'].to_i.positive?
                         quantity = FHIR::Quantity.new
                         quantity.value = field['value'].to_i
                         dose_and_rate = FHIR::Dosage::DoseAndRate.new
@@ -189,9 +189,9 @@ class GenerateMedicationRequestInjection < GenerateAbstract
                     if priority.coding.first.system == 'HL70485'
                         medication_request.priority = 
                             case priority.coding.first.code
-                            when 'S' then 'stat'
-                            when 'A' then 'asap'
-                            when 'R' then 'routine'
+                            when 'S' then :stat
+                            when 'A' then :asap
+                            when 'R' then :routine
                             end
                     end
                 end
@@ -248,15 +248,15 @@ class GenerateMedicationRequestInjection < GenerateAbstract
                         codeable_concept = generate_codeable_concept(field['array_data'].first)
                         codeable_concept.coding.first.system =
                             case codeable_concept.coding.first.system
-                            when 'HOT' then 'OID:1.2.392.100495.20.2.74' # HOTコード
-                            when 'YJ' then 'OID:1.2.392.100495.20.2.73' # YJコード
+                            when 'HOT' then 'urn:oid:1.2.392.100495.20.2.74' # HOTコード
+                            when 'YJ' then 'urn:oid:1.2.392.100495.20.2.73' # YJコード
                             else codeable_concept.coding.first.system
                             end
                             ingredient.itemCodeableConcept = codeable_concept
                     when "Component Amount"
                         # RXC-3.成分量
                         next if field['value'].empty?
-                        if field['value'].to_i > 0
+                        if field['value'].to_i.positive?
                             quantity = FHIR::Quantity.new
                             quantity.value = field['value'].to_i
                             ratio.denominator = quantity

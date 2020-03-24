@@ -56,7 +56,7 @@ class GenerateAbstract
                 coding.system = element['value']
             end
         end
-        codeable_concept.coding << coding
+        codeable_concept.coding << coding if coding.code.present?
         codeable_concept
     end
 
@@ -77,8 +77,8 @@ class GenerateAbstract
                 extension.url = "http://hl7.org/fhir/StructureDefinition/iso21090-EN-representation"
                 extension.valueCode = 
                     case element['value']
-                    when 'I' then 'IDE' # 漢字
-                    when 'P' then 'SYL' # カナ
+                    when 'I' then :IDE # 漢字
+                    when 'P' then :SYL # カナ
                     end
                 human_name.extension << extension
             end
@@ -151,26 +151,26 @@ class GenerateAbstract
                 # XTN-2.テレコミュニケーション用途コード
                 case element['value']
                 when 'PRN' # 主要な自宅番号
-                    contact_point.use = 'home'
+                    contact_point.use = :home
                 when 'WPN' # 勤務先番号
-                    contact_point.use = 'work'
+                    contact_point.use = :work
                 when 'NET' # ネットワーク(電子メール)アドレス
-                    contact_point.system = 'email'
+                    contact_point.system = :email
                 end
             when 'Telecommunication Equipment Type'
                 # XTN-3.テレコミュニケーション装置型
                 case element['value']
                 when 'PH' # 電話
-                    contact_point.system = 'phone'
+                    contact_point.system = :phone
                 when 'FX' # ファックス
-                    contact_point.system = 'fax'
+                    contact_point.system = :fax
                 when 'CP' # 携帯電話
-                    contact_point.system = 'phone'
-                    contact_point.use = 'mobile'
+                    contact_point.system = :phone
+                    contact_point.use = :mobile
                 end
             when 'Email Address'
                 # XTN-4.電子メールアドレス
-                contact_point.value = element['value'] if contact_point.system == 'email'
+                contact_point.value = element['value'] if contact_point.system == :email
             end
         end
         contact_point
@@ -182,7 +182,7 @@ class GenerateAbstract
         record.select{ |c| ["ID Number"] }.each do |element|
             case element['name']
             when 'ID Number'
-                identifier.system = "OID:1.2.392.100495.20.3.41.1#{@parser.get_sending_facility[:all]}"
+                identifier.system = "urn:oid:1.2.392.100495.20.3.41.1#{@parser.get_sending_facility[:all]}"
                 identifier.value = element['value']                
             end
         end
@@ -219,7 +219,7 @@ class GenerateAbstract
     def generate_medication_category(record)
         codeable_concept = generate_codeable_concept(record)
         coding = FHIR::Coding.new
-        coding.system = 'OID:1.2.392.100495.20.2.21'
+        coding.system = 'urn:oid:1.2.392.100495.20.2.21'
         case codeable_concept.coding.code
         when 'TAB','CAP','PWD','SYR' # TAB:錠剤 / CAP:カプセル剤 / PWD:散剤,ドライシロップ剤 / SYR:シロップ剤
             coding.code = '1'

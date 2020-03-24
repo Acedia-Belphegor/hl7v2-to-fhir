@@ -31,14 +31,14 @@ class GeneratePatient < GenerateAbstract
             when 'Patient Identifier List'
                 # PID-3.患者IDリスト
                 identifier = FHIR::Identifier.new
-                identifier.system = "OID:1.2.392.100495.20.3.51.1#{@parser.get_sending_facility[:all]}"
+                identifier.system = "urn:oid:1.2.392.100495.20.3.51.1#{@parser.get_sending_facility[:all]}"
                 identifier.value = field['array_data'].first.find{|c| c['name'] == 'ID Number'}['value']
                 patient.identifier << identifier
             when 'Patient Name'
                 # PID-5.患者氏名
                 field['array_data'].each do |record|
                     human_name = generate_human_name(record)
-                    human_name.use = 'official'
+                    human_name.use = :official
                     patient.name << human_name
                 end
             when 'Date/Time of Birth'
@@ -48,8 +48,8 @@ class GeneratePatient < GenerateAbstract
                 # PID-8.性別
                 patient.gender = 
                     case field['value']
-                    when 'M' then 'male'   # 男性
-                    when 'F' then 'female' # 女性
+                    when 'M' then :male   # 男性
+                    when 'F' then :female # 女性
                     end
             when 'Patient Address'
                 # PID-11.患者の住所

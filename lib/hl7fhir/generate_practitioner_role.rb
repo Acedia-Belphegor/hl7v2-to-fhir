@@ -19,7 +19,7 @@ class GeneratePractitionerRole < GenerateAbstract
                     when 'ID Number'
                         # 医師ID
                         identifier = FHIR::Identifier.new
-                        identifier.system = "OID:1.2.392.100495.20.3.41.1#{@parser.get_sending_facility[:all]}"
+                        identifier.system = "urn:oid:1.2.392.100495.20.3.41.1#{@parser.get_sending_facility[:all]}"
                         identifier.value = element['value']
                         practitioner_role.identifier << identifier
                         # 役割

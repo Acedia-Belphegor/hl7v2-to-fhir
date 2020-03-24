@@ -25,9 +25,9 @@ class GenerateAllergyIntolerance < GenerateAbstract
                     # AL1-2.アレルゲン分類
                     allergy_intolerance.category = 
                         case generate_codeable_concept(field['array_data'].first).coding.first.code
-                        when 'DA' then 'medication' # Drug Allergy 薬剤アレルギー
-                        when 'FA' then 'food' # Food Allergy 食物アレルギー
-                        when 'EA' then 'environment' # Environmental Allergy 環境アレルギー
+                        when 'DA' then :medication # Drug Allergy 薬剤アレルギー
+                        when 'FA' then :food # Food Allergy 食物アレルギー
+                        when 'EA' then :environment # Environmental Allergy 環境アレルギー
                         end
                 when 'Allergen Code/Mnemonic/Description'
                     # AL1-3.アレルゲン情報
@@ -37,8 +37,8 @@ class GenerateAllergyIntolerance < GenerateAbstract
                     severity_code = generate_codeable_concept(field['array_data'].first)
                     allergy_intolerance.criticality = 
                         case severity_code.coding.first.code
-                        when 'SV' then 'high' # Severe 重度
-                        when 'MI' then 'low' # Mild 軽度
+                        when 'SV' then :high # Severe 重度
+                        when 'MI' then :low # Mild 軽度
                         when 'MO' then '' # Moderate 中等度
                         end
                 when 'Allergy Reaction Code'
@@ -78,9 +78,9 @@ class GenerateAllergyIntolerance < GenerateAbstract
                     # IAM-2.アレルゲン分類
                     allergy_intolerance.category = 
                         case generate_codeable_concept(field['array_data'].first).coding.first.code
-                        when 'DA' then 'medication' # Drug Allergy 薬剤アレルギー
-                        when 'FA' then 'food' # Food Allergy 食物アレルギー
-                        when 'EA' then 'environment' # Environmental Allergy 環境アレルギー
+                        when 'DA' then :medication # Drug Allergy 薬剤アレルギー
+                        when 'FA' then :food # Food Allergy 食物アレルギー
+                        when 'EA' then :environment # Environmental Allergy 環境アレルギー
                         end
                 when 'Allergen Code/Mnemonic/Description'
                     # IAM-3.アレルゲン情報
@@ -89,8 +89,8 @@ class GenerateAllergyIntolerance < GenerateAbstract
                     # IAM-4.アレルギー重症度
                     allergy_intolerance.criticality = 
                         case generate_codeable_concept(field['array_data'].first).coding.first.code
-                        when 'SV' then 'high' # Severe 重度
-                        when 'MI' then 'low' # Mild 軽度
+                        when 'SV' then :high # Severe 重度
+                        when 'MI' then :low # Mild 軽度
                         when 'MO' then '' # Moderate 中等度
                         end
                 when 'Allergy Reaction Code'
@@ -106,8 +106,8 @@ class GenerateAllergyIntolerance < GenerateAbstract
                     # IAM-9.アレルギー物質に対する感受性
                     allergy_intolerance.type = 
                         case generate_codeable_concept(field['array_data'].first).coding.first.code
-                        when 'AL' then 'allergy' # Allergy アレルギー
-                        when 'IN' then 'intolerance' # Intolerance 過敏症
+                        when 'AL' then :allergy # Allergy アレルギー
+                        when 'IN' then :intolerance # Intolerance 過敏症
                         when 'CT' then '' # Contraindication 禁忌
                         when 'AD' then '' # Adverse Reaction (Not otherwise classified) 他に分類できない副作用
                         end

@@ -22,7 +22,7 @@ class GeneratePractitioner < GenerateAbstract
                     when 'ID Number'
                         # 医師ID
                         identifier = FHIR::Identifier.new
-                        identifier.system = "OID:1.2.392.100495.20.3.41.1#{@parser.get_sending_facility[:all]}"
+                        identifier.system = "urn:oid:1.2.392.100495.20.3.41.1#{@parser.get_sending_facility[:all]}"
                         identifier.value = element['value']
                         practitioner.identifier << identifier
                     end
@@ -37,7 +37,7 @@ class GeneratePractitioner < GenerateAbstract
                 if dea_number.present?
                     dea_number.first['array_data'].each do |record|
                         identifier = FHIR::Identifier.new
-                        identifier.system = "OID:1.2.392.100495.20.3.32"
+                        identifier.system = "urn:oid:1.2.392.100495.20.3.32"
                         identifier.value = record[0]['value']
                         qualification = FHIR::Practitioner::Qualification.new
                         qualification.identifier = identifier

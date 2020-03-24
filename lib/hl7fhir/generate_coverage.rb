@@ -26,16 +26,16 @@ class GenerateCoverage < GenerateAbstract
                         case element['name']
                         when 'Identifier'
                             insurance = generate_insurance_code(element['value'])
-                            coverage.type = create_codeable_concept(insurance[0],insurance[1],'OID:1.2.392.100495.20.2.61') if insurance.present?
+                            coverage.type = create_codeable_concept(insurance[0],insurance[1],'urn:oid:1.2.392.100495.20.2.61') if insurance.present?
                         end
                     end
                 when 'Insurance Company ID'
                     # IN1-3.保険会社ID(保険者番号 / 公費負担者番号)
                     identifier = FHIR::Identifier.new
                     if coverage.type.coding.first.code == '8'
-                        identifier.system = "OID:1.2.392.100495.20.3.71" # 公費負担者番号
+                        identifier.system = "urn:oid:1.2.392.100495.20.3.71" # 公費負担者番号
                     else
-                        identifier.system = "OID:1.2.392.100495.20.3.61" # 保険者番号
+                        identifier.system = "urn:oid:1.2.392.100495.20.3.61" # 保険者番号
                     end
                     identifier.value = field['value']
                     coverage.identifier << identifier
@@ -43,14 +43,14 @@ class GenerateCoverage < GenerateAbstract
                     # IN1-10.被保険者グループ雇用者ID(記号)
                     next if coverage.type.coding.first.code == '8' # 公費の場合は無視する
                     identifier = FHIR::Identifier.new
-                    identifier.system = "OID:1.2.392.100495.20.3.62"
+                    identifier.system = "urn:oid:1.2.392.100495.20.3.62"
                     identifier.value = field['value']
                     coverage.identifier << identifier
                 when 'Insured’s Group Emp Name'
                     # IN1-11.被保険者グループ雇用者名(番号)
                     next if coverage.type.coding.first.code == '8' # 公費の場合は無視する
                     identifier = FHIR::Identifier.new
-                    identifier.system = "OID:1.2.392.100495.20.3.63"
+                    identifier.system = "urn:oid:1.2.392.100495.20.3.63"
                     identifier.value = field['value']
                     coverage.identifier << identifier
                 when 'Plan Effective Date'
@@ -73,7 +73,7 @@ class GenerateCoverage < GenerateAbstract
                         when 'Identifier'
                             codeable_concept = FHIR::CodeableConcept.new
                             coding = FHIR::Coding.new            
-                            coding.system = 'OID:1.2.392.100495.20.2.62'
+                            coding.system = 'urn:oid:1.2.392.100495.20.2.62'
                             case element['value']
                             when 'SEL', 'EME'
                                 coding.code = '1' # 被保険者
@@ -95,7 +95,7 @@ class GenerateCoverage < GenerateAbstract
             # 支払者の参照
             reference = FHIR::Reference.new
             reference.type = 'Organization'
-            reference.id = 'dummy'
+            reference.id = :dummy
             coverage.payor = [reference]
             entry = FHIR::Bundle::Entry.new
             entry.resource = coverage
