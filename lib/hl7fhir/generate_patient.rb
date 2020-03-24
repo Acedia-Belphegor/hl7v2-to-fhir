@@ -7,7 +7,7 @@ class GeneratePatient < GenerateAbstract
         patient.id = SecureRandom.uuid
 
         pid_segment = @parser.get_parsed_segments('PID')
-        return if pid_segment.nil?
+        return unless pid_segment.present?
         
         pid_segment.first.select{|c|
             [
