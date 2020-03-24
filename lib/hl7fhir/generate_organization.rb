@@ -25,7 +25,7 @@ class GenerateOrganization < GenerateAbstract
         organization.identifier << identifier
 
         orc_segment = @parser.get_parsed_segments('ORC')
-        return if orc_segment.nil?
+        return unless orc_segment.present?
         
         orc_segment.first.select{|c| 
             [
