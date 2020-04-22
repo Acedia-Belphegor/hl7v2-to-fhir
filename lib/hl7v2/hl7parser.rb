@@ -116,24 +116,20 @@ class HL7Parser
                     end
                     # データ型
                     type_id = field['type']
-                    element_jsons = []
 
-                    repeat_fields.each do |repeat_field|
-                        # フィールドデータを再帰的にパースする
-                        element_value = element_parse(repeat_field, type_id, @element_delim)
-                        element_jsons << element_value if element_value.present?
-                    end
-                    # 不要な要素を削除する
+                    # フィールドデータを再帰的にパースする
+                    element_jsons = repeat_fields.map do |repeat_field|
+                        element_parse(repeat_field, type_id, @element_delim)
+                    end.compact
+
                     field.delete('ssmix2-required')
                     field.delete('nho_name')
-                    # パースした値を追加する
                     field.store('array_data', element_jsons)
                 end                
                 results << segment_json
             end
+            # Rails.logger.info "@parsed_message: #{@results}"
             @parsed_message = results
-            # Rails.logger.info "@parsed_message: #{@parsed_message}"
-            @parsed_message
         rescue => e
             throw e
         end
@@ -143,18 +139,16 @@ class HL7Parser
     def element_parse(raw_data, type_id, delim)
         element_json = get_new_datatype(type_id)
         element_array = raw_data.split(delim)
-        element_idx = 0
 
         if element_json.instance_of?(Array)
-            element_json.each do |element|
+            element_json.each_with_index do |element, idx|
                 element.delete('nho_name')
-                element_array.length > element_idx ? value = element_array[element_idx] : value = ''
+                element_array.length > idx ? value = element_array[idx] : value = ''
                 element.store('value', value)
                 if value.present?
                     array_data = element_parse(value, element['type'], '&')
                     element.store('array_data', array_data)
                 end
-                element_idx += 1
             end
             return element_json
         end

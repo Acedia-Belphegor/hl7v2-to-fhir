@@ -27,7 +27,7 @@ class GenerateAbstract
         codeable_concept = FHIR::CodeableConcept.new
         
         coding = FHIR::Coding.new
-        record.select{ |c| ["Identifier","Text","Name of Coding System"].include?(c['name']) }.each do |element|
+        record.select{ |c| c['name'].in? ["Identifier", "Text", "Name of Coding System"] }.each do |element|
             case element['name']
             when 'Identifier'
                 # CWE-1.識別子
@@ -43,7 +43,7 @@ class GenerateAbstract
         codeable_concept.coding << coding
         
         coding = FHIR::Coding.new
-        record.select{ |c| ["Alternate Identifier","Alternate Text","Name of Alternate Coding System"].include?(c['name']) }.each do |element|
+        record.select{ |c| c['name'].in? ["Alternate Identifier", "Alternate Text", "Name of Alternate Coding System"] }.each do |element|
             case element['name']
             when 'Alternate Identifier'
                 # CWE-4.代替識別子
@@ -63,7 +63,7 @@ class GenerateAbstract
     # HL7v2:XPN,XCN -> FHIR:HumanName
     def generate_human_name(record)
         human_name = FHIR::HumanName.new
-        record.select{ |c| ["Family Name","Given Name",'Name Representation Code'].include?(c['name']) }.each do |element|
+        record.select{ |c| c['name'].in? ["Family Name", "Given Name", 'Name Representation Code'] }.each do |element|
             case element['name']
             when 'Family Name'
                 # XPN-1,XCN-2.姓
@@ -134,15 +134,13 @@ class GenerateAbstract
     # HL7v2:XTN -> FHIR:ContactPoint 変換
     def generate_contact_point(record)
         contact_point = FHIR::ContactPoint.new
-        record.select{|c|
-            [
-                "Telephone Number",
-                "Telecommunication Use Code",
-                "Telecommunication Equipment Type",
-                "Email Address",
-                "Unformatted Telephone number ",
-            ].include?(c['name'])
-        }.each do |element|
+        record.select{ |c| c['name'].in? [
+            "Telephone Number",
+            "Telecommunication Use Code",
+            "Telecommunication Equipment Type",
+            "Email Address",
+            "Unformatted Telephone number ",
+        ]}.each do |element|
             case element['name']
             when 'Telephone Number','Unformatted Telephone number '
                 # XTN-1.電話番号 / XTN-12.非定型の電話番号
@@ -179,12 +177,10 @@ class GenerateAbstract
     # HL7v2:XCN -> FHIR:Identifier
     def generate_identifier_from_xcn(record)
         identifier = FHIR::Identifier.new
-        record.select{ |c| ["ID Number"] }.each do |element|
-            case element['name']
-            when 'ID Number'
-                identifier.system = "urn:oid:1.2.392.100495.20.3.41.1#{@parser.get_sending_facility[:all]}"
-                identifier.value = element['value']                
-            end
+        element = record.find{ |c| c['name'] == "ID Number" }
+        if element.present?
+            identifier.system = "urn:oid:1.2.392.100495.20.3.41.1#{@parser.get_sending_facility[:all]}"
+            identifier.value = element['value']
         end
         identifier
     end
@@ -264,7 +260,7 @@ class GenerateAbstract
     end    
     
     def ignore_fields?(field)
-        unless ['*','ST','TX','FT','NM','IS','ID','DT','TM','DTM','SI','GTS'].include?(field['type'])
+        unless field['type'].in? %w[* ST TX FT NM IS ID DT TM DTM SI GTS]
             # 複数データ型のフィールドで配列(パースデータ)が存在しない場合は無視する
             return true if field['array_data'].blank?
         end

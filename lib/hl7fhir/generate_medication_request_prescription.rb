@@ -15,16 +15,14 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
             segments.each do |segment|
                 case segment[0]['value']
                 when 'ORC'
-                    segment.select{|c| 
-                        [
-                            "Placer Order Number",
-                            "Placer Group Number",
-                            "Date/Time of Transaction",
-                            "Entered By",
-                            "Ordering Provider",
-                            "Order Type",
-                        ].include?(c['name'])
-                    }.each do |field|
+                    segment.select{ |c| c['name'].in? [
+                        "Placer Order Number",
+                        "Placer Group Number",
+                        "Date/Time of Transaction",
+                        "Entered By",
+                        "Ordering Provider",
+                        "Order Type",
+                    ]}.each do |field|
                         next if ignore_fields?(field)
                         case field['name']
                         when 'Placer Order Number'
@@ -49,32 +47,27 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                             # ORC-12.依頼者
                             identifier = generate_identifier_from_xcn(field['array_data'].first)
                             # 参照
-                            get_resources_from_identifier('Practitioner', identifier).each do |entry|
-                                medication_request.requester = create_reference(entry)
-                            end
+                            medication_request.requester = get_resources_from_identifier('Practitioner', identifier).map{ |entry| create_reference(entry) }
                         when 'Order Type'
                             # ORC-29.オーダタイプ
                             medication_request.category << generate_codeable_concept(field['array_data'].first)
                         end
                     end
                 when 'RXE'
-                    segment.select{|c| 
-                        [
-                            "Give Code",
-                            "Give Amount - Minimum",
-                            # "Give Amount - Maximum",
-                            "Give Units",
-                            "Give Dosage Form",
-                            "Provider's Administration Instructions",
-                            "Dispense Amount",
-                            "Dispense Units",
-                            "Give Indication",
-                            "Prescription Number",
-                            "Total Daily Dose",
-                            "Pharmacy/Treatment Supplier's Special Dispensing Instructions",
-                            "Give Indication",
-                        ].include?(c['name'])
-                    }.each do |field|
+                    segment.select{ |c| c['name'].in? [
+                        "Give Code",
+                        "Give Amount - Minimum",
+                        "Give Units",
+                        "Give Dosage Form",
+                        "Provider's Administration Instructions",
+                        "Dispense Amount",
+                        "Dispense Units",
+                        "Give Indication",
+                        "Prescription Number",
+                        "Total Daily Dose",
+                        "Pharmacy/Treatment Supplier's Special Dispensing Instructions",
+                        "Give Indication",
+                    ]}.each do |field|
                         next if ignore_fields?(field)
                         case field['name']
                         when 'Give Code'
@@ -99,7 +92,6 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                         #     end
                         when 'Give Amount - Minimum'
                             # RXE-3.与薬量－最小
-                            next if field['value'].empty?
                             if field['value'].to_i.positive?
                                 quantity = FHIR::Quantity.new
                                 quantity.value = field['value'].to_i
@@ -123,9 +115,7 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                             medication.form = generate_codeable_concept(field['array_data'].first)
                         when "Provider's Administration Instructions"
                             # RXE-7.依頼者の投薬指示
-                            field['array_data'].each do |record|
-                                dosage.additionalInstruction << generate_codeable_concept(record)
-                            end
+                            dosage.additionalInstruction = field['array_data'].map{ |record| generate_codeable_concept(record) }.compact
                         when 'Dispense Amount'
                             # RXE-10.調剤量
                             dispense_request = FHIR::MedicationRequest::DispenseRequest.new
@@ -177,15 +167,13 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                 when 'TQ1'
                     timing = FHIR::Timing.new
                     dosage.text = ''
-                    segment.select{|c| 
-                        [
-                            "Repeat Pattern",
-                            "Service Duration",
-                            "Start date/time",
-                            "Text instruction",
-                            "Total occurrence's",
-                        ].include?(c['name'])
-                    }.each do |field|
+                    segment.select{ |c| c['name'].in? [
+                        "Repeat Pattern", 
+                        "Service Duration", 
+                        "Start date/time", 
+                        "Text instruction", 
+                        "Total occurrence's"
+                    ]}.each do |field|
                         next if ignore_fields?(field)
                         case field['name']
                         when 'Repeat Pattern'
@@ -200,23 +188,14 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                                 end
                             end
                         when 'Service Duration'
-                            # TQ1-6.サービス期間
+                            # TQ1-6.サービス期間(投薬日数)
                             timing_repeat = FHIR::Timing::Repeat.new
-
-                            # 投与日数／投与回数
-                            field['array_data'].first.select{ |c| ["Quantity","Units"].include?(c['name']) }.each do |element|
+                            field['array_data'].first.select{ |c| c['name'].in? ["Quantity", "Units"] }.each do |element|
                                 case element['name']
                                 when 'Quantity'
-                                    # 投薬日数／回数
-                                    timing_repeat.period = element['value'].to_i
+                                    timing_repeat.duration = element['value'].to_i
                                 when 'Units'
-                                    period_unit = element['array_data'].present? ? generate_codeable_concept(element['array_data']).coding.first.code : element['value']
-                                    # 投薬日数／回数単位
-                                    timing_repeat.periodUnit = 
-                                        case period_unit
-                                        when '日','日分','D' then '日' # 投薬日数
-                                        when '回','回分','T' then '回' # 投薬回数等
-                                        end
+                                    timing_repeat.durationUnit = 'd'
                                 end
                             end
                             timing.repeat = timing_repeat
@@ -227,18 +206,17 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                             # TQ1-11.テキスト指令
                             dosage.patientInstruction = field['value']
                         when "Total occurrence's"
-                            # TQ1-14.事象総数
+                            # TQ1-14.事象総数(頓用指示の回数)
                             if field['value'].present?
                                 timing_repeat = FHIR::Timing::Repeat.new
-                                timing_repeat.period = field['value'].to_i
-                                timing_repeat.periodUnit = '回'
+                                timing_repeat.count = field['value'].to_i
                                 timing.repeat = timing_repeat
                             end
                         end
                     end
                     dosage.timing = timing
                 when 'RXR'
-                    segment.select{ |c| ["Route","Administration Site"].include?(c['name']) }.each do |field|
+                    segment.select{ |c| c['name'].in? ["Route", "Administration Site", "Administration Method"] }.each do |field|
                         next if ignore_fields?(field)
                         case field['name']
                         when 'Route'
@@ -247,6 +225,9 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                         when 'Administration Site'
                             # RXR-2.部位
                             dosage.site = generate_codeable_concept(field['array_data'].first)
+                        when 'Administration Method'
+                            # RXR-4.投薬方法
+                            dosage.method = generate_codeable_concept(field['array_data'].first)
                         end
                     end
                 end
@@ -315,17 +296,11 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
                 dosage.additionalInstruction.delete_if{ |c| imbalances.include?(c.coding) }
             end
             # 医薬品の参照
-            medication_request.contained.each do |resource|
-                medication_request.medicationReference = create_reference_from_resource(resource)
-            end
+            medication_request.medicationReference = create_reference_from_resource(medication_request.contained.first)
             # 患者の参照
-            get_resources_from_type('Patient').each do |entry|
-                medication_request.subject = create_reference(entry)
-            end
+            medication_request.subject = create_reference(get_resources_from_type('Patient').first)
             # 保険の参照
-            get_resources_from_type('Coverage').each do |entry|
-                medication_request.insurance << create_reference(entry)
-            end
+            medication_request.insurance = get_resources_from_type('Coverage').map{ |entry| create_reference(entry) }
             entry = FHIR::Bundle::Entry.new
             entry.resource = medication_request
             results << entry
@@ -339,7 +314,7 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
         segments = []
 
         # ORC,RXE,TQ1,RXRを1つのグループにまとめて配列を生成する
-        @parser.get_parsed_message.select{ |c| ['ORC','RXE','TQ1','RXR'].include?(c[0]['value']) }.each do |segment|
+        @parser.get_parsed_message.select{ |c| c[0]['value'].in? %w[ORC RXE TQ1 RXR] }.each do |segment|
             # ORCの出現を契機に配列を作成する
             if segment[0]['value'] == 'ORC'
                 segments_group << segments if segments.present?

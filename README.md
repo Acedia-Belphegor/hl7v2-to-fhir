@@ -180,9 +180,9 @@
 | 1 | Quantity/Timing |  |  |  |
 | 2 | Give Code | MedicationRequest | medicationCodeableConcept |
 | 3 | Give Amount - Minimum | MedicationRequest | dosageInstruction.dosage.doseAndRate.doseQuantity |
-| 4 | Give Amount - Maximum | MedicationRequest | dosageInstruction.dosage.doseAndRate.doseQuantity |
-| 5 | Give Units | MedicationRequest | dosageInstruction.dosage.doseAndRate.ddoseQuantity |
-| 6 | Give Dosage Form | MedicationRequest | category |
+| 4 | Give Amount - Maximum |  |  |
+| 5 | Give Units | MedicationRequest | dosageInstruction.dosage.doseAndRate.doseQuantity |
+| 6 | Give Dosage Form | Medication | form |
 | 7 | Provider's Administration Instructions | MedicationRequest | dosageInstruction.dosage.additionalInstruction |
 | 8 | Deliver-to Location |  |  |  |
 | 9 | Substitution Status |  |  |  |
@@ -230,7 +230,7 @@
 | 3 | Repeat Pattern | MedicationRequest | dosageInstruction.dosage.timing.code |
 | 4 | Explicit Time |  |  |  |
 | 5 | Relative Time and Units |  |  |  |
-| 6 | Service Duration | MedicationRequest | dosageInstruction.dosage.timing.repeat |
+| 6 | Service Duration | MedicationRequest | dosageInstruction.dosage.timing.repeat.duration |
 | 7 | Start date/time | MedicationRequest | dosageInstruction.dosage.timing.event |
 | 8 | End date/time |  |  |  |
 | 9 | Priority |  |  |  |
@@ -238,7 +238,7 @@
 | 11 | Text instruction | MedicationRequest | dosageInstruction.dosage.patientInstruction |
 | 12 | Conjunction |  |  |  |
 | 13 | Occurrence duration |  |  |  |
-| 14 | Total occurrence's | MedicationRequest | dosageInstruction.dosage.timing.repeat |  |
+| 14 | Total occurrence's | MedicationRequest | dosageInstruction.dosage.timing.repeat.count |  |
 
 ### RXR
 | v2 field | v2 name | FHIR resource | FHIR element | memo |
@@ -246,7 +246,7 @@
 | 1 | Route | MedicationRequest | dosageInstruction.dosage.route |
 | 2 | Administration Site | MedicationRequest | dosageInstruction.dosage.site |
 | 3 | Administration Device |  |  |  |
-| 4 | Administration Method |  |  |  |
+| 4 | Administration Method | MedicationRequest | dosageInstruction.dosage.method |
 | 5 | Routing Instruction |  |  |  |
 | 6 | Administration Site Modifier |  |  |  |
 
