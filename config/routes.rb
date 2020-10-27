@@ -1,14 +1,16 @@
 Rails.application.routes.draw do
-    # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+    root to: "fhir_testers#index"
 
-    # namespace :api, {format: 'json'} do
+    resources :fhir_testers do
+        member do
+        end
+    end
+
     namespace :api do
-      namespace :hl7 do
-        resources :v2_message_parses, only: %i[create]
-        resources :fhir_prescription_generators, only: %i[create]
-        resources :fhir_injection_generators, only: %i[create]
-        resources :fhir_inspection_result_generators, only: %i[create]
-        resources :fhir_patient_generators, only: %i[create]
-      end
+        namespace :hl7 do
+            resources :fhir_prescription_generators, only: %i[create]
+            resources :fhir_injection_generators, only: %i[create]
+            resources :fhir_inspection_result_generators, only: %i[create]
+        end
     end
 end

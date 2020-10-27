@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>HL7v2 to FHIR -beta-</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+<h3>HL7v2 to FHIR Test Page</h3>
+
+<form action="/fhir_testers" method="post" target="blank">
+  <div>
+    <label>
+      original type:
+      <input type="radio" name="type" value="prescription" checked>処方
+      <input type="radio" name="type" value="injection">注射
+      <input type="radio" name="type" value="inspection_result">検査結果
+    </label>
+  </div>
+
+  <div>
+    <label>
+      response format:
+      <input type="radio" name="format" value="json" checked>json
+      <input type="radio" name="format" value="xml">xml
+    </label>
+  </div>
+
+  <div>
+    <div>raw data:</div>
+    <textarea name="data" rows="25" cols="120"></textarea>
+  </div>
+
+  <div>
+    <input type="submit"/>
+  </div>
+</form>
+
+</body>
+</html>
