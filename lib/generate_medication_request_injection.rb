@@ -14,10 +14,9 @@ class GenerateMedicationRequestInjection < GenerateAbstract
             medication_request.dosageInstruction << dosage
             dispense_request = FHIR::MedicationRequest::DispenseRequest.new
             medication_request.dispenseRequest = dispense_request
-            dose = FHIR::Dosage::DoseAndRate.new
-            dosage.doseAndRate << dose
             medication = FHIR::Medication.new
             medication.id = medication_request.id
+            medication.amount = FHIR::Ratio.new
             medication_request.contained << medication
 
             # ORCセグメント
@@ -35,38 +34,29 @@ class GenerateMedicationRequestInjection < GenerateAbstract
             # RXEセグメント
             rxe_segment = segments.find{|segment|segment[:segment_id] == 'RXE'}
 
-            medication.amount = FHIR::Ratio.new
+            # RXE-2.与薬コード
+            medication_request.category << generate_codeable_concept(rxe_segment[:give_code].first)
 
             # RXE-3.与薬量－最小 / RXE-5.与薬単位
             if rxe_segment[:give_amount_minimum].present?
-                medication.amount.numerator = create_quantity(
+                dose = FHIR::Dosage::DoseAndRate.new
+                dose.doseQuantity = create_quantity(
                     rxe_segment[:give_amount_minimum].to_f,
                     rxe_segment[:give_units].first[:text],
                     rxe_segment[:give_units].first[:identifier]
                 )
+                dosage.doseAndRate << dose
             end
-
-            # RXE-4.与薬量－最大 / RXE-5.与薬単位
-            if rxe_segment[:give_amount_maximum].present?
-                medication.amount.denominator = create_quantity(
-                    rxe_segment[:give_amount_maximum].to_f,
-                    rxe_segment[:give_units].first[:text],
-                    rxe_segment[:give_units].first[:identifier]
-                )
-            end
-
-            # RXE-6.与薬剤型
-            medication.form = generate_codeable_concept(rxe_segment[:give_dosage_form].first)
 
             # RXE-7.依頼者の投薬指示
             if rxe_segment[:providers_administration_instructions].class == Array
                 dosage.additionalInstruction.concat rxe_segment[:providers_administration_instructions].map{|e|generate_codeable_concept(e)}
             end
 
-            # RXE-15.処方箋番号
-            if rxe_segment[:prescription_number].present?
-                medication_request.identifier << create_identifier(rxe_segment[:prescription_number], 'urn:oid:1.2.392.100495.20.3.11')
-            end
+            # # RXE-15.処方箋番号
+            # if rxe_segment[:prescription_number].present?
+            #     medication_request.identifier << create_identifier(rxe_segment[:prescription_number], 'urn:oid:1.2.392.100495.20.3.11')
+            # end
 
             # RXE-21.薬剤部門/治療部門による特別な調剤指示
             rxe_segment[:pharmacytreatment_suppliers_special_dispensing_instructions].each do |element|
@@ -80,10 +70,12 @@ class GenerateMedicationRequestInjection < GenerateAbstract
             # RXE-23.与薬速度 / # RXE-24.与薬速度単位
             if rxe_segment[:give_rate_amount].present? && rxe_segment[:give_rate_units].present?
                 if rxe_segment[:give_rate_units].first[:identifier].downcase == 'ml/hr'
+                    rate = FHIR::Dosage::DoseAndRate.new
                     ratio = FHIR::Ratio.new
                     ratio.numerator = create_quantity(rxe_segment[:give_rate_amount].to_f, 'ml')
                     ratio.denominator = create_quantity(1, 'h')
-                    dosage.maxDosePerPeriod = ratio
+                    rate.rateRatio = ratio
+                    dosage.doseAndRate << rate
                 end
             end
 
@@ -97,7 +89,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
 
             # TQ1-3.繰返しパターン(あいまい指示)
             if tq1_segment[:repeat_pattern].present?
-                dosage.timing.code = generate_codeable_concept(tq1_segment[:repeat_pattern].first)
+                dosage.timing.code = generate_codeable_concept(tq1_segment[:repeat_pattern].first[:repeat_pattern_code])
             end
 
             # TQ1-7.開始日時
@@ -142,6 +134,14 @@ class GenerateMedicationRequestInjection < GenerateAbstract
                 dosage.site = generate_codeable_concept(rxr_segment[:administration_site].first)
             end
             
+            # RXR-3.投薬装置
+            if rxr_segment[:administration_device].present?
+                extension = FHIR::Extension.new
+                extension.url = "http://hl7fhir.jp/fhir/StructureDefinition/Extension-JPCore-AdministrationDevice"
+                extension.valueCodeableConcept = generate_codeable_concept(rxr_segment[:administration_device].first)
+                dosage.extension << extension
+            end
+
             # RXR-4.投薬方法
             if rxr_segment[:administration_method].present?
                 dosage.local_method = generate_codeable_concept(rxr_segment[:administration_method].first)
@@ -149,7 +149,12 @@ class GenerateMedicationRequestInjection < GenerateAbstract
 
             # RXR-5.経路指示
             if rxr_segment[:routing_instruction].present?
-                dosage.additionalInstruction << generate_codeable_concept(rxr_segment[:routing_instruction].first)
+                # dosage.additionalInstruction << generate_codeable_concept(rxr_segment[:routing_instruction].first)
+
+                extension = FHIR::Extension.new
+                extension.url = "http://hl7fhir.jp/fhir/StructureDefinition/Extension-JPCore-RoutingInstruction"
+                extension.valueCodeableConcept = generate_codeable_concept(rxr_segment[:routing_instruction].first)
+                dosage.extension << extension
             end
 
             # RXR-6.投薬現場モディファイア
@@ -169,14 +174,22 @@ class GenerateMedicationRequestInjection < GenerateAbstract
                 ingredient.itemCodeableConcept = codeable_concept
 
                 # RXC-3.成分量
-                ratio = FHIR::Ratio.new
-                ratio.denominator = create_quantity(
+                extension = FHIR::Extension.new
+                extension.url = "http://hl7fhir.jp/fhir/StructureDefinition/Extension-JPCore-ComponentAmount"
+                extension.valueQuantity = create_quantity(
                     rxc_segment[:component_amount].to_f,
                     rxc_segment[:component_units].first[:text],
                     rxc_segment[:component_units].first[:identifier]
                 )
+                ingredient.extension << extension
 
-                ingredient.strength = ratio
+                # ratio = FHIR::Ratio.new
+                # ratio.denominator = create_quantity(
+                #     rxc_segment[:component_amount].to_f,
+                #     rxc_segment[:component_units].first[:text],
+                #     rxc_segment[:component_units].first[:identifier]
+                # )
+                # ingredient.strength = ratio
                 medication.ingredient << ingredient
             end
 
@@ -187,7 +200,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
             # Coverageリソースの参照
             medication_request.insurance = get_resources_from_type('Patient').map{|entry|create_reference(entry.resource)}
             # Medicationリソースの参照
-            medication_request.medicationReference = medication_request.contained.map{|resource|create_reference(resource)}
+            medication_request.medicationReference = medication_request.contained.map{|resource|create_reference(resource)}&.first
 
             entry = FHIR::Bundle::Entry.new
             entry.resource = medication_request
@@ -215,3 +228,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
         result
     end
 end
+__END__
+
+注射薬剤の混注表現
+http://hl7.org/fhir/medicationrequest0322.json.html

@@ -96,17 +96,19 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
             tq1_segment = segments.find{|segment|segment[:segment_id] == 'TQ1'}
 
             # TQ1-3.繰返しパターン(用法)
-            tq1_segment[:repeat_pattern].each do |element|
-                codeable_concept = generate_codeable_concept(element[:repeat_pattern_code])
-                if dosage.timing.code.nil?
-                    dosage.timing.code = codeable_concept # 1つ目の用法は timing に設定する
-                else
-                    dosage.additionalInstruction << codeable_concept # 2つ目以降の用法は additionalInstruction に設定する
+            if tq1_segment[:repeat_pattern].present?
+                tq1_segment[:repeat_pattern].each do |element|
+                    codeable_concept = generate_codeable_concept(element[:repeat_pattern_code])
+                    if dosage.timing.code.nil?
+                        dosage.timing.code = codeable_concept # 1つ目の用法は timing に設定する
+                    else
+                        dosage.additionalInstruction << codeable_concept # 2つ目以降の用法は additionalInstruction に設定する
+                    end
                 end
-            end
 
-            # 可読部の編集
-            dosage.text = tq1_segment[:repeat_pattern].map{|element|element[:repeat_pattern_code][:text]}.join("　")
+                # 可読部の編集
+                dosage.text = tq1_segment[:repeat_pattern].map{|element|element[:repeat_pattern_code][:text]}.join("　")
+            end
 
             # TQ1-6.サービス期間(投薬日数)
             if tq1_segment[:service_duration].present?

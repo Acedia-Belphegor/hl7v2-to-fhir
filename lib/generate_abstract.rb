@@ -120,14 +120,22 @@ class GenerateAbstract
         coding = FHIR::Coding.new
         coding.code = code[:identifier]
         coding.display = code[:text]
-        coding.system = code[:name_of_coding_system]
+        coding.system = if %w[http orn].map{|c|code[:name_of_coding_system]&.start_with?(c)}.include?(true)
+            code[:name_of_coding_system]
+        else
+            "http://hl7fhir.jp/#{code[:name_of_coding_system]}" # 便宜上URLの先頭に `http://hl7fhir.jp/` を付ける
+        end
         codeable_concept.coding << coding
 
         if code[:alternate_identifier].present?
             coding = FHIR::Coding.new
             coding.code = code[:alternate_identifier]
             coding.display = code[:alternate_text]
-            coding.system = code[:name_of_alternate_coding_system]
+            coding.system = if %w[http orn].map{|c|code[:name_of_alternate_coding_system]&.start_with?(c)}.include?(true)
+                code[:name_of_alternate_coding_system]
+            else
+                "http://hl7fhir.jp/#{code[:name_of_alternate_coding_system]}" # 便宜上URLの先頭に `http://hl7fhir.jp/` を付ける
+            end
             codeable_concept.coding << coding
         end
         codeable_concept
