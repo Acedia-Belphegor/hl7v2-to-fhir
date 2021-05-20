@@ -3,132 +3,132 @@ require 'pathname'
 
 class MessageParser
 
-    SEGMENT_DELIM = "\r".freeze # セグメントターミネータ
-    FIELD_DELIM = '|'.freeze # フィールドセパレータ
-    ELEMENT_DELIM = '^'.freeze # 成分セパレータ
-    REPEAT_DELIM = '~'.freeze # 反復セパレータ
+  SEGMENT_DELIM = "\r".freeze # セグメントターミネータ
+  FIELD_DELIM = '|'.freeze # フィールドセパレータ
+  ELEMENT_DELIM = '^'.freeze # 成分セパレータ
+  REPEAT_DELIM = '~'.freeze # 反復セパレータ
     
-    def initialize(raw_message = nil)
-        # データ型を定義したJSONファイルを読み込む        
-        @hl7_datatypes = File.open(Pathname.new(File.dirname(File.expand_path(__FILE__))).join('json').join('HL7_DATATYPE.json')) do |io|
-            JSON.load(io)
-        end
-        # セグメントを定義したJSONファイルを読み込む        
-        @hl7_segments = open(Pathname.new(File.dirname(File.expand_path(__FILE__))).join('json').join('HL7_SEGMENT.json')) do |io|
-            JSON.load(io)
-        end
-        # 引数にRawデータが設定されている場合はパースする
-        parse(raw_message) if raw_message.present?
+  def initialize(raw_message = nil)
+    # データ型を定義したJSONファイルを読み込む        
+    @hl7_datatypes = File.open(Pathname.new(File.dirname(File.expand_path(__FILE__))).join('json').join('HL7_DATATYPE.json')) do |io|
+      JSON.load(io)
     end
-
-    # ParseしたHL7v2メッセージをHashに変換する
-    def to_simplify
-        @parsed_message.map{|segment|
-            Hash[segment.map{|field|
-                [
-                    replacement_characters(field[:name]).to_sym, 
-                    field[:array_data].present? ? field[:array_data].map{|repeat_field|Hash[repeat_field.map{|element|[replacement_characters(element[:name]).to_sym, element_to_simplify(element)]}]} : field[:value]
-                ]
-            }]
-        }
+    # セグメントを定義したJSONファイルを読み込む        
+    @hl7_segments = open(Pathname.new(File.dirname(File.expand_path(__FILE__))).join('json').join('HL7_SEGMENT.json')) do |io|
+      JSON.load(io)
     end
+    # 引数にRawデータが設定されている場合はパースする
+    parse(raw_message) if raw_message.present?
+  end
 
-    # HL7メッセージをJSON形式にパースする
-    def parse(raw_message)
-        # 改行コード(セグメントターミネータ)が「\n」の場合は「\r」に置換する
-        raw_message.gsub!("\n", SEGMENT_DELIM)
-        # セグメント分割
-        segments = raw_message.split(SEGMENT_DELIM).compact.reject(&:empty?)
-        results = []
-    
-        segments.each do |segment|
-            # メッセージ終端の場合は処理を抜ける
-            break if /\x1c/.match(segment)
-            # フィールド分割
-            fields = segment.split(FIELD_DELIM)
-            segment_id = fields[0]
-            segment_array = create_new_segment(segment_id)
-            segment_idx = 0
+  # ParseしたHL7v2メッセージをHashに変換する
+  def to_simplify
+    @parsed_message.map{|segment|
+      Hash[segment.map{|field|
+        [
+          replacement_characters(field[:name]).to_sym, 
+          field[:array_data].present? ? field[:array_data].map{|repeat_field|Hash[repeat_field.map{|element|[replacement_characters(element[:name]).to_sym, element_to_simplify(element)]}]} : field[:value]
+        ]
+      }]
+    }
+  end
 
-            segment_array.each do |field|
-                # MSH-1は強制的にフィールドセパレータをセットする
-                if segment_id == 'MSH' && field[:name] == 'Field Separator'
-                    value = FIELD_DELIM
-                else
-                    value = if fields.length > segment_idx
-                        fields[segment_idx]
-                    else
-                        ''
-                    end
-                    segment_idx += 1
-                end
-                # 分割したフィールドの値をvalue要素として追加する
-                field.store(:value, value)
-                repeat_fields = []
+  # HL7メッセージをJSON形式にパースする
+  def parse(raw_message)
+    # 改行コード(セグメントターミネータ)が「\n」の場合は「\r」に置換する
+    raw_message.gsub!("\n", SEGMENT_DELIM)
+    # セグメント分割
+    segments = raw_message.split(SEGMENT_DELIM).compact.reject(&:empty?)
+    results = []
 
-                # MSH-2(コード化文字)には反復セパレータ(~)が含まれているので反復フィールド分割処理を行わない
-                if segment_id == 'MSH' && field[:name] == 'Encoding Characters'
-                    repeat_fields << value
-                else
-                    # 反復フィールド分割
-                    repeat_fields = value.split(REPEAT_DELIM)
-                end
-                # フィールドデータを再帰的にパースする
-                field.store(:array_data, repeat_fields.map{|repeat_field| element_parse(repeat_field, field[:type], ELEMENT_DELIM)}.compact)
-            end                
-            results << segment_array
-        end
-        @parsed_message = results
-    end
+    segments.each do |segment|
+      # メッセージ終端の場合は処理を抜ける
+      break if /\x1c/.match(segment)
+      # フィールド分割
+      fields = segment.split(FIELD_DELIM)
+      segment_id = fields[0]
+      segment_array = create_new_segment(segment_id)
+      segment_idx = 0
 
-    private
-    def element_parse(raw_data, type_id, delim)
-        element_array = create_new_datatype(type_id)
-        unless element_array.instance_of?(Array)
-            return
-        end
-        elements = raw_data.split(delim)
-
-        element_array.each_with_index do |element, idx|
-            value = if elements.length > idx
-                elements[idx]
-            else
-                ''
-            end
-            element.store(:value, value)                
-            element.store(:array_data, element_parse(value, element[:type], '&')) if value.present?
-        end
-        element_array
-    end
-
-    def element_to_simplify(element)
-        if element[:array_data].present?
-            Hash[element[:array_data].map{|element|[replacement_characters(element[:name]).to_sym, element_to_simplify(element)]}]
+      segment_array.each do |field|
+        # MSH-1は強制的にフィールドセパレータをセットする
+        if segment_id == 'MSH' && field[:name] == 'Field Separator'
+          value = FIELD_DELIM
         else
-            element[:value]
+          value = if fields.length > segment_idx
+            fields[segment_idx]
+          else
+            ''
+          end
+          segment_idx += 1
         end
-    end
+        # 分割したフィールドの値をvalue要素として追加する
+        field.store(:value, value)
+        repeat_fields = []
 
-    def replacement_characters(str)
-        str = str.downcase
-        str = str.gsub(' - ', '_')
-        str = str.gsub(/[[:space:]|-]/, '_')
-        str = str.gsub(/[^0-9a-zA-Z_]/, '')
-    end
-
-    # 空のセグメントオブジェクトを生成する
-    def create_new_segment(id)
-        Marshal.load(Marshal.dump(@hl7_segments[id])).map{|c|c.map{|k,v|[k.to_sym, v]}.to_h}
-    end
-
-    # 空のデータ型オブジェクトを生成する
-    def create_new_datatype(id)
-        result = Marshal.load(Marshal.dump(@hl7_datatypes[id]))
-        if result.instance_of?(Array)
-            result = result.map{|c|c.map{|k,v|[k.to_sym, v]}.to_h}
+        # MSH-2(コード化文字)には反復セパレータ(~)が含まれているので反復フィールド分割処理を行わない
+        if segment_id == 'MSH' && field[:name] == 'Encoding Characters'
+          repeat_fields << value
+        else
+          # 反復フィールド分割
+          repeat_fields = value.split(REPEAT_DELIM)
         end
-        result
+        # フィールドデータを再帰的にパースする
+        field.store(:array_data, repeat_fields.map{|repeat_field| element_parse(repeat_field, field[:type], ELEMENT_DELIM)}.compact)
+      end                
+      results << segment_array
     end
+    @parsed_message = results
+  end
+
+  private
+  def element_parse(raw_data, type_id, delim)
+    element_array = create_new_datatype(type_id)
+    unless element_array.instance_of?(Array)
+      return
+    end
+    elements = raw_data.split(delim)
+
+    element_array.each_with_index do |element, idx|
+      value = if elements.length > idx
+        elements[idx]
+      else
+        ''
+      end
+      element.store(:value, value)                
+      element.store(:array_data, element_parse(value, element[:type], '&')) if value.present?
+    end
+    element_array
+  end
+
+  def element_to_simplify(element)
+    if element[:array_data].present?
+      Hash[element[:array_data].map{|element|[replacement_characters(element[:name]).to_sym, element_to_simplify(element)]}]
+    else
+      element[:value]
+    end
+  end
+
+  def replacement_characters(str)
+    str = str.downcase
+    str = str.gsub(' - ', '_')
+    str = str.gsub(/[[:space:]|-|\/]/, '_')
+    str = str.gsub(/[^0-9a-zA-Z_]/, '')
+  end
+
+  # 空のセグメントオブジェクトを生成する
+  def create_new_segment(id)
+    Marshal.load(Marshal.dump(@hl7_segments[id])).map{|c|c.map{|k,v|[k.to_sym, v]}.to_h}
+  end
+
+  # 空のデータ型オブジェクトを生成する
+  def create_new_datatype(id)
+    result = Marshal.load(Marshal.dump(@hl7_datatypes[id]))
+    if result.instance_of?(Array)
+      result = result.map{|c|c.map{|k,v|[k.to_sym, v]}.to_h}
+    end
+    result
+  end
 end
 __END__
 [
@@ -164,7 +164,7 @@ __END__
           "universal_id_type": ""
         }
       ],
-      "datetime_of_message": [
+      "date_time_of_message": [
         {
           "time": "20160821161523",
           "degree_of_precision": ""
@@ -268,7 +268,7 @@ __END__
         }
       ],
       "mothers_maiden_name": "",
-      "datetime_of_birth": [
+      "date_time_of_birth": [
         {
           "time": "19791101",
           "degree_of_precision": ""
@@ -331,7 +331,7 @@ __END__
       "patient_death_indicator": "N",
       "identity_unknown_indicator": "",
       "identity_reliability_code": "",
-      "last_update_datetime": [
+      "last_update_date_time": [
         {
           "time": "20161028143309",
           "degree_of_precision": ""
@@ -437,7 +437,7 @@ __END__
       "report_of_eligibility_date": "",
       "release_information_code": "",
       "pre_admit_cert_pac": "",
-      "verification_datetime": "",
+      "verification_date_time": "",
       "verification_by": "",
       "type_of_agreement_code": "",
       "billing_status": "",
@@ -487,7 +487,7 @@ __END__
       "response_flag": "",
       "quantitytiming": "",
       "parent": "",
-      "datetime_of_transaction": [
+      "date_time_of_transaction": [
         {
           "time": "20160825",
           "degree_of_precision": ""
@@ -561,7 +561,7 @@ __END__
       ],
       "enterers_location": "",
       "call_back_phone_number": "",
-      "order_effective_datetime": "",
+      "order_effective_date_time": "",
       "order_control_code_reason": "",
       "entering_organization": [
         {
@@ -615,7 +615,7 @@ __END__
       "ordering_provider_address": "",
       "order_status_modifier": "",
       "advanced_beneficiary_notice_override_reason": "",
-      "fillers_expected_availability_datetime": "",
+      "fillers_expected_availability_date_time": "",
       "confidentiality_code": "",
       "order_type": [
         {
@@ -729,7 +729,7 @@ __END__
         }
       ],
       "needs_human_review": "",
-      "pharmacytreatment_suppliers_special_dispensing_instructions": [
+      "pharmacy_treatment_suppliers_special_dispensing_instructions": [
         {
           "identifier": "OHP",
           "text": "外来処方",
@@ -775,7 +775,7 @@ __END__
       "dispense_package_size_unit": "",
       "dispense_package_method": "",
       "supplementary_code": "",
-      "original_order_datetime": "",
+      "original_order_date_time": "",
       "give_drug_strength_volume": "",
       "give_drug_strength_volume_units": "",
       "controlled_substance_schedule": "",
@@ -836,13 +836,13 @@ __END__
           }
         }
       ],
-      "start_datetime": [
+      "start_date_time": [
         {
           "time": "20160825",
           "degree_of_precision": ""
         }
       ],
-      "end_datetime": "",
+      "end_date_time": "",
       "priority": "",
       "condition_text": "",
       "text_instruction": "",
@@ -895,7 +895,7 @@ __END__
       "response_flag": "",
       "quantitytiming": "",
       "parent": "",
-      "datetime_of_transaction": [
+      "date_time_of_transaction": [
         {
           "time": "20160825",
           "degree_of_precision": ""
@@ -969,7 +969,7 @@ __END__
       ],
       "enterers_location": "",
       "call_back_phone_number": "",
-      "order_effective_datetime": "",
+      "order_effective_date_time": "",
       "order_control_code_reason": "",
       "entering_organization": [
         {
@@ -1023,7 +1023,7 @@ __END__
       "ordering_provider_address": "",
       "order_status_modifier": "",
       "advanced_beneficiary_notice_override_reason": "",
-      "fillers_expected_availability_datetime": "",
+      "fillers_expected_availability_date_time": "",
       "confidentiality_code": "",
       "order_type": [
         {
@@ -1137,7 +1137,7 @@ __END__
         }
       ],
       "needs_human_review": "",
-      "pharmacytreatment_suppliers_special_dispensing_instructions": [
+      "pharmacy_treatment_suppliers_special_dispensing_instructions": [
         {
           "identifier": "OHP",
           "text": "外来処方",
@@ -1183,7 +1183,7 @@ __END__
       "dispense_package_size_unit": "",
       "dispense_package_method": "",
       "supplementary_code": "",
-      "original_order_datetime": "",
+      "original_order_date_time": "",
       "give_drug_strength_volume": "",
       "give_drug_strength_volume_units": "",
       "controlled_substance_schedule": "",
@@ -1244,13 +1244,13 @@ __END__
           }
         }
       ],
-      "start_datetime": [
+      "start_date_time": [
         {
           "time": "20160825",
           "degree_of_precision": ""
         }
       ],
-      "end_datetime": "",
+      "end_date_time": "",
       "priority": "",
       "condition_text": "",
       "text_instruction": "",
@@ -1303,7 +1303,7 @@ __END__
       "response_flag": "",
       "quantitytiming": "",
       "parent": "",
-      "datetime_of_transaction": [
+      "date_time_of_transaction": [
         {
           "time": "20160825",
           "degree_of_precision": ""
@@ -1377,7 +1377,7 @@ __END__
       ],
       "enterers_location": "",
       "call_back_phone_number": "",
-      "order_effective_datetime": "",
+      "order_effective_date_time": "",
       "order_control_code_reason": "",
       "entering_organization": [
         {
@@ -1431,7 +1431,7 @@ __END__
       "ordering_provider_address": "",
       "order_status_modifier": "",
       "advanced_beneficiary_notice_override_reason": "",
-      "fillers_expected_availability_datetime": "",
+      "fillers_expected_availability_date_time": "",
       "confidentiality_code": "",
       "order_type": [
         {
@@ -1506,7 +1506,7 @@ __END__
       "dt_of_most_recent_refill_or_dose_dispensed": "",
       "total_daily_dose": "",
       "needs_human_review": "",
-      "pharmacytreatment_suppliers_special_dispensing_instructions": [
+      "pharmacy_treatment_suppliers_special_dispensing_instructions": [
         {
           "identifier": "OHP",
           "text": "外来処方",
@@ -1552,7 +1552,7 @@ __END__
       "dispense_package_size_unit": "",
       "dispense_package_method": "",
       "supplementary_code": "",
-      "original_order_datetime": "",
+      "original_order_date_time": "",
       "give_drug_strength_volume": "",
       "give_drug_strength_volume_units": "",
       "controlled_substance_schedule": "",
@@ -1598,13 +1598,13 @@ __END__
       "explicit_time": "",
       "relative_time_and_units": "",
       "service_duration": "",
-      "start_datetime": [
+      "start_date_time": [
         {
           "time": "20160825",
           "degree_of_precision": ""
         }
       ],
-      "end_datetime": "",
+      "end_date_time": "",
       "priority": "",
       "condition_text": "",
       "text_instruction": "1 日2 回まで",
@@ -1657,7 +1657,7 @@ __END__
       "response_flag": "",
       "quantitytiming": "",
       "parent": "",
-      "datetime_of_transaction": [
+      "date_time_of_transaction": [
         {
           "time": "20160825",
           "degree_of_precision": ""
@@ -1731,7 +1731,7 @@ __END__
       ],
       "enterers_location": "",
       "call_back_phone_number": "",
-      "order_effective_datetime": "",
+      "order_effective_date_time": "",
       "order_control_code_reason": "",
       "entering_organization": [
         {
@@ -1785,7 +1785,7 @@ __END__
       "ordering_provider_address": "",
       "order_status_modifier": "",
       "advanced_beneficiary_notice_override_reason": "",
-      "fillers_expected_availability_datetime": "",
+      "fillers_expected_availability_date_time": "",
       "confidentiality_code": "",
       "order_type": [
         {
@@ -1872,7 +1872,7 @@ __END__
       "dt_of_most_recent_refill_or_dose_dispensed": "",
       "total_daily_dose": "",
       "needs_human_review": "",
-      "pharmacytreatment_suppliers_special_dispensing_instructions": [
+      "pharmacy_treatment_suppliers_special_dispensing_instructions": [
         {
           "identifier": "OHP",
           "text": "外来処方",
@@ -1918,7 +1918,7 @@ __END__
       "dispense_package_size_unit": "",
       "dispense_package_method": "",
       "supplementary_code": "",
-      "original_order_datetime": "",
+      "original_order_date_time": "",
       "give_drug_strength_volume": "",
       "give_drug_strength_volume_units": "",
       "controlled_substance_schedule": "",
@@ -1964,13 +1964,13 @@ __END__
       "explicit_time": "",
       "relative_time_and_units": "",
       "service_duration": "",
-      "start_datetime": [
+      "start_date_time": [
         {
           "time": "20160825",
           "degree_of_precision": ""
         }
       ],
-      "end_datetime": "",
+      "end_date_time": "",
       "priority": "",
       "condition_text": "",
       "text_instruction": "",
