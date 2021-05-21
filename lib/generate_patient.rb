@@ -10,7 +10,7 @@ class GeneratePatient < GenerateAbstract
 
     patient.identifier = pid_segment[:patient_identifier_list].map{|element|generate_identifier(element[:id_number], "urn:oid:1.2.392.100495.20.3.51.1")}
     patient.name = pid_segment[:patient_name].map{|element|generate_human_name(element)}
-    patient.birthDate = Date.parse(pid_segment[:date_time_of_birth].first[:time])
+    patient.birthDate = Date.parse(pid_segment[:datetime_of_birth].first[:time])
     patient.gender = case pid_segment[:administrative_sex]
                      when 'M' then :male
                      when 'F' then :female
@@ -20,8 +20,6 @@ class GeneratePatient < GenerateAbstract
     patient.telecom.concat pid_segment[:phone_number_home].map{|telecom|generate_contact_point(telecom)} if pid_segment[:phone_number_home].present?
     patient.telecom.concat pid_segment[:phone_number_business].map{|telecom|generate_contact_point(telecom)} if pid_segment[:phone_number_business].present?
 
-    entry = FHIR::Bundle::Entry.new
-    entry.resource = patient
-    [entry]
+    [build_entry(patient)]
   end
 end

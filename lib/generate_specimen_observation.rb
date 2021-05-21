@@ -42,7 +42,7 @@ class GenerateSpecimenObservation < GenerateAbstract
       segments.select{|segment|segment[:segment_id] == 'OBX'}.each do |obx_segment|
         observation = FHIR::Observation.new
         observation.id = SecureRandom.uuid
-        observation.category = create_codeable_concept('laboratory','検体検査','http://hl7.org/fhir/ValueSet/observation-category')                    
+        observation.category = build_codeable_concept('laboratory','検体検査','http://hl7.org/fhir/ValueSet/observation-category')                    
 
         # OBX-3.検査項目ID
         observation.code = generate_codeable_concept(obx_segment[:observation_identifier].first)
@@ -50,7 +50,7 @@ class GenerateSpecimenObservation < GenerateAbstract
         # OBX-5.検査値 / # OBX-6.単位
         case obx_segment[:value_type]
         when 'NM' # Numeric
-          observation.valueQuantity = create_quantity(
+          observation.valueQuantity = build_quantity(
             obx_segment[:observation_value].to_f,
             obx_segment[:units].first[:text],
             obx_segment[:units].first[:identifier]

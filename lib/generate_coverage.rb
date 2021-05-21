@@ -7,45 +7,72 @@ class GenerateCoverage < GenerateAbstract
     results = []
 
     in1_segments.each do |in1_segment|
-        coverage = FHIR::Coverage.new
-        coverage.id = SecureRandom.uuid
-        coverage.status = :draft
+      coverage = FHIR::Coverage.new
+      coverage.id = SecureRandom.uuid
+      coverage.status = :active
 
-        # IN1-2.保険プランID(法制コード)
-        insurance_type = get_insurance_type(in1_segment[:insurance_plan_id].first[:identifier])
-        coverage.type = create_codeable_concept(insurance_type[:code], insurance_type[:name], 'urn:oid:1.2.392.100495.20.2.61') if insurance_type.present?
+      # IN1-2.保険プランID(法制コード)
+      insurance_type = get_insurance_type(in1_segment[:insurance_plan_id].first[:identifier])
+
+      if insurance_type.present?
+        coverage.type = build_codeable_concept(insurance_type[:code], insurance_type[:name], 'urn:oid:1.2.392.100495.20.2.61')
 
         if insurance_type[:code] == '8' # 8:公費
           # IN1-3.保険会社ID(公費負担者番号)
           if in1_segment[:insurance_company_id].present?
-            coverage.identifier << generate_identifier(in1_segment[:insurance_company_id].first[:id_number], 'urn:oid:1.2.392.100495.20.3.71')
+            coverage_class = FHIR::Coverage::Class.new
+            coverage_class.type = build_codeable_concept('1', '公費負担者番号', build_url(:code_system, 'CoverageClass'))
+            coverage_class.value = in1_segment[:insurance_company_id].first[:id_number]
+            coverage_class.name = "公費負担者番号"
+            coverage.local_class << coverage_class
           end
+          # 公費受給者番号
+          coverage.subscriberId = ""
         else
           # IN1-3.保険会社ID(保険者番号)
           if in1_segment[:insurance_company_id].present?
-            coverage.identifier << generate_identifier(in1_segment[:insurance_company_id].first[:id_number], 'urn:oid:1.2.392.100495.20.3.61')
+            organization = FHIR::Organization.new
+            organization.id = SecureRandom.uuid
+            organization.identifier << build_identifier(in1_segment[:insurance_company_id].first[:id_number], 'urn:oid:1.2.392.100495.20.3.61')
+            organization.type << build_codeable_concept('pay', 'Payer', 'http://terminology.hl7.org/CodeSystem/organization-type')
+            @bundle.entry.concat << build_entry(organization)
+            coverage.payor << build_reference(organization)
           end
           # IN1-10.被保険者グループ雇用者ID(記号)
           if in1_segment[:insureds_group_emp_id].present?
-            coverage.identifier << generate_identifier(in1_segment[:insureds_group_emp_id].first[:id_number], 'urn:oid:1.2.392.100495.20.3.62')
+            extension = FHIR::Extension.new
+            extension.url = build_url(:structure_definition, 'InsuredPersonSymbol')
+            extension.valueString = in1_segment[:insureds_group_emp_id].first[:id_number]
+            coverage.extension << extension
           end
           # IN1-11.被保険者グループ雇用者名(番号)
           if in1_segment[:insureds_group_emp_name].present?
-            coverage.identifier << generate_identifier(in1_segment[:insureds_group_emp_name].first[:organization_name], 'urn:oid:1.2.392.100495.20.3.63')
+            extension = FHIR::Extension.new
+            extension.url = build_url(:structure_definition, 'InsuredPersonNumber')
+            extension.valueString = in1_segment[:insureds_group_emp_name].first[:organization_name]
+            coverage.extension << extension
           end
           # IN1-17.被保険者と患者の関係(本人/家族)
           if in1_segment[:insureds_relationship_to_patient].present?
             coverage.relationship = 
               case in1_segment[:insureds_relationship_to_patient].first[:identifier]
               when 'SEL', 'EME'
-                create_codeable_concept('1', '被保険者', 'urn:oid:1.2.392.100495.20.2.62')
+                build_codeable_concept('1', '被保険者', 'urn:oid:1.2.392.100495.20.2.62')
               when 'EXF', 'SPO', 'CHD'
-                create_codeable_concept('2', '被扶養者', 'urn:oid:1.2.392.100495.20.2.62')
+                build_codeable_concept('2', '被扶養者', 'urn:oid:1.2.392.100495.20.2.62')
               end
           end
+          # 患者負担率
           cost = FHIR::Coverage::CostToBeneficiary.new
-          cost.type = create_codeable_concept('copaypct', 'Copay Percentage', 'http://hl7.org/fhir/ValueSet/coverage-copay-type')
-          cost.valueQuantity = create_quantity(30, '%') # MEMO:とりあえず仮設定で30%
+          cost.type = build_codeable_concept('copaypct', 'Copay Percentage', 'http://terminology.hl7.org/CodeSystem/coverage-copay-type')
+          if in1_segment[:coordination_of_benefits].present?
+            value = if in1_segment[:coordination_of_benefits] == "MX"
+              0
+            else
+              100 - in1_segment[:coordination_of_benefits].to_i
+            end
+            cost.valueQuantity = build_quantity(value, '%', 'http://unitsofmeasure.org')
+          end
           coverage.costToBeneficiary << cost
 
           period = FHIR::Period.new
@@ -55,12 +82,14 @@ class GenerateCoverage < GenerateAbstract
           period.end = Date.parse(in1_segment[:plan_expiration_date]) if in1_segment[:plan_expiration_date].present?
           coverage.period = period
         end
+      end
 
-        entry = FHIR::Bundle::Entry.new
-        entry.resource = coverage
-        results << entry
+      # Patientリソースの参照
+      coverage.beneficiary = build_reference(get_resources_from_type('Patient').first)
+
+      results << build_entry(coverage)
     end
-
+    
     results
   end
 

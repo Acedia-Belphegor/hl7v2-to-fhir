@@ -1,7 +1,11 @@
 require 'json'
 require "base64"
 require 'fhir_client'
-require_relative 'message_parser'
+require_relative 'v2_message_parser'
+
+Dir[File.expand_path(File.dirname(__FILE__)) << '/common/*.rb'].each do |file| 
+  require file
+end
 
 Dir[File.expand_path(File.dirname(__FILE__)) << '/generate_*.rb'].each do |file|
   require file
@@ -9,13 +13,14 @@ end
 
 class FhirAbstractGenerator    
   def initialize(params)
+    Time.zone = 'Tokyo'
     @params = params
     str = if Encoding.find(params[:encoding]) == Encoding::ISO_2022_JP
       Base64.decode64(params[:message]).force_encoding(Encoding::ISO_2022_JP).encode("utf-8")
     else
       Base64.decode64(params[:message]).force_encoding("utf-8")
     end
-    @message = MessageParser.new(str).to_simplify
+    @message = V2MessageParser.new(str).to_simplify
     @error = validation
     @client = FHIR::Client.new("http://localhost:8080", default_format: 'json')
     @client.use_r4
@@ -23,6 +28,10 @@ class FhirAbstractGenerator
     @bundle = FHIR::Bundle.new
     @bundle.id = SecureRandom.uuid
     @bundle.type = :message
+    @bundle.timestamp = Time.current
+    meta = FHIR::Meta.new
+    # meta.profile << "http://hl7.jp/fhir/ePrescription/StructureDefinition/ePrescription-Bundle/1.0"
+    @bundle.meta = meta
   end
 
   def perform()

@@ -16,13 +16,12 @@ class GeneratePractitioner < GenerateAbstract
     if dea_numbers.present?
       practitioner.qualification = dea_numbers.map{|dea_number|
         qualification = FHIR::Practitioner::Qualification.new
-        qualification.identifier = generate_identifier(dea_number, 'urn:oid:1.2.392.100495.20.3.32')
+        qualification.identifier = generate_identifier(dea_number.first[:id_number], 'urn:oid:1.2.392.100495.20.3.32')
+        qualification.code = build_codeable_concept('NarcoticsPractitioner', nil, build_url(:code_system, 'Certificate'))
         qualification
       }
     end
 
-    entry = FHIR::Bundle::Entry.new
-    entry.resource = practitioner
-    [entry]
+    [build_entry(practitioner)]
   end
 end

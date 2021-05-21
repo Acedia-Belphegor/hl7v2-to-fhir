@@ -1,7 +1,7 @@
 require 'json'
 require 'pathname'
 
-class MessageParser
+class V2MessageParser
 
   SEGMENT_DELIM = "\r".freeze # セグメントターミネータ
   FIELD_DELIM = '|'.freeze # フィールドセパレータ
@@ -112,7 +112,7 @@ class MessageParser
   def replacement_characters(str)
     str = str.downcase
     str = str.gsub(' - ', '_')
-    str = str.gsub(/[[:space:]|-|\/]/, '_')
+    str = str.gsub(/[[:space:]|-]/, '_')
     str = str.gsub(/[^0-9a-zA-Z_]/, '')
   end
 
@@ -164,7 +164,7 @@ __END__
           "universal_id_type": ""
         }
       ],
-      "date_time_of_message": [
+      "datetime_of_message": [
         {
           "time": "20160821161523",
           "degree_of_precision": ""
@@ -268,7 +268,7 @@ __END__
         }
       ],
       "mothers_maiden_name": "",
-      "date_time_of_birth": [
+      "datetime_of_birth": [
         {
           "time": "19791101",
           "degree_of_precision": ""
@@ -331,7 +331,7 @@ __END__
       "patient_death_indicator": "N",
       "identity_unknown_indicator": "",
       "identity_reliability_code": "",
-      "last_update_date_time": [
+      "last_update_datetime": [
         {
           "time": "20161028143309",
           "degree_of_precision": ""
@@ -437,7 +437,7 @@ __END__
       "report_of_eligibility_date": "",
       "release_information_code": "",
       "pre_admit_cert_pac": "",
-      "verification_date_time": "",
+      "verification_datetime": "",
       "verification_by": "",
       "type_of_agreement_code": "",
       "billing_status": "",
@@ -487,7 +487,7 @@ __END__
       "response_flag": "",
       "quantitytiming": "",
       "parent": "",
-      "date_time_of_transaction": [
+      "datetime_of_transaction": [
         {
           "time": "20160825",
           "degree_of_precision": ""
@@ -561,7 +561,7 @@ __END__
       ],
       "enterers_location": "",
       "call_back_phone_number": "",
-      "order_effective_date_time": "",
+      "order_effective_datetime": "",
       "order_control_code_reason": "",
       "entering_organization": [
         {
@@ -615,7 +615,7 @@ __END__
       "ordering_provider_address": "",
       "order_status_modifier": "",
       "advanced_beneficiary_notice_override_reason": "",
-      "fillers_expected_availability_date_time": "",
+      "fillers_expected_availability_datetime": "",
       "confidentiality_code": "",
       "order_type": [
         {
@@ -729,7 +729,7 @@ __END__
         }
       ],
       "needs_human_review": "",
-      "pharmacy_treatment_suppliers_special_dispensing_instructions": [
+      "pharmacytreatment_suppliers_special_dispensing_instructions": [
         {
           "identifier": "OHP",
           "text": "外来処方",
@@ -775,7 +775,7 @@ __END__
       "dispense_package_size_unit": "",
       "dispense_package_method": "",
       "supplementary_code": "",
-      "original_order_date_time": "",
+      "original_order_datetime": "",
       "give_drug_strength_volume": "",
       "give_drug_strength_volume_units": "",
       "controlled_substance_schedule": "",
@@ -836,13 +836,13 @@ __END__
           }
         }
       ],
-      "start_date_time": [
+      "start_datetime": [
         {
           "time": "20160825",
           "degree_of_precision": ""
         }
       ],
-      "end_date_time": "",
+      "end_datetime": "",
       "priority": "",
       "condition_text": "",
       "text_instruction": "",
@@ -895,7 +895,7 @@ __END__
       "response_flag": "",
       "quantitytiming": "",
       "parent": "",
-      "date_time_of_transaction": [
+      "datetime_of_transaction": [
         {
           "time": "20160825",
           "degree_of_precision": ""
@@ -969,7 +969,7 @@ __END__
       ],
       "enterers_location": "",
       "call_back_phone_number": "",
-      "order_effective_date_time": "",
+      "order_effective_datetime": "",
       "order_control_code_reason": "",
       "entering_organization": [
         {
@@ -1023,7 +1023,7 @@ __END__
       "ordering_provider_address": "",
       "order_status_modifier": "",
       "advanced_beneficiary_notice_override_reason": "",
-      "fillers_expected_availability_date_time": "",
+      "fillers_expected_availability_datetime": "",
       "confidentiality_code": "",
       "order_type": [
         {
@@ -1137,7 +1137,7 @@ __END__
         }
       ],
       "needs_human_review": "",
-      "pharmacy_treatment_suppliers_special_dispensing_instructions": [
+      "pharmacytreatment_suppliers_special_dispensing_instructions": [
         {
           "identifier": "OHP",
           "text": "外来処方",
@@ -1183,7 +1183,7 @@ __END__
       "dispense_package_size_unit": "",
       "dispense_package_method": "",
       "supplementary_code": "",
-      "original_order_date_time": "",
+      "original_order_datetime": "",
       "give_drug_strength_volume": "",
       "give_drug_strength_volume_units": "",
       "controlled_substance_schedule": "",
@@ -1244,13 +1244,13 @@ __END__
           }
         }
       ],
-      "start_date_time": [
+      "start_datetime": [
         {
           "time": "20160825",
           "degree_of_precision": ""
         }
       ],
-      "end_date_time": "",
+      "end_datetime": "",
       "priority": "",
       "condition_text": "",
       "text_instruction": "",
@@ -1303,7 +1303,7 @@ __END__
       "response_flag": "",
       "quantitytiming": "",
       "parent": "",
-      "date_time_of_transaction": [
+      "datetime_of_transaction": [
         {
           "time": "20160825",
           "degree_of_precision": ""
@@ -1377,7 +1377,7 @@ __END__
       ],
       "enterers_location": "",
       "call_back_phone_number": "",
-      "order_effective_date_time": "",
+      "order_effective_datetime": "",
       "order_control_code_reason": "",
       "entering_organization": [
         {
@@ -1431,7 +1431,7 @@ __END__
       "ordering_provider_address": "",
       "order_status_modifier": "",
       "advanced_beneficiary_notice_override_reason": "",
-      "fillers_expected_availability_date_time": "",
+      "fillers_expected_availability_datetime": "",
       "confidentiality_code": "",
       "order_type": [
         {
@@ -1506,7 +1506,7 @@ __END__
       "dt_of_most_recent_refill_or_dose_dispensed": "",
       "total_daily_dose": "",
       "needs_human_review": "",
-      "pharmacy_treatment_suppliers_special_dispensing_instructions": [
+      "pharmacytreatment_suppliers_special_dispensing_instructions": [
         {
           "identifier": "OHP",
           "text": "外来処方",
@@ -1552,7 +1552,7 @@ __END__
       "dispense_package_size_unit": "",
       "dispense_package_method": "",
       "supplementary_code": "",
-      "original_order_date_time": "",
+      "original_order_datetime": "",
       "give_drug_strength_volume": "",
       "give_drug_strength_volume_units": "",
       "controlled_substance_schedule": "",
@@ -1598,13 +1598,13 @@ __END__
       "explicit_time": "",
       "relative_time_and_units": "",
       "service_duration": "",
-      "start_date_time": [
+      "start_datetime": [
         {
           "time": "20160825",
           "degree_of_precision": ""
         }
       ],
-      "end_date_time": "",
+      "end_datetime": "",
       "priority": "",
       "condition_text": "",
       "text_instruction": "1 日2 回まで",
@@ -1657,7 +1657,7 @@ __END__
       "response_flag": "",
       "quantitytiming": "",
       "parent": "",
-      "date_time_of_transaction": [
+      "datetime_of_transaction": [
         {
           "time": "20160825",
           "degree_of_precision": ""
@@ -1731,7 +1731,7 @@ __END__
       ],
       "enterers_location": "",
       "call_back_phone_number": "",
-      "order_effective_date_time": "",
+      "order_effective_datetime": "",
       "order_control_code_reason": "",
       "entering_organization": [
         {
@@ -1785,7 +1785,7 @@ __END__
       "ordering_provider_address": "",
       "order_status_modifier": "",
       "advanced_beneficiary_notice_override_reason": "",
-      "fillers_expected_availability_date_time": "",
+      "fillers_expected_availability_datetime": "",
       "confidentiality_code": "",
       "order_type": [
         {
@@ -1872,7 +1872,7 @@ __END__
       "dt_of_most_recent_refill_or_dose_dispensed": "",
       "total_daily_dose": "",
       "needs_human_review": "",
-      "pharmacy_treatment_suppliers_special_dispensing_instructions": [
+      "pharmacytreatment_suppliers_special_dispensing_instructions": [
         {
           "identifier": "OHP",
           "text": "外来処方",
@@ -1918,7 +1918,7 @@ __END__
       "dispense_package_size_unit": "",
       "dispense_package_method": "",
       "supplementary_code": "",
-      "original_order_date_time": "",
+      "original_order_datetime": "",
       "give_drug_strength_volume": "",
       "give_drug_strength_volume_units": "",
       "controlled_substance_schedule": "",
@@ -1964,13 +1964,13 @@ __END__
       "explicit_time": "",
       "relative_time_and_units": "",
       "service_duration": "",
-      "start_date_time": [
+      "start_datetime": [
         {
           "time": "20160825",
           "degree_of_precision": ""
         }
       ],
-      "end_date_time": "",
+      "end_datetime": "",
       "priority": "",
       "condition_text": "",
       "text_instruction": "",

@@ -40,7 +40,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
       # RXE-3.与薬量－最小 / RXE-5.与薬単位
       if rxe_segment[:give_amount_minimum].present?
         dose = FHIR::Dosage::DoseAndRate.new
-        dose.doseQuantity = create_quantity(
+        dose.doseQuantity = build_quantity(
           rxe_segment[:give_amount_minimum].to_f,
           rxe_segment[:give_units].first[:text],
           rxe_segment[:give_units].first[:identifier]
@@ -55,7 +55,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
 
       # # RXE-15.処方箋番号
       # if rxe_segment[:prescription_number].present?
-      #     medication_request.identifier << create_identifier(rxe_segment[:prescription_number], 'urn:oid:1.2.392.100495.20.3.11')
+      #     medication_request.identifier << build_identifier(rxe_segment[:prescription_number], 'urn:oid:1.2.392.100495.20.3.11')
       # end
 
       # RXE-21.薬剤部門/治療部門による特別な調剤指示
@@ -72,8 +72,8 @@ class GenerateMedicationRequestInjection < GenerateAbstract
         if rxe_segment[:give_rate_units].first[:identifier].downcase == 'ml/hr'
           rate = FHIR::Dosage::DoseAndRate.new
           ratio = FHIR::Ratio.new
-          ratio.numerator = create_quantity(rxe_segment[:give_rate_amount].to_f, 'ml')
-          ratio.denominator = create_quantity(1, 'h')
+          ratio.numerator = build_quantity(rxe_segment[:give_rate_amount].to_f, 'ml')
+          ratio.denominator = build_quantity(1, 'h')
           rate.rateRatio = ratio
           dosage.doseAndRate << rate
         end
@@ -176,7 +176,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
         # RXC-3.成分量
         extension = FHIR::Extension.new
         extension.url = "http://hl7fhir.jp/fhir/StructureDefinition/Extension-JPCore-ComponentAmount"
-        extension.valueQuantity = create_quantity(
+        extension.valueQuantity = build_quantity(
           rxc_segment[:component_amount].to_f,
           rxc_segment[:component_units].first[:text],
           rxc_segment[:component_units].first[:identifier]
@@ -184,7 +184,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
         ingredient.extension << extension
 
         # ratio = FHIR::Ratio.new
-        # ratio.denominator = create_quantity(
+        # ratio.denominator = build_quantity(
         #     rxc_segment[:component_amount].to_f,
         #     rxc_segment[:component_units].first[:text],
         #     rxc_segment[:component_units].first[:identifier]
@@ -194,13 +194,13 @@ class GenerateMedicationRequestInjection < GenerateAbstract
       end
 
       # Patientリソースの参照
-      medication_request.subject = create_reference(get_resources_from_type('Patient').first)
+      medication_request.subject = build_reference(get_resources_from_type('Patient').first)
       # PractitionerRoleリソースの参照
-      medication_request.requester = create_reference(get_resources_from_type('PractitionerRole').first)
+      medication_request.requester = build_reference(get_resources_from_type('PractitionerRole').first)
       # Coverageリソースの参照
-      medication_request.insurance = get_resources_from_type('Coverage').map{|r|create_reference(r)}
+      medication_request.insurance = get_resources_from_type('Coverage').map{|r|build_reference(r)}
       # Medicationリソースの参照
-      medication_request.medicationReference = medication_request.contained.map{|resource|create_reference(resource)}&.first
+      medication_request.medicationReference = medication_request.contained.map{|resource|build_reference(resource)}&.first
 
       entry = FHIR::Bundle::Entry.new
       entry.resource = medication_request

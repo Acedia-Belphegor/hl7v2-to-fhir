@@ -1,0 +1,8 @@
+{
+	"0003":[
+    {"code":"O11", "display":"RDE - Pharmacy/treatment encoded order"}
+  ],
+  "0076":[
+    {"code":"RDE", "display":"Pharmacy/treatment encoded order message"}
+  ]
+}

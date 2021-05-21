@@ -1,6 +1,6 @@
 require 'fhir_client'
 
-def create_codeable_concept(code, display, system = 'LC')
+def build_codeable_concept(code, display, system = 'LC')
   codeable_concept = FHIR::CodeableConcept.new
   coding = FHIR::Coding.new
   coding.code = code
@@ -17,7 +17,7 @@ FHIR::Model.client = client
 device = FHIR::Device.new
 device.id = SecureRandom.uuid
 
-device.type = create_codeable_concept('01', '血圧計', 'PELICS')
+device.type = build_codeable_concept('01', '血圧計', 'PELICS')
 
 device_name = FHIR::Device::DeviceName.new
 device_name.name = "オムロン"

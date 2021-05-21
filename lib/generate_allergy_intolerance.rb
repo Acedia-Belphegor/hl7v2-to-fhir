@@ -2,10 +2,10 @@ require_relative 'generate_abstract'
 
 class GenerateAllergyIntolerance < GenerateAbstract
   def perform()
-    [ create_al1, create_iam ].compact.reject(&:empty?).flatten
+    [ build_al1, build_iam ].compact.reject(&:empty?).flatten
   end
 
-  def create_al1()
+  def build_al1()
     results = []
 
     get_segments('AL1').each do |al1_segment|
@@ -52,7 +52,7 @@ class GenerateAllergyIntolerance < GenerateAbstract
       end
 
       # Patientリソースの参照
-      allergy_intolerance.patient = create_reference(get_resources_from_type('Patient').first)
+      allergy_intolerance.patient = build_reference(get_resources_from_type('Patient').first)
 
       entry = FHIR::Bundle::Entry.new
       entry.resource = allergy_intolerance
@@ -62,7 +62,7 @@ class GenerateAllergyIntolerance < GenerateAbstract
     results
   end
 
-  def create_iam()
+  def build_iam()
     results = []
 
     get_segments('IAM').each do |iam_segment|
@@ -104,7 +104,7 @@ class GenerateAllergyIntolerance < GenerateAbstract
 
       # IAM-7.アレルギー識別情報
       if iam_segment[:allergy_unique_identifier].present?
-        allergy_intolerance.identifier << create_identifier(iam_segment[:allergy_unique_identifier].first[:entity_identifier], nil)
+        allergy_intolerance.identifier << build_identifier(iam_segment[:allergy_unique_identifier].first[:entity_identifier], nil)
       end
 
       # IAM-9.アレルギー物質に対する感受性
@@ -157,13 +157,13 @@ class GenerateAllergyIntolerance < GenerateAbstract
                end
 
         if hash.present?
-          allergy_intolerance.verificationStatus = create_codeable_concept(
+          allergy_intolerance.verificationStatus = build_codeable_concept(
             hash[:verification_code], 
             hash[:verification_display], 
             "http://hl7.org/fhir/ValueSet/allergyintolerance-verification"
           )
           if hash[:clinical_code].present?
-            allergy_intolerance.clinicalStatus = create_codeable_concept(
+            allergy_intolerance.clinicalStatus = build_codeable_concept(
               hash[:clinical_code],
               hash[:clinical_display],
               "http://hl7.org/fhir/ValueSet/allergyintolerance-clinical"
@@ -173,7 +173,7 @@ class GenerateAllergyIntolerance < GenerateAbstract
       end
 
       # Patientリソースの参照
-      allergy_intolerance.patient = create_reference(get_resources_from_type('Patient').first)
+      allergy_intolerance.patient = build_reference(get_resources_from_type('Patient').first)
 
       entry = FHIR::Bundle::Entry.new
       entry.resource = allergy_intolerance

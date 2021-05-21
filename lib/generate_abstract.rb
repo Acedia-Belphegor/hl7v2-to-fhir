@@ -37,6 +37,10 @@ class GenerateAbstract
     get_resources_from_type(resource_type).select{|r|r.identifier.include?(identifier)}
   end
 
+  def get_medical_institution_code()
+    "#{get_params[:prefecture_code]}#{get_params[:medical_fee_point_code]}#{get_params[:medical_institution_code]}"
+  end
+
   def generate_identifier(value, system)
     identifier = FHIR::Identifier.new
     identifier.system = system
@@ -51,6 +55,7 @@ class GenerateAbstract
     human_name.use = :official
     human_name.family = name[:family_name][:surname]
     human_name.given << name[:given_name]
+    human_name.text = "#{name[:family_name][:surname]}#{name[:given_name]}"
 
     extension = FHIR::Extension.new
     extension.url = "http://hl7.org/fhir/StructureDefinition/iso21090-EN-representation"
@@ -74,8 +79,8 @@ class GenerateAbstract
     address.country = addr[:country]
     address.state = addr[:state_or_province]
     address.city = addr[:city]
-    address.line << addr[:street_address]
     address.line << addr[:other_geographic_designation]
+    address.text = addr[:street_address][:street_or_mailing_address] if addr[:street_address].present?
     address.postalCode = addr[:zip_or_postal_code]
     address
   end
@@ -101,18 +106,19 @@ class GenerateAbstract
       contact_point.system = :phone
       contact_point.use = :mobile
     end
-    contact_point.value = telecom[:unformatted_telephone_number_]
+    contact_point.value = telecom[:telephone_number] || telecom[:unformatted_telephone_number_]
     contact_point
   end
 
   # HL7v2:CQ -> FHIR:Quantity 変換
-  def generate_quantity(cq)
+  def generate_quantity(cq, system = nil)
     return unless cq.present?
     quantity = FHIR::Quantity.new
-    quantity.value = cq[:quantity].to_f
+    quantity.value = cq[:quantity].to_numeric
+    quantity.system = system
     if cq[:units].present?
       quantity.unit = cq[:units][:text]
-      quantity.code = cq[:units][:code]
+      quantity.code = cq[:units][:identifier]
     end
     quantity
   end
@@ -120,67 +126,32 @@ class GenerateAbstract
   # HL7v2:CWE -> FHIR:CodeableConcept 変換
   def generate_codeable_concept(code)
     return unless code.present?
-    codeable_concept = FHIR::CodeableConcept.new
-    coding = FHIR::Coding.new
-    coding.code = code[:identifier]
-    coding.display = code[:text]
-    coding.system = if %w[http orn].map{|c|code[:name_of_coding_system]&.start_with?(c)}.include?(true)
-      code[:name_of_coding_system]
-    else
-      "http://hl7fhir.jp/#{code[:name_of_coding_system]}" # 便宜上URLの先頭に `http://hl7fhir.jp/` を付ける
+    codeable_concept = FHIR::CodeableConcept.new        
+    if code[:identifier].present?
+      codeable_concept.coding << build_coding(code[:identifier], code[:text], convert_coding_system(code[:name_of_coding_system]))
     end
-    codeable_concept.coding << coding
-
     if code[:alternate_identifier].present?
-      coding = FHIR::Coding.new
-      coding.code = code[:alternate_identifier]
-      coding.display = code[:alternate_text]
-      coding.system = if %w[http orn].map{|c|code[:name_of_alternate_coding_system]&.start_with?(c)}.include?(true)
-        code[:name_of_alternate_coding_system]
-      else
-        "http://hl7fhir.jp/#{code[:name_of_alternate_coding_system]}" # 便宜上URLの先頭に `http://hl7fhir.jp/` を付ける
-      end
-      codeable_concept.coding << coding
+      codeable_concept.coding << build_coding(code[:alternate_identifier], code[:alternate_text], convert_coding_system(code[:name_of_alternate_coding_system]))
     end
     codeable_concept
   end
 
-  def create_identifier(value, system)
-    identifier = FHIR::Identifier.new
-    identifier.system = system
-    identifier.value = value
-    identifier
-  end
-
-  def create_coding(code, display, system = 'LC')
-    coding = FHIR::Coding.new
-    coding.code = code
-    coding.display = display
-    coding.system = system
-    coding
-  end
-
-  def create_codeable_concept(code, display, system = 'LC')
-    codeable_concept = FHIR::CodeableConcept.new
-    codeable_concept.coding << create_coding(code, display, system)
-    codeable_concept
-  end
-
-  def create_reference(resource, type = :uuid)
-    reference = FHIR::Reference.new
-    reference.reference = if type == :literal
-      "#{resource.resourceType}/#{resource.id}"
-    else
-      "urn:uuid:#{resource.id}"
+  def convert_coding_system(coding_system)
+    case coding_system
+    when 'JAMISDP01' then 'urn:oid:1.2.392.100495.20.2.31' # JAMI標準用法コード
+    when 'JHSP0003' then 'urn:oid:1.2.392.100495.20.2.34' # 投与方法
+    when 'HL70162' then 'urn:oid:1.2.392.100495.20.2.35' # 投与経路
+    when 'HL70069' then 'urn:oid:1.2.392.100495.20.2.51' # 診療部門
+    when 'HL70482' then 'http://terminology.hl7.org/CodeSystem/v2-0482' # 入外区分
+    when 'MR9P' then 'http://hl7fhir.jp/medication/MR9PCategory' # 処方区分
+    else coding_system
     end
-    reference
   end
 
-  def create_quantity(value, unit = nil, code = nil)
-    quantity = FHIR::Quantity.new
-    quantity.value = value
-    quantity.unit = unit
-    quantity.code = code
-    quantity
+  def get_hl7table(id)
+    @hl7_tables ||= File.open(Pathname.new(File.dirname(File.expand_path(__FILE__))).join('json').join('HL7_TABLE.json')) do |io|
+      JSON.load(io)
+    end
+    @hl7_tables[id]
   end
 end
