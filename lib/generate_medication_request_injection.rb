@@ -27,7 +27,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
       # ORC-4.依頼者グループ番号
       medication_request.identifier << generate_identifier(orc_segment[:placer_group_number].first[:entity_identifier], 'urn:oid:1.2.392.100495.20.3.81')
       # ORC-9.トランザクション日時(交付年月日)
-      medication_request.authoredOn = Date.parse(orc_segment[:date_time_of_transaction].first[:time])
+      medication_request.authoredOn = Date.parse(orc_segment[:datetime_of_transaction].first[:time])
       # ORC-29.オーダタイプ
       medication_request.category << generate_codeable_concept(orc_segment[:order_type].first)
 
@@ -59,7 +59,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
       # end
 
       # RXE-21.薬剤部門/治療部門による特別な調剤指示
-      rxe_segment[:pharmacy_treatment_suppliers_special_dispensing_instructions].each do |element|
+      rxe_segment[:pharmacytreatment_suppliers_special_dispensing_instructions].each do |element|
         if element[:name_of_coding_system].in? %w[MR9P JHSI0001] # 処方区分
           medication_request.category << generate_codeable_concept(element)
         else
