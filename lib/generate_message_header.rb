@@ -9,8 +9,8 @@ class GenerateMessageHeader < GenerateAbstract
     message_header.id = SecureRandom.uuid
 
     trigger_event = msh_segment[:message_type].first[:trigger_event]
-    table = get_hl7table("0003").find{|t|t["code"] == trigger_event}
-    message_header.eventCoding = build_coding(table["code"], table["display"], 'http://terminology.hl7.org/CodeSystem/v2-0003')
+    table = get_hl7table_from_code("0003", trigger_event)
+    message_header.eventCoding = build_coding(table["code"], table["display"], 'http://terminology.hl7.org/CodeSystem/v2-0003') if table.present?
 
     destination = FHIR::MessageHeader::Destination.new
     destination.name = msh_segment[:receiving_application].first[:namespace_id]

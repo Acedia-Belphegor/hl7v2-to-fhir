@@ -56,13 +56,13 @@ end
 def build_url(type, str)
   case type
   when :code_system
-    "http://hl7.jp/fhir/core/CodeSystem/#{str}"
+    "http://jpfhir.jp/fhir/core/CodeSystem/#{str}"
   when :structure_definition
-    "http://hl7.jp/fhir/core/StructureDefinition/#{str}"
+    "http://jpfhir.jp/fhir/core/StructureDefinition/#{str}"
   when :value_set
-    "http://hl7.jp/fhir/core/ValueSet/#{str}"
+    "http://jpfhir.jp/fhir/core/ValueSet/#{str}"
   else
-    "http://hl7.jp/fhir/core/#{str}"
+    "http://jpfhir.jp/fhir/core/#{str}"
   end
 end
 

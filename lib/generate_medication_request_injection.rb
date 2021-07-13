@@ -7,7 +7,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
     get_segment_groups.each do |segments|
       medication_request = FHIR::MedicationRequest.new
       medication_request.id = SecureRandom.uuid
-      medication_request.status = :draft
+      medication_request.status = :active
       medication_request.intent = :order
       dosage = FHIR::Dosage.new
       dosage.timing = FHIR::Timing.new
@@ -173,7 +173,7 @@ class GenerateMedicationRequestInjection < GenerateAbstract
         end
         ingredient.itemCodeableConcept = codeable_concept
 
-        # RXC-3.成分量
+        # RXC-3.成分量 (TODO: R5になったら strengthQuantity に入れたい)
         extension = FHIR::Extension.new
         extension.url = "http://hl7fhir.jp/fhir/StructureDefinition/Extension-JPCore-ComponentAmount"
         extension.valueQuantity = build_quantity(

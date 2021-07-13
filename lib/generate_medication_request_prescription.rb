@@ -78,7 +78,7 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
         rxe_segment[:providers_administration_instructions].each do |element|
           if element[:name_of_coding_system].in? %w[JHSP0001 JHSP0002] # JHSP0001:依頼者の処方指示 / JHSP0002:調剤特別指示
             extension = FHIR::Extension.new
-            extension.url = build_url(:structure_definition, 'InstructionForDispense')
+            extension.url = build_url(:structure_definition, 'JP_MedicationRequest/InstructionForDispense')
             extension.valueCodeableConcept = generate_codeable_concept(element)
             dispense_request.extension << extension
           else
@@ -148,7 +148,7 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
 
         # 実投与⽇数
         extension = FHIR::Extension.new
-        extension.url = build_url(:structure_definition, 'UsageDuration')
+        extension.url = build_url(:structure_definition, 'JP_MedicationRequest/UsageDuration')
         extension.valueDuration = duration
         medication_request.extension << extension
 
@@ -174,7 +174,7 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
 
         # 投与開始日
         extension = FHIR::Extension.new
-        extension.url = build_url(:structure_definition, 'PeriodOfUse')
+        extension.url = build_url(:structure_definition, 'JP_MedicationRequest/PeriodOfUse')
         extension.valuePeriod = period
         medication_request.extension << extension
       end
@@ -185,7 +185,7 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
       # TQ1-14.事象総数(頓用指示の回数)
       if tq1_segment[:total_occurrences].present?
         extension = FHIR::Extension.new
-        extension.url = build_url(:structure_definition, 'expectedRepeatCount')
+        extension.url = build_url(:structure_definition, 'JP_MedicationRequest/expectedRepeatCount')
         extension.valueInteger = tq1_segment[:total_occurrences].to_i
         dispense_request.extension << extension
       end
@@ -223,7 +223,7 @@ class GenerateMedicationRequestPrescription < GenerateAbstract
       if imbalances.count.positive?
         imbalances.each_with_index{|imbalance, idx|
           extension = FHIR::Extension.new
-          extension.url = build_url(:structure_definition, 'SubInstruction')
+          extension.url = build_url(:structure_definition, 'JP_MedicationRequest/SubInstruction')
           imbalance_dosage = FHIR::Dosage.new
           imbalance_dosage.sequence = idx + 1
           imbalance_dosage.additionalInstruction = imbalance

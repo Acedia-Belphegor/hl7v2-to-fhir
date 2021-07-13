@@ -154,4 +154,8 @@ class GenerateAbstract
     end
     @hl7_tables[id]
   end
+
+  def get_hl7table_from_code(id, code)
+    get_hl7table(id).find{|t|t["code"] == code}
+  end
 end
