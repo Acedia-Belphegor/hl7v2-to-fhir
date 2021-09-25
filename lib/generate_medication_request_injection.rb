@@ -34,8 +34,8 @@ class GenerateMedicationRequestInjection < GenerateAbstract
       # RXEセグメント
       rxe_segment = segments.find{|segment|segment[:segment_id] == 'RXE'}
 
-      # RXE-2.与薬コード
-      medication_request.category << generate_codeable_concept(rxe_segment[:give_code].first)
+      # # RXE-2.与薬コード
+      # medication_request.category << generate_codeable_concept(rxe_segment[:give_code].first)
 
       # RXE-3.与薬量－最小 / RXE-5.与薬単位
       if rxe_segment[:give_amount_minimum].present?
@@ -93,13 +93,13 @@ class GenerateMedicationRequestInjection < GenerateAbstract
       end
 
       # TQ1-7.開始日時
-      if tq1_segment[:start_date_time].present?
+      if tq1_segment[:start_datetime].present?
         timing_repeat = FHIR::Timing::Repeat.new
         period = FHIR::Period.new
-        period.start = Date.parse(tq1_segment[:start_date_time].first[:time])
+        period.start = Date.parse(tq1_segment[:start_datetime].first[:time])
         # TQ1-8.終了日時
-        if tq1_segment[:end_date_time].present?
-          period.end = Date.parse(tq1_segment[:end_date_time].first[:time])
+        if tq1_segment[:end_datetime].present?
+          period.end = Date.parse(tq1_segment[:end_datetime].first[:time])
         end
         timing_repeat.boundsPeriod = period
         dosage.timing.repeat = timing_repeat
@@ -131,13 +131,28 @@ class GenerateMedicationRequestInjection < GenerateAbstract
         
       # RXR-2.部位
       if rxr_segment[:administration_site].present?
-        dosage.site = generate_codeable_concept(rxr_segment[:administration_site].first)
+        body_structure = FHIR::BodyStructure.new
+        body_structure.id = SecureRandom.uuid
+        body_structure.location = generate_codeable_concept(rxr_segment[:administration_site].first)
+
+        # RXR-6.投薬現場モディファイア
+        if rxr_segment[:administration_site_modifier].present?
+          body_structure.locationQualifier << generate_codeable_concept(rxr_segment[:administration_site_modifier].first)
+        end
+
+        extension = FHIR::Extension.new
+        extension.url = "http://hl7.org/fhir/StructureDefinition/bodySite"
+        extension.valueReference = build_reference(body_structure)
+        site = FHIR::CodeableConcept.new
+        site.extension << extension
+        dosage.site = site
+        medication_request.contained << body_structure
       end
         
       # RXR-3.投薬装置
       if rxr_segment[:administration_device].present?
         extension = FHIR::Extension.new
-        extension.url = "http://hl7fhir.jp/fhir/StructureDefinition/Extension-JPCore-AdministrationDevice"
+        extension.url = "http://jpfhir.jp/fhir/core/StructureDefinition/JP_MedicationRequestDevice"
         extension.valueCodeableConcept = generate_codeable_concept(rxr_segment[:administration_device].first)
         dosage.extension << extension
       end
@@ -149,17 +164,10 @@ class GenerateMedicationRequestInjection < GenerateAbstract
 
       # RXR-5.経路指示
       if rxr_segment[:routing_instruction].present?
-        # dosage.additionalInstruction << generate_codeable_concept(rxr_segment[:routing_instruction].first)
-
         extension = FHIR::Extension.new
-        extension.url = "http://hl7fhir.jp/fhir/StructureDefinition/Extension-JPCore-RoutingInstruction"
+        extension.url = "http://jpfhir.jp/fhir/core/StructureDefinition/JP_MedicationRequestLine"
         extension.valueCodeableConcept = generate_codeable_concept(rxr_segment[:routing_instruction].first)
         dosage.extension << extension
-      end
-
-      # RXR-6.投薬現場モディファイア
-      if rxr_segment[:administration_site_modifier].present?
-        dosage.additionalInstruction << generate_codeable_concept(rxr_segment[:administration_site_modifier].first)
       end
 
       # RXCセグメント
@@ -167,29 +175,23 @@ class GenerateMedicationRequestInjection < GenerateAbstract
         ingredient = FHIR::Medication::Ingredient.new
 
         # RXC-2.成分コード
-        codeable_concept = generate_codeable_concept(rxc_segment[:component_code].first)
-        if codeable_concept.coding.first.system == 'HOT'
-          codeable_concept.coding.first.system = 'urn:oid:1.2.392.100495.20.2.74' # HOTコード
-        end
-        ingredient.itemCodeableConcept = codeable_concept
+        ingredient.itemCodeableConcept = generate_codeable_concept(rxc_segment[:component_code].first)
 
-        # RXC-3.成分量 (TODO: R5になったら strengthQuantity に入れたい)
-        extension = FHIR::Extension.new
-        extension.url = "http://hl7fhir.jp/fhir/StructureDefinition/Extension-JPCore-ComponentAmount"
-        extension.valueQuantity = build_quantity(
+        # RXC-3.成分量
+        ratio = FHIR::Ratio.new
+        ratio.numerator = build_quantity(
           rxc_segment[:component_amount].to_f,
           rxc_segment[:component_units].first[:text],
+          "urn:oid:1.2.392.100495.20.2.101",
           rxc_segment[:component_units].first[:identifier]
         )
-        ingredient.extension << extension
-
-        # ratio = FHIR::Ratio.new
-        # ratio.denominator = build_quantity(
-        #     rxc_segment[:component_amount].to_f,
-        #     rxc_segment[:component_units].first[:text],
-        #     rxc_segment[:component_units].first[:identifier]
-        # )
-        # ingredient.strength = ratio
+        ratio.denominator = build_quantity(
+          1,
+          "回",
+          "urn:oid:1.2.392.100495.20.2.101",
+          "KAI"
+        )
+        ingredient.strength = ratio
         medication.ingredient << ingredient
       end
 

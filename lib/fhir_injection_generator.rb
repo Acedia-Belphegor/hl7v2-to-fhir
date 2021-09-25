@@ -9,7 +9,7 @@ class FhirInjectionGenerator < FhirAbstractGenerator
     @bundle.entry.concat(GeneratePractitionerRole.new(get_params).perform) # PractitionerRole
     @bundle.entry.concat(GenerateCoverage.new(get_params).perform) # Coverage
     @bundle.entry.concat(GenerateMedicationRequestInjection.new(get_params).perform) # MedicationRequest
-    @bundle.entry.concat(GenerateAllergyIntolerance.new(get_params).perform) # AllergyIntolerance
+    # @bundle.entry.concat(GenerateAllergyIntolerance.new(get_params).perform) # AllergyIntolerance
     self
   end
 

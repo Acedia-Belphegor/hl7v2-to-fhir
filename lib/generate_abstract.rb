@@ -140,10 +140,14 @@ class GenerateAbstract
     case coding_system
     when 'JAMISDP01' then 'urn:oid:1.2.392.100495.20.2.31' # JAMI標準用法コード
     when 'JHSP0003' then 'urn:oid:1.2.392.100495.20.2.34' # 投与方法
-    when 'HL70162' then 'urn:oid:1.2.392.100495.20.2.35' # 投与経路
+    when 'HL70162' then 'http://terminology.hl7.org/CodeSystem/v2-0162' # 投与経路
+    when 'HL70164' then 'http://terminology.hl7.org/CodeSystem/v2-0164' # 投与装置
     when 'HL70069' then 'urn:oid:1.2.392.100495.20.2.51' # 診療部門
     when 'HL70482' then 'http://terminology.hl7.org/CodeSystem/v2-0482' # 入外区分
+    when 'HL70550' then 'http://terminology.hl7.org/CodeSystem/v2-0550' # 身体部位
+    when 'HL70495' then 'http://terminology.hl7.org/CodeSystem/v2-0495' # 身体部位修飾子
     when 'MR9P' then 'http://hl7fhir.jp/medication/MR9PCategory' # 処方区分
+    when 'HOT','HOT9' then 'urn:oid:1.2.392.100495.20.2.74' # HOTコード
     else coding_system
     end
   end
